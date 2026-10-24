@@ -97,7 +97,13 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Client-side 16kHz linear PCM audio downsampler (`packages/web-sdk/src/audio/audio-recorder.ts`)
   - [x] Interactive web demo client with mic capture, editable transcript fallback, chat log, and cart preview card (`packages/web-sdk/src/demo/index.html`)
   - [x] 8 passing unit tests (121 total across repository in 2.4s)
-- [ ] **Phase 8: Metering, Plans, and Cost Control**
+- [x] **Phase 8: Metering, Plans, and Cost Control** *(Completed)*
+  - [x] Subscription tier plans & integer minor rate cards (`packages/platform/src/billing/billing-adapter.ts`)
+  - [x] Asynchronous usage event collector for LLM tokens, STT seconds, TTS characters, and turns (`packages/platform/src/metering/usage-meter.ts`)
+  - [x] Transactional Outbox pattern publisher for usage durability (`packages/platform/src/metering/outbox-publisher.ts`)
+  - [x] Spend guard with 50%, 80%, and 100% circuit breaker alerts (`packages/platform/src/metering/spend-guard.ts`)
+  - [x] Background worker metering rollup job draining outbox events (`apps/worker/src/jobs/metering-rollup.ts`)
+  - [x] 4 passing unit tests (125 total across repository in 2.7s)
 - [ ] **Phase 9: Tenant Administration & Self-Service**
 - [ ] **Phase 10: Performance, Scalability, and Operations**
 - [ ] **Phase 11: Evaluation, Safety Hardening, and Acceptance Gate**
@@ -119,3 +125,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 5** | 2026-10-24 | 2026-10-24 | ✅ Completed | HinglishNormalizer, FastPathRouter (<100ms LLM bypass), SlotExtractor, ClarificationPolicy, GroundingGuard, BoundedContext, TurnOrchestrator, ApiServer REST endpoints, 104/104 passing tests across 29 suites |
 | **Phase 6** | 2026-10-24 | 2026-10-24 | ✅ Completed | Speech Layer (STT/TTS interfaces, SentenceChunker), MockSpeechAdapters, RFC 6455 WebSocketConnection, Realtime Voice Server with binary 16kHz PCM frames & <3s voice latency tracking, 113/113 passing tests across 32 suites |
 | **Phase 7** | 2026-10-24 | 2026-10-24 | ✅ Completed | Web SDK (`VoiceClient`, `AudioRecorder`, `demo/index.html`), 121/121 passing tests across 34 suites in 2.4s |
+| **Phase 8** | 2026-10-24 | 2026-10-24 | ✅ Completed | Metering & Spend Guard (`UsageMeter`, `OutboxPublisher`, `SpendGuard`, `BillingAdapter`, `MeteringRollupJob`), 125/125 passing tests in 2.7s |

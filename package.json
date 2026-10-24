@@ -2,12 +2,15 @@
   "name": "voice-commerce-assistant-root",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Generic, Multi-Tenant Voice Commerce Assistant Platform",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
   "scripts": {
+    "start": "node --experimental-strip-types start-all.js",
+    "dev": "node --experimental-strip-types start-all.js",
     "build": "pnpm -r --filter=!./tools/* build",
     "build:all": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",

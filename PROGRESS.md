@@ -82,7 +82,16 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Fastify/HTTP REST API server (`apps/api/src/server.ts`) with `/v1/assistant/sessions`, `/v1/assistant/turns`, `/v1/cart/confirm`, `/v1/orders/:id/status`, and `/v1/me/preferences`
   - [x] 10 passing unit and integration tests (104 total across repository in 2.3s)
 
-- [ ] **Phase 6: Speech Layer & Realtime WebSocket Gateway**
+- [x] **Phase 6: Speech Layer & Realtime WebSocket Gateway** *(Completed)*
+  - [x] Streaming STT and TTS interfaces with multilingual Hindi/English support (`packages/speech/src/interfaces/*`)
+  - [x] Clause and sentence-level text chunker (`packages/speech/src/chunking/sentence-chunker.ts`) for early TTS playback
+  - [x] Deterministic mock speech adapters for 16kHz PCM audio streaming and turn cancellation (`packages/speech/src/adapters/mock-speech-adapter.ts`)
+  - [x] Hosted STT and TTS provider adapters (`packages/speech/src/adapters/hosted-*`)
+  - [x] RFC 6455 pure-Node WebSocket connection and framing engine (`apps/realtime/src/ws/ws-connection.ts`)
+  - [x] Standalone streaming WebSocket voice gateway (`apps/realtime/src/server.ts`) with push-to-talk, binary 16kHz PCM frames, and turn interruption
+  - [x] Stage-by-stage latency histogram and turn tracker (`apps/realtime/src/metrics/latency-tracker.ts`) verifying voice turns complete in $< 3.0$ seconds
+  - [x] 9 passing unit and integration tests (113 total across repository in 2.5s)
+
 - [ ] **Phase 7: Web SDK and Interactive Demo Client**
 - [ ] **Phase 8: Metering, Plans, and Cost Control**
 - [ ] **Phase 9: Tenant Administration & Self-Service**
@@ -104,3 +113,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 3** | 2026-10-24 | 2026-10-24 | ✅ Completed | TriState Kleene Logic, ConstraintEvaluator, ProposalManager, JainValidator, AllergenValidator, NutritionValidator, GroupBudgetSolver (<50ms), ReorderMapper, TrackingService, PairingRecommender, 84/84 passing tests |
 | **Phase 4** | 2026-10-24 | 2026-10-24 | ✅ Completed | ProviderRegistry, TaskRouter, RateGovernor (multi-key rotation), ToolRepair, PromptGuard, 94/94 total passing tests across 27 suites |
 | **Phase 5** | 2026-10-24 | 2026-10-24 | ✅ Completed | HinglishNormalizer, FastPathRouter (<100ms LLM bypass), SlotExtractor, ClarificationPolicy, GroundingGuard, BoundedContext, TurnOrchestrator, ApiServer REST endpoints, 104/104 passing tests across 29 suites |
+| **Phase 6** | 2026-10-24 | 2026-10-24 | ✅ Completed | Speech Layer (STT/TTS interfaces, SentenceChunker), MockSpeechAdapters, RFC 6455 WebSocketConnection, Realtime Voice Server with binary 16kHz PCM frames & <3s voice latency tracking, 113/113 passing tests across 32 suites |

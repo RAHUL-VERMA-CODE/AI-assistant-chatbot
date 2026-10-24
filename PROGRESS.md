@@ -92,7 +92,11 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Stage-by-stage latency histogram and turn tracker (`apps/realtime/src/metrics/latency-tracker.ts`) verifying voice turns complete in $< 3.0$ seconds
   - [x] 9 passing unit and integration tests (113 total across repository in 2.5s)
 
-- [ ] **Phase 7: Web SDK and Interactive Demo Client**
+- [x] **Phase 7: Web SDK and Interactive Demo Client** *(Completed)*
+  - [x] Headless `VoiceClient` event emitter with push-to-talk state transitions (`packages/web-sdk/src/client/voice-client.ts`)
+  - [x] Client-side 16kHz linear PCM audio downsampler (`packages/web-sdk/src/audio/audio-recorder.ts`)
+  - [x] Interactive web demo client with mic capture, editable transcript fallback, chat log, and cart preview card (`packages/web-sdk/src/demo/index.html`)
+  - [x] 8 passing unit tests (121 total across repository in 2.4s)
 - [ ] **Phase 8: Metering, Plans, and Cost Control**
 - [ ] **Phase 9: Tenant Administration & Self-Service**
 - [ ] **Phase 10: Performance, Scalability, and Operations**
@@ -114,3 +118,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 4** | 2026-10-24 | 2026-10-24 | ✅ Completed | ProviderRegistry, TaskRouter, RateGovernor (multi-key rotation), ToolRepair, PromptGuard, 94/94 total passing tests across 27 suites |
 | **Phase 5** | 2026-10-24 | 2026-10-24 | ✅ Completed | HinglishNormalizer, FastPathRouter (<100ms LLM bypass), SlotExtractor, ClarificationPolicy, GroundingGuard, BoundedContext, TurnOrchestrator, ApiServer REST endpoints, 104/104 passing tests across 29 suites |
 | **Phase 6** | 2026-10-24 | 2026-10-24 | ✅ Completed | Speech Layer (STT/TTS interfaces, SentenceChunker), MockSpeechAdapters, RFC 6455 WebSocketConnection, Realtime Voice Server with binary 16kHz PCM frames & <3s voice latency tracking, 113/113 passing tests across 32 suites |
+| **Phase 7** | 2026-10-24 | 2026-10-24 | ✅ Completed | Web SDK (`VoiceClient`, `AudioRecorder`, `demo/index.html`), 121/121 passing tests across 34 suites in 2.4s |

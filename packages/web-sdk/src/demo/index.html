@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Commerce Assistant SaaS - ARPZO Interactive Demo</title>
+  <style>
+    :root {
+      --primary: #e63946;
+      --primary-hover: #d62828;
+      --secondary: #1d3557;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #2b2d42;
+      --muted: #8d99ae;
+      --border: #e2e8f0;
+      --success: #2a9d8f;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 800px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+    .header { background: var(--card-bg); padding: 20px 24px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+    .badge { background: #fee2e2; color: #b91c1c; font-size: 12px; padding: 4px 10px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; }
+    .branch-badge { background: #dbeafe; color: #1e40af; font-size: 13px; padding: 4px 12px; border-radius: 9999px; font-weight: 600; }
+    .card { background: var(--card-bg); padding: 20px 24px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
+    .voice-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; gap: 16px; }
+    .mic-btn { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 10px 15px -3px rgba(230, 57, 70, 0.3); transition: all 0.2s; outline: none; }
+    .mic-btn:hover { background: var(--primary-hover); transform: scale(1.05); }
+    .mic-btn.recording { background: #e11d48; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); } 70% { box-shadow: 0 0 0 25px rgba(225, 29, 72, 0); } 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); } }
+    .status-text { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .input-row { display: flex; gap: 10px; }
+    .text-input { flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; }
+    .text-input:focus { border-color: var(--primary); }
+    .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-secondary { background: #e2e8f0; color: #475569; }
+    .chat-box { height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fafafa; }
+    .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
+    .chat-user { align-self: flex-end; background: var(--primary); color: white; }
+    .chat-bot { align-self: flex-start; background: white; border: 1px solid var(--border); color: var(--text); }
+    .proposal-card { border: 2px solid #bbf7d0; background: #f0fdf4; padding: 16px; border-radius: 10px; display: flex; flex-direction: column; gap: 10px; }
+    .proposal-header { display: flex; justify-content: space-between; font-weight: 700; color: #166534; }
+    .proposal-total { font-size: 18px; font-weight: 800; color: #15803d; }
+    .examples { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 9999px; font-size: 12px; cursor: pointer; font-weight: 500; }
+    .pill:hover { background: #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 style="font-size: 20px; font-weight: 800;">ARPZO Voice Assistant</h1>
+        <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">Generic Multi-Tenant Voice Commerce Platform</p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <span class="branch-badge">📍 Koramangala Kitchen</span>
+        <span class="badge" id="connBadge">Connecting...</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size: 13px; font-weight: 600; color: var(--muted);">QUICK VOICE / TEXT EXAMPLES:</div>
+      <div class="examples">
+        <span class="pill" onclick="sendExample('Ek cheese burst pizza add kar do')">"Ek cheese burst pizza add kar do"</span>
+        <span class="pill" onclick="sendExample('For 3 people, 2 veg and 1 non veg, under 1500')">"For 3 people, 2 veg and 1 non veg, under 1500"</span>
+        <span class="pill" onclick="sendExample('Ek Jain Paneer Tikka add karo')">"Ek Jain Paneer Tikka add karo"</span>
+        <span class="pill" onclick="sendExample('Same as last time')">"Same as last time"</span>
+        <span class="pill" onclick="sendExample('Where is my order ord_live_77?')">"Where is my order ord_live_77?"</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chat-box" id="chatBox">
+        <div class="chat-bubble chat-bot">Namaste! What would you like to order today? You can speak or type in English, Hindi, or Hinglish.</div>
+      </div>
+
+      <div id="proposalContainer"></div>
+
+      <div class="voice-controls">
+        <button class="mic-btn" id="micBtn" title="Hold or Tap to Speak">🎙️</button>
+        <span class="status-text" id="statusText">Tap microphone to speak, or type below</span>
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="textInput" class="text-input" placeholder="Type or edit your transcript..." />
+        <button class="btn btn-primary" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+    const REALTIME_WS = 'ws://localhost:8081';
+    let sessionToken = null;
+    let ws = null;
+    let isRecording = false;
+    let activeProposalId = null;
+
+    const chatBox = document.getElementById('chatBox');
+    const textInput = document.getElementById('textInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const statusText = document.getElementById('statusText');
+    const connBadge = document.getElementById('connBadge');
+    const proposalContainer = document.getElementById('proposalContainer');
+
+    function addChatMessage(role, text) {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role === 'user' ? 'chat-user' : 'chat-bot'}`;
+      bubble.innerText = text;
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function initSession() {
+      try {
+        const res = await fetch(`${API_BASE}/v1/assistant/sessions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenantId: 'tenant_arpzo',
+            userRef: 'usr_cust_01',
+            branchId: 'branch_koramangala'
+          })
+        });
+        const data = await res.json();
+        sessionToken = data.token;
+        connBadge.innerText = 'Online';
+        connBadge.style.background = '#dcfce7';
+        connBadge.style.color = '#15803d';
+        initWebSocket();
+      } catch (err) {
+        connBadge.innerText = 'Offline (Check API)';
+      }
+    }
+
+    function initWebSocket() {
+      ws = new WebSocket(`${REALTIME_WS}/?token=${encodeURIComponent(sessionToken)}`);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onmessage = (event) => {
+        if (typeof event.data === 'string') {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'transcript_partial') {
+            textInput.value = msg.text;
+          } else if (msg.type === 'transcript_final') {
+            textInput.value = msg.text;
+            addChatMessage('user', msg.text);
+          } else if (msg.type === 'assistant_reply') {
+            addChatMessage('bot', msg.replyText);
+            if (msg.proposalId) {
+              renderProposalCard(msg);
+            }
+          }
+        }
+      };
+    }
+
+    function renderProposalCard(proposal) {
+      activeProposalId = proposal.proposalId;
+      const formattedTotal = (proposal.proposalTotalMinor / 100).toFixed(2);
+      proposalContainer.innerHTML = `
+        <div class="proposal-card">
+          <div class="proposal-header">
+            <span>🛒 Proposed Cart Preview</span>
+            <span class="proposal-total">INR ${formattedTotal}</span>
+          </div>
+          <p style="font-size: 14px; color: #166534;">${proposal.replyText}</p>
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button class="btn btn-success" onclick="confirmCart('${proposal.proposalId}')">✓ Confirm & Add to Cart</button>
+            <button class="btn btn-secondary" onclick="cancelCart()">Cancel</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function confirmCart(proposalId) {
+      try {
+        const res = await fetch(`${API_BASE}/v1/cart/confirm`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionToken}`
+          },
+          body: JSON.stringify({ proposalId })
+        });
+        const data = await res.json();
+        proposalContainer.innerHTML = '';
+        addChatMessage('bot', `✓ Cart updated! Final total: ${data.currency} ${(data.totalMinor / 100).toFixed(2)}. Proceeding to ARPZO checkout...`);
+      } catch (err) {
+        alert('Cart confirmation failed: ' + err);
+      }
+    }
+
+    function cancelCart() {
+      proposalContainer.innerHTML = '';
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'cancel_turn' }));
+      }
+    }
+
+    function sendText() {
+      const text = textInput.value.trim();
+      if (!text) return;
+      addChatMessage('user', text);
+      textInput.value = '';
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'text_input', text }));
+      }
+    }
+
+    function sendExample(text) {
+      textInput.value = text;
+      sendText();
+    }
+
+    sendBtn.onclick = sendText;
+    textInput.onkeydown = (e) => { if (e.key === 'Enter') sendText(); };
+
+    micBtn.onclick = () => {
+      isRecording = !isRecording;
+      if (isRecording) {
+        micBtn.classList.add('recording');
+        statusText.innerText = 'Listening... Speak in Hindi, English, or Hinglish';
+        if (ws && ws.readyState === 1) {
+          ws.send(JSON.stringify({ type: 'start_turn' }));
+        }
+      } else {
+        micBtn.classList.remove('recording');
+        statusText.innerText = 'Processing your speech...';
+        if (ws && ws.readyState === 1) {
+          ws.send(JSON.stringify({ type: 'stop_turn' }));
+        }
+      }
+    };
+
+    window.onload = initSession;
+  </script>
+</body>
+</html>

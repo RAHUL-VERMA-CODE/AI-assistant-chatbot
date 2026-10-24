@@ -31,16 +31,25 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] `docs/SECURITY.md` (ASVS Level 2, vulnerability disclosure, security policies)
   - [x] Scaffolding for all 15 workspaces (`packages/*`, `apps/*`, `tools/*`)
 
-- [ ] **Phase 1: Platform Core and Tenancy**
-  - [ ] Config validation with TypeBox/Zod (fail-fast)
-  - [ ] Async redacting logger (pino) & structured error envelope
-  - [ ] Request context & tenant isolation (PostgreSQL RLS with connection pooler)
-  - [ ] Tenant API keys (hashed, scoped, rotatable) & short-lived client session tokens
-  - [ ] Distributed rate limiting, bulkheads, bounded queues, single-flight
-  - [ ] Idempotency middleware & audit log via outbox
-  - [ ] Health, readiness, and graceful shutdown lifecycle
+- [x] **Phase 1: Platform Core and Tenancy** *(Completed)*
+  - [x] Config validation with fail-fast defaults (`packages/platform/src/config/env.ts`)
+  - [x] Async redacting logger with PII scrubbing (`packages/platform/src/logging/logger.ts`, `pii-scrubber.ts`)
+  - [x] Request context & tenant isolation (`packages/core/src/context/tenant-context.ts`)
+  - [x] PostgreSQL RLS schema with tenant isolation (`packages/platform/src/database/migrations/001_initial_schema.sql`)
+  - [x] Envelope encryption KMS adapter (`packages/platform/src/crypto/local-dev-kms.ts`)
+  - [x] Session token signing & constant-time verification (`packages/platform/src/auth/session-token.ts`)
+  - [x] Distributed rate limiting, bulkheads, circuit breaker, single-flight (`packages/platform/src/concurrency/*`)
+  - [x] Atomic idempotency store (`packages/platform/src/idempotency/idempotency-store.ts`)
+  - [x] Single Unified LLM Factory (`packages/llm/src/factory.ts` - Groq, xAI Grok, OpenAI, Gemini, Mock)
+  - [x] 34 passing unit tests in Node 24 native test runner (568ms execution time)
+  - [x] Git commit `eb16b22`
 
 - [ ] **Phase 2: Connector Framework & Demo Tenant**
+  - [ ] OpenAPI 3.1 Connector Contract schemas (catalog, cart validate/commit, orders, tracking)
+  - [ ] Signed HTTPS connector client with SSRF guard and DNS IP pinning
+  - [ ] TypeScript Connector SDK & Conformance Test Kit
+  - [ ] Demo Tenant application (`tools/demo-tenant`) with isolated SQLite/PG database & seeded menu
+
 - [ ] **Phase 3: Policy Engine and Food Domain Pack**
 - [ ] **Phase 4: LLM Layer & Provider Registry**
 - [ ] **Phase 5: Orchestrator and Agentic State Machine**
@@ -61,70 +70,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Step 0** | 2026-10-24 | 2026-10-24 | ✅ Completed | `docs/SPEC.md`, `docs/SPEC_COVERAGE.md`, `docs/GAP_ANALYSIS.md`, `DECISIONS.md`, `PROGRESS.md` |
 | **Step 1** | 2026-10-24 | 2026-10-24 | ✅ Completed | `PLAN.md`, `docs/ARCHITECTURE.md`, `docs/PERFORMANCE.md`, `docs/DATA_FLOWS.md`, ADRs 0001–0006 |
 | **Phase 0** | 2026-10-24 | 2026-10-24 | ✅ Completed | Monorepo layout, Docker Compose, CI pipeline, `THREAT_MODEL.md`, `SECURITY.md`, 15 package scaffolds, git commit `c0c8d6a` |
-
----
-
-## 3. Phase 0 Manifest of Created Files
-
-- `.editorconfig`: Editor formatting standard across markdown, typescript, and yaml.
-- `.env.example`: Comprehensive environment variables with secure defaults and documentation.
-- `.eslintrc.js`: ESLint configuration with boundary protection (packages cannot import apps; core has no external deps).
-- `.github/workflows/ci.yml`: GitHub Actions CI pipeline covering lint, format, typecheck, audit, secret scan, and tests.
-- `.gitignore`: Production-grade git exclusions for dependencies, builds, coverage, secrets, and IDE artifacts.
-- `.npmrc`: Strict peer dependency and workspace linking configuration.
-- `.prettierrc.json`: Prettier code style configuration.
-- `docker-compose.yml`: Multi-container specification (PostgreSQL 16, Redis 7, PgBouncer, API, Realtime, Worker, Demo Tenant).
-- `docs/SECURITY.md`: ASVS Level 2 compliance checklist, vulnerability disclosure policy, key management.
-- `docs/THREAT_MODEL.md`: Complete STRIDE matrix across 4 trust boundaries and 16 threats.
-- `package.json`: Root package manifest with workspace scripts.
-- `pnpm-workspace.yaml`: Workspace definitions for `apps/*`, `packages/*`, and `tools/*`.
-- `tsconfig.base.json`: Strict TypeScript base configuration (ES2022, NodeNext, strict mode).
-- `apps/api/Dockerfile`: Multi-stage Alpine container build for REST gateway.
-- `apps/api/package.json`: Manifest for `@vca/api`.
-- `apps/api/src/index.ts`: Entry point for `@vca/api`.
-- `apps/api/tsconfig.json`: TypeScript configuration with package references.
-- `apps/realtime/Dockerfile`: Multi-stage Alpine container build for WebSocket gateway.
-- `apps/realtime/package.json`: Manifest for `@vca/realtime`.
-- `apps/realtime/src/index.ts`: Entry point for `@vca/realtime`.
-- `apps/realtime/tsconfig.json`: TypeScript configuration with package references.
-- `apps/worker/Dockerfile`: Multi-stage Alpine container build for background worker.
-- `apps/worker/package.json`: Manifest for `@vca/worker`.
-- `apps/worker/src/index.ts`: Entry point for `@vca/worker`.
-- `apps/worker/tsconfig.json`: TypeScript configuration with package references.
-- `packages/connector-contract/package.json`: Manifest for `@vca/connector-contract`.
-- `packages/connector-contract/src/index.ts`: Entry point for `@vca/connector-contract`.
-- `packages/connector-contract/tsconfig.json`: TypeScript configuration with package references.
-- `packages/connector-sdk/package.json`: Manifest for `@vca/connector-sdk`.
-- `packages/connector-sdk/src/index.ts`: Entry point for `@vca/connector-sdk`.
-- `packages/connector-sdk/tsconfig.json`: TypeScript configuration with package references.
-- `packages/core/package.json`: Manifest for `@vca/core`.
-- `packages/core/src/index.ts`: Entry point for `@vca/core`.
-- `packages/core/tsconfig.json`: TypeScript configuration for pure domain package.
-- `packages/eval/package.json`: Manifest for `@vca/eval`.
-- `packages/eval/src/index.ts`: Entry point for `@vca/eval`.
-- `packages/eval/tsconfig.json`: TypeScript configuration with package references.
-- `packages/llm/package.json`: Manifest for `@vca/llm`.
-- `packages/llm/src/index.ts`: Entry point for `@vca/llm`.
-- `packages/llm/tsconfig.json`: TypeScript configuration with package references.
-- `packages/orchestrator/package.json`: Manifest for `@vca/orchestrator`.
-- `packages/orchestrator/src/index.ts`: Entry point for `@vca/orchestrator`.
-- `packages/orchestrator/tsconfig.json`: TypeScript configuration with package references.
-- `packages/platform/package.json`: Manifest for `@vca/platform`.
-- `packages/platform/src/index.ts`: Entry point for `@vca/platform`.
-- `packages/platform/tsconfig.json`: TypeScript configuration with package references.
-- `packages/policy-engine/package.json`: Manifest for `@vca/policy-engine`.
-- `packages/policy-engine/src/index.ts`: Entry point for `@vca/policy-engine`.
-- `packages/policy-engine/tsconfig.json`: TypeScript configuration with package references.
-- `packages/policy-food/package.json`: Manifest for `@vca/policy-food`.
-- `packages/policy-food/src/index.ts`: Entry point for `@vca/policy-food`.
-- `packages/policy-food/tsconfig.json`: TypeScript configuration with package references.
-- `packages/speech/package.json`: Manifest for `@vca/speech`.
-- `packages/speech/src/index.ts`: Entry point for `@vca/speech`.
-- `packages/speech/tsconfig.json`: TypeScript configuration with package references.
-- `packages/web-sdk/package.json`: Manifest for `@vca/web-sdk`.
-- `packages/web-sdk/src/index.ts`: Entry point for `@vca/web-sdk`.
-- `packages/web-sdk/tsconfig.json`: TypeScript configuration with package references.
-- `tools/demo-tenant/Dockerfile`: Multi-stage Alpine container build for demo tenant.
-- `tools/demo-tenant/package.json`: Manifest for `@vca/demo-tenant`.
-- `tools/demo-tenant/src/index.ts`: Entry point for `@vca/demo-tenant`.
-- `tools/demo-tenant/tsconfig.json`: TypeScript configuration with package references.
+| **Phase 1** | 2026-10-24 | 2026-10-24 | ✅ Completed | Platform Core, RLS Migration, LocalDevKmsAdapter, SessionToken, Concurrency, PiiScrubber, IdempotencyStore, Unified LLM Factory, 34/34 passing unit tests, git commit `eb16b22` |

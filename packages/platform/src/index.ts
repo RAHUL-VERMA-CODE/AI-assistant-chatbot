@@ -17,5 +17,7 @@ export * from './billing/billing-adapter.ts';
 export * from './metering/usage-meter.ts';
 export * from './metering/outbox-publisher.ts';
 export * from './metering/spend-guard.ts';
+export * from './observability/metrics.ts';
+export * from './observability/tracer.ts';
 
 export const PLATFORM_VERSION = '1.0.0';

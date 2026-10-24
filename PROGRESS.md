@@ -117,7 +117,13 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] k6 load scenarios for 500 concurrent voice sessions and 5,000 text sessions (`packages/eval/src/load/*`)
   - [x] Production runbooks: Incident Response (`docs/runbooks/INCIDENT_RESPONSE.md`) & Disaster Recovery (`docs/runbooks/DISASTER_RECOVERY.md`)
   - [x] 3 passing unit tests (132 total across repository in 4.4s)
-- [ ] **Phase 11: Evaluation, Safety Hardening, and Acceptance Gate**
+- [x] **Phase 11: Evaluation, Safety Hardening, and Acceptance Gate** *(Completed)*
+  - [x] Multilingual held-out test harness with 150 utterances in EN, HI, Hinglish (`packages/eval/src/multilingual/dataset.ts`, `evaluator.ts`)
+  - [x] Full automated acceptance test suite covering requirements A01 through A15 (`packages/eval/src/acceptance/a01-a15.test.ts`)
+  - [x] Provider bake-off runner comparing TTFT, latency tiers, and cost per 1k requests (`packages/eval/src/bakeoff/model-bakeoff.ts`)
+  - [x] Red-team security suite for direct/indirect prompt injection & delimiter escape (`packages/eval/src/security/prompt-injection.test.ts`)
+  - [x] Strict cross-tenant context isolation verification suite (`packages/eval/src/security/cross-tenant-isolation.test.ts`)
+  - [x] 22 passing unit and integration tests (154 total across repository in 2.9s)
 - [ ] **Phase 12: Documentation and Handover**
 
 ---
@@ -139,3 +145,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 8** | 2026-10-24 | 2026-10-24 | ✅ Completed | Metering & Spend Guard (`UsageMeter`, `OutboxPublisher`, `SpendGuard`, `BillingAdapter`, `MeteringRollupJob`), 125/125 passing tests in 2.7s |
 | **Phase 9** | 2026-10-24 | 2026-10-24 | ✅ Completed | Tenant Administration & Self-Service (`AdminService`, `/v1/admin/*`), 129/129 passing tests in 5.1s |
 | **Phase 10** | 2026-10-24 | 2026-10-24 | ✅ Completed | Observability & Operations (`PrometheusRegistry`, `Tracer`, `RetentionCleanerJob`, k6 load tests, Runbooks), 132/132 passing tests in 4.4s |
+| **Phase 11** | 2026-10-24 | 2026-10-24 | ✅ Completed | Acceptance Gates A01–A15, 150 Multilingual Benchmark Utterances, Bake-Off, Security Red-Team, 154/154 passing tests in 2.9s |

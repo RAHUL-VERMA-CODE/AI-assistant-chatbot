@@ -42,7 +42,7 @@ export class HinglishNormalizer {
   };
 
   private static readonly CONFIRM_PATTERNS: readonly RegExp[] = [
-    /\b(?:haan|ha|haa|yes|yep|yup|sure|ok|okay|confirm|kar do|kardo|chalega|theek hai|thik hai|add karo|add kar do|sahi hai)\b/i,
+    /\b(?:haan|ha|haa|yes|yep|yup|sure|ok|okay|confirm|chalega|theek hai|thik hai|sahi hai)\b/i,
   ];
 
   private static readonly CANCEL_PATTERNS: readonly RegExp[] = [

@@ -1,0 +1,439 @@
+import type { ConnectorClient } from '../../../connector-sdk/src/index.ts';
+import type { ProposalManager, CustomerPreferences } from '../../../policy-engine/src/index.ts';
+import type { LLMProvider } from '../../../llm/src/index.ts';
+import { PromptGuard } from '../../../llm/src/index.ts';
+import { BoundedContextManager, type BoundedSessionContext } from '../context/bounded-context.ts';
+import { FastPathRouter } from '../fast-paths/fast-path-router.ts';
+import { SlotExtractor } from '../intent/slot-extractor.ts';
+import { ClarificationPolicy } from '../clarification/clarification-policy.ts';
+import { FactRenderer } from '../templates/fact-renderer.ts';
+import { GroundingGuard } from '../grounding/grounding-guard.ts';
+import {
+  GroupBudgetSolver,
+  JainValidator,
+  AllergenValidator,
+  PairingRecommender,
+} from '../../../policy-food/src/index.ts';
+import { ConstraintEvaluator } from '../../../policy-engine/src/index.ts';
+
+export interface TurnExecutionResult {
+  readonly replyText: string;
+  readonly sessionState: string;
+  readonly proposalId?: string;
+  readonly proposalTotalMinor?: number;
+  readonly currency: string;
+  readonly isFastPath: boolean;
+  readonly durationMs: number;
+}
+
+export class TurnOrchestrator {
+  private readonly connector: ConnectorClient;
+  private readonly proposalManager: ProposalManager;
+  private readonly contextManager: BoundedContextManager;
+  private readonly llm: LLMProvider;
+
+  constructor(options: {
+    connector: ConnectorClient;
+    proposalManager: ProposalManager;
+    contextManager?: BoundedContextManager;
+    llm: LLMProvider;
+  }) {
+    this.connector = options.connector;
+    this.proposalManager = options.proposalManager;
+    this.contextManager = options.contextManager || new BoundedContextManager();
+    this.llm = options.llm;
+  }
+
+  public async processTurn(params: {
+    sessionId: string;
+    tenantId: string;
+    userRef: string;
+    branchId: string;
+    utterance: string;
+    savedPreferences?: CustomerPreferences;
+  }): Promise<TurnExecutionResult> {
+    const startTime = performance.now();
+
+    // 1. Get or initialize bounded session
+    const session = this.contextManager.getOrCreate({
+      sessionId: params.sessionId,
+      tenantId: params.tenantId,
+      userRef: params.userRef,
+      branchId: params.branchId,
+    });
+
+    // 2. Sanitize against prompt injection
+    const sanitized = PromptGuard.sanitize(params.utterance);
+    const cleanText = sanitized.sanitizedText;
+
+    // 3. Fast-Path Router (LLM-Bypass for instant confirm/cancel/reorder)
+    const fastPath = await FastPathRouter.evaluateAndExecute(
+      cleanText,
+      session,
+      this.connector,
+      this.proposalManager,
+    );
+
+    if (fastPath.handled) {
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', fastPath.assistantReply);
+      return {
+        replyText: fastPath.assistantReply,
+        sessionState: session.state,
+        currency: 'INR',
+        isFastPath: true,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 4. Fetch live branch catalog
+    const catalog = await this.connector.getCatalog(session.branchId);
+
+    // 5. Check if user is answering a pending clarification
+    if (session.pendingClarification) {
+      const pendingItem = catalog.items.find((i) => i.id === session.pendingClarification!.itemId);
+      if (pendingItem && pendingItem.variants) {
+        let matchedVariant = pendingItem.variants.find((v) =>
+          cleanText.toLowerCase().includes(v.name.toLowerCase()),
+        );
+        if (!matchedVariant) {
+          if (/\b(?:bada|large)\b/i.test(cleanText)) {
+            matchedVariant = pendingItem.variants.find((v) => v.name.toLowerCase() === 'large');
+          } else if (/\b(?:medium|beech\s*ka)\b/i.test(cleanText)) {
+            matchedVariant = pendingItem.variants.find((v) => v.name.toLowerCase() === 'medium');
+          } else if (/\b(?:chhota|regular|small)\b/i.test(cleanText)) {
+            matchedVariant = pendingItem.variants.find(
+              (v) => v.name.toLowerCase() === 'regular' || v.name.toLowerCase() === 'small',
+            );
+          }
+        }
+
+        if (matchedVariant) {
+          session.pendingClarification = undefined;
+          return this.createSingleItemProposal(session, pendingItem, matchedVariant, 1, catalog, startTime);
+        }
+      }
+    }
+
+    // 6. Slot Extraction & Intent Analysis
+    const slots = SlotExtractor.extract(cleanText, catalog);
+
+    // Evaluate constraints (precedence: Turn > Saved)
+    const effectiveConstraints = ConstraintEvaluator.resolve(
+      {
+        isJain: slots.isJain,
+        isVeg: slots.isVeg,
+        isGlutenFree: slots.isGlutenFree,
+        excludedAllergens: slots.excludedAllergens,
+      },
+      params.savedPreferences,
+    );
+
+    if (effectiveConstraints.conflictDetected) {
+      const reply = `${effectiveConstraints.conflictReason} Please clarify your dietary preferences.`;
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', reply);
+      return {
+        replyText: reply,
+        sessionState: session.state,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 7. Group Ordering Knapsack Solver (Req A05)
+    if (slots.groupMix) {
+      const solution = GroupBudgetSolver.solve(catalog, {
+        partySize: slots.groupMix.partySize,
+        vegCount: slots.groupMix.vegCount,
+        nonVegCount: slots.groupMix.nonVegCount,
+        maxBudgetMinor: slots.groupMix.maxBudgetMinor,
+        isJainOnly: effectiveConstraints.isJain,
+        excludedAllergens: effectiveConstraints.excludedAllergens,
+      });
+
+      if (!solution.feasible) {
+        const reply = `${solution.failureReason} Would you like to adjust your budget or party size?`;
+        this.contextManager.appendTurn(session, 'user', cleanText);
+        this.contextManager.appendTurn(session, 'assistant', reply);
+        return {
+          replyText: reply,
+          sessionState: session.state,
+          currency: catalog.currency,
+          isFastPath: false,
+          durationMs: performance.now() - startTime,
+        };
+      }
+
+      // Build group choices
+      const lineChoices = solution.allocations.map((a) => ({
+        itemId: a.item.id,
+        quantity: 1,
+        optionIds: [] as string[],
+      }));
+
+      const valRes = await this.connector.validateCart({
+        branchId: session.branchId,
+        userRef: session.userRef,
+        items: lineChoices,
+      });
+
+      const proposal = this.proposalManager.createProposal({
+        tenantId: session.tenantId,
+        userRef: session.userRef,
+        branchId: session.branchId,
+        cartVersion: valRes.cartVersion,
+        items: solution.allocations.map((a) => ({
+          itemId: a.item.id,
+          itemName: a.item.name,
+          optionIds: [],
+          quantity: 1,
+          unitPriceMinor: a.priceMinor,
+          lineTotalMinor: a.priceMinor,
+          allocatedToPerson: a.personLabel,
+          dietaryClassification: a.dietaryType,
+        })),
+        rawChoices: lineChoices,
+        currency: catalog.currency,
+        charges: {
+          subtotalMinor: valRes.subtotalMinor,
+          deliveryFeeMinor: valRes.deliveryFeeMinor,
+          packagingFeeMinor: valRes.packagingFeeMinor,
+          taxMinor: valRes.taxMinor,
+          discountMinor: 0,
+          totalMinor: valRes.totalMinor,
+        },
+        summaryText: `Group cart for ${slots.groupMix.partySize} people. Total: ${catalog.currency} ${(valRes.totalMinor / 100).toFixed(2)}.`,
+      });
+
+      session.activeProposal = proposal;
+      session.state = 'PROPOSAL_PREVIEW';
+
+      const reply = `I have planned a cart for ${slots.groupMix.partySize} people: ${solution.allocations.map((a) => `${a.personLabel}: ${a.item.name}`).join(', ')}. ${solution.adequacyNotice} Total is ${catalog.currency} ${(valRes.totalMinor / 100).toFixed(2)}. Confirm this order?`;
+
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', reply);
+
+      return {
+        replyText: reply,
+        sessionState: session.state,
+        proposalId: proposal.proposalId,
+        proposalTotalMinor: proposal.charges.totalMinor,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 8. Single Item Proposal or Clarification
+    if (slots.matchedItem) {
+      const item = slots.matchedItem;
+
+      // Dietary verification
+      if (effectiveConstraints.isJain) {
+        const jainRes = JainValidator.validateItem(item);
+        if (!jainRes.isJainCompliant) {
+          const reply = `${jainRes.reason || jainRes.unverifiedReason} Would you like to see our certified Jain alternatives instead?`;
+          this.contextManager.appendTurn(session, 'user', cleanText);
+          this.contextManager.appendTurn(session, 'assistant', reply);
+          return {
+            replyText: reply,
+            sessionState: session.state,
+            currency: catalog.currency,
+            isFastPath: false,
+            durationMs: performance.now() - startTime,
+          };
+        }
+      }
+
+      if (effectiveConstraints.excludedAllergens.length > 0) {
+        const allergenRes = AllergenValidator.validate(item, effectiveConstraints.excludedAllergens, effectiveConstraints.isGlutenFree);
+        if (!allergenRes.isSafe) {
+          const reply = `${allergenRes.reason || allergenRes.unverifiedLimitation} Would you like to choose another dish?`;
+          this.contextManager.appendTurn(session, 'user', cleanText);
+          this.contextManager.appendTurn(session, 'assistant', reply);
+          return {
+            replyText: reply,
+            sessionState: session.state,
+            currency: catalog.currency,
+            isFastPath: false,
+            durationMs: performance.now() - startTime,
+          };
+        }
+      }
+
+      // Clarification check (Req A3: Ask ONE focused question if size is ambiguous)
+      const clarification = ClarificationPolicy.evaluateItemClarification(
+        item,
+        slots.matchedVariant?.id,
+        catalog.currency,
+      );
+
+      if (clarification.required && clarification.question) {
+        session.state = 'AWAITING_CLARIFICATION';
+        session.pendingClarification = {
+          question: clarification.question,
+          options: clarification.options || [],
+          itemId: item.id,
+        };
+
+        const reply = FactRenderer.renderClarification(clarification.question, clarification.options || []);
+        this.contextManager.appendTurn(session, 'user', cleanText);
+        this.contextManager.appendTurn(session, 'assistant', reply);
+
+        return {
+          replyText: reply,
+          sessionState: session.state,
+          currency: catalog.currency,
+          isFastPath: false,
+          durationMs: performance.now() - startTime,
+        };
+      }
+
+      // Valid single item -> create proposal
+      return this.createSingleItemProposal(
+        session,
+        item,
+        slots.matchedVariant,
+        slots.quantity,
+        catalog,
+        startTime,
+      );
+    }
+
+    // 9. LLM Conversational Fallback with Grounding Guard
+    const chatPrompt = [
+      {
+        role: 'system' as const,
+        content: `You are the AI Voice Commerce Assistant for ${catalog.branchName}. Speak factually and concisely in natural Hinglish or English. Never hallucinate items, prices, or ingredients not present in the menu. Menu items available: ${catalog.items.map((i) => `${i.name} (INR ${(i.basePriceMinor / 100).toFixed(0)})`).join(', ')}.`,
+      },
+      ...session.turns.map((t) => ({ role: t.role, content: t.text })),
+      { role: 'user' as const, content: cleanText },
+    ];
+
+    const llmRes = await this.llm.chat(chatPrompt, { temperature: 0.1, maxTokens: 256 });
+    const guarded = GroundingGuard.verifyAndEnforce(llmRes.text, catalog, session.activeProposal);
+
+    this.contextManager.appendTurn(session, 'user', cleanText);
+    this.contextManager.appendTurn(session, 'assistant', guarded.sanitizedText);
+
+    return {
+      replyText: guarded.sanitizedText,
+      sessionState: session.state,
+      currency: catalog.currency,
+      isFastPath: false,
+      durationMs: performance.now() - startTime,
+    };
+  }
+
+  private async createSingleItemProposal(
+    session: BoundedSessionContext,
+    item: any,
+    variant: any,
+    quantity: number,
+    catalog: any,
+    startTime: number,
+  ): Promise<TurnExecutionResult> {
+    const lineChoice = {
+      itemId: item.id,
+      variantId: variant?.id,
+      optionIds: [] as string[],
+      quantity,
+    };
+
+    const valRes = await this.connector.validateCart({
+      branchId: session.branchId,
+      userRef: session.userRef,
+      items: [lineChoice],
+    });
+
+    const unitPrice = variant ? variant.priceMinor : item.basePriceMinor;
+
+    const proposal = this.proposalManager.createProposal({
+      tenantId: session.tenantId,
+      userRef: session.userRef,
+      branchId: session.branchId,
+      cartVersion: valRes.cartVersion,
+      items: [
+        {
+          itemId: item.id,
+          itemName: item.name,
+          variantId: variant?.id,
+          variantName: variant?.name,
+          optionIds: [],
+          quantity,
+          unitPriceMinor: unitPrice,
+          lineTotalMinor: unitPrice * quantity,
+        },
+      ],
+      rawChoices: [lineChoice],
+      currency: catalog.currency,
+      charges: {
+        subtotalMinor: valRes.subtotalMinor,
+        deliveryFeeMinor: valRes.deliveryFeeMinor,
+        packagingFeeMinor: valRes.packagingFeeMinor,
+        taxMinor: valRes.taxMinor,
+        discountMinor: 0,
+        totalMinor: valRes.totalMinor,
+      },
+      summaryText: FactRenderer.renderProposal({
+        proposalId: 'preview',
+        tenantId: session.tenantId,
+        userRef: session.userRef,
+        branchId: session.branchId,
+        cartVersion: valRes.cartVersion,
+        items: [
+          {
+            itemId: item.id,
+            itemName: item.name,
+            variantId: variant?.id,
+            variantName: variant?.name,
+            optionIds: [],
+            quantity,
+            unitPriceMinor: unitPrice,
+            lineTotalMinor: unitPrice * quantity,
+          },
+        ],
+        rawChoices: [lineChoice],
+        currency: catalog.currency,
+        charges: {
+          subtotalMinor: valRes.subtotalMinor,
+          deliveryFeeMinor: valRes.deliveryFeeMinor,
+          packagingFeeMinor: valRes.packagingFeeMinor,
+          taxMinor: valRes.taxMinor,
+          discountMinor: 0,
+          totalMinor: valRes.totalMinor,
+        },
+        summaryText: '',
+        createdAt: '',
+        expiresAt: '',
+        status: 'ACTIVE',
+      }),
+    });
+
+    session.activeProposal = proposal;
+    session.state = 'PROPOSAL_PREVIEW';
+
+    let reply = FactRenderer.renderProposal(proposal);
+
+    // Optional P1 add-on pairing recommendation (Req A09: At most 1, never silent addition)
+    const pairing = PairingRecommender.recommendPairing(catalog, [lineChoice]);
+    if (pairing) {
+      reply += ` ${pairing.suggestionPrompt}`;
+    }
+
+    this.contextManager.appendTurn(session, 'user', `${quantity}x ${item.name}`);
+    this.contextManager.appendTurn(session, 'assistant', reply);
+
+    return {
+      replyText: reply,
+      sessionState: session.state,
+      proposalId: proposal.proposalId,
+      proposalTotalMinor: proposal.charges.totalMinor,
+      currency: catalog.currency,
+      isFastPath: false,
+      durationMs: performance.now() - startTime,
+    };
+  }
+}

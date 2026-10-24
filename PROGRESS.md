@@ -71,7 +71,17 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Prompt guard defending against instruction injection and delimiter attacks (`packages/llm/src/sanitizer/prompt-guard.ts`)
   - [x] 17 passing unit tests (94 total across repository in 1.75s)
 
-- [ ] **Phase 5: Orchestrator and Agentic State Machine**
+- [x] **Phase 5: Orchestrator and Agentic State Machine** *(Completed)*
+  - [x] Hinglish normalizer with Hindi number mapping and synonym resolution (`packages/orchestrator/src/normalizer/hinglish-normalizer.ts`)
+  - [x] Fast-path router with sub-100ms LLM bypass for confirmation, cancellation, and re-order (`packages/orchestrator/src/fast-paths/fast-path-router.ts`)
+  - [x] Deterministic slot extractor and group mix parser (`packages/orchestrator/src/intent/slot-extractor.ts`)
+  - [x] Focused single-question clarification policy for variant/item ambiguities (`packages/orchestrator/src/clarification/clarification-policy.ts`)
+  - [x] Fact renderer and Grounding Guard for 100% price and dietary accuracy (`packages/orchestrator/src/templates/fact-renderer.ts`, `grounding/grounding-guard.ts`)
+  - [x] Bounded session context manager with max 6-turn rolling window (`packages/orchestrator/src/context/bounded-context.ts`)
+  - [x] Master turn orchestrator state machine (`packages/orchestrator/src/state-machine/machine.ts`)
+  - [x] Fastify/HTTP REST API server (`apps/api/src/server.ts`) with `/v1/assistant/sessions`, `/v1/assistant/turns`, `/v1/cart/confirm`, `/v1/orders/:id/status`, and `/v1/me/preferences`
+  - [x] 10 passing unit and integration tests (104 total across repository in 2.3s)
+
 - [ ] **Phase 6: Speech Layer & Realtime WebSocket Gateway**
 - [ ] **Phase 7: Web SDK and Interactive Demo Client**
 - [ ] **Phase 8: Metering, Plans, and Cost Control**
@@ -93,3 +103,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 2** | 2026-10-24 | 2026-10-24 | ✅ Completed | Connector Contract Schemas, SsrfGuard, ConnectorSigner, ConnectorClient, ConformanceKit, Demo Tenant ARPZO, 48/48 total passing tests, git commit `1a0f398` |
 | **Phase 3** | 2026-10-24 | 2026-10-24 | ✅ Completed | TriState Kleene Logic, ConstraintEvaluator, ProposalManager, JainValidator, AllergenValidator, NutritionValidator, GroupBudgetSolver (<50ms), ReorderMapper, TrackingService, PairingRecommender, 84/84 passing tests |
 | **Phase 4** | 2026-10-24 | 2026-10-24 | ✅ Completed | ProviderRegistry, TaskRouter, RateGovernor (multi-key rotation), ToolRepair, PromptGuard, 94/94 total passing tests across 27 suites |
+| **Phase 5** | 2026-10-24 | 2026-10-24 | ✅ Completed | HinglishNormalizer, FastPathRouter (<100ms LLM bypass), SlotExtractor, ClarificationPolicy, GroundingGuard, BoundedContext, TurnOrchestrator, ApiServer REST endpoints, 104/104 passing tests across 29 suites |

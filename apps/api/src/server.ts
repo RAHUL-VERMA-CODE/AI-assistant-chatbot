@@ -5,6 +5,7 @@ import { ProposalManager } from '../../../packages/policy-engine/src/proposal-ma
 import { TurnOrchestrator } from '../../../packages/orchestrator/src/state-machine/machine.ts';
 import { MockLLMProvider } from '../../../packages/llm/src/adapters/mock-adapter.ts';
 import { TrackingService } from '../../../packages/policy-food/src/tracking/tracking-service.ts';
+import { AdminService } from './admin/admin-service.ts';
 import {
   AppError,
   UnauthorizedError,
@@ -23,12 +24,15 @@ export class ApiServer {
   private readonly connector: ConnectorClient;
   private readonly proposalManager: ProposalManager;
   private readonly orchestrator: TurnOrchestrator;
+  private readonly adminService: AdminService;
+  private readonly adminKey: string;
   private readonly userPreferences = new Map<string, CustomerPreferences>();
 
   constructor(options: {
     connectorUrl: string;
     connectorSecret: string;
     jwtSecret?: string;
+    adminKey?: string;
   }) {
     this.sessionTokenService = new SessionTokenService(
       options.jwtSecret || 'vca_api_jwt_secret_32_characters_long_min',
@@ -44,8 +48,14 @@ export class ApiServer {
       proposalManager: this.proposalManager,
       llm: new MockLLMProvider(),
     });
+    this.adminService = new AdminService();
+    this.adminKey = options.adminKey || 'vca_master_admin_secret';
 
     this.server = http.createServer((req, res) => this.handleRequest(req, res));
+  }
+
+  public getAdminService(): AdminService {
+    return this.adminService;
   }
 
   public async start(port = 8080): Promise<number> {
@@ -68,7 +78,7 @@ export class ApiServer {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key, X-Admin-Key');
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
@@ -91,6 +101,13 @@ export class ApiServer {
 
       // Read JSON body
       const body = await this.readJsonBody(req);
+
+      // --- Admin Endpoints (/v1/admin/*) ---
+      if (pathname.startsWith('/v1/admin/')) {
+        this.authenticateAdmin(req);
+        await this.handleAdminRequest(method, pathname, body, res);
+        return;
+      }
 
       // 2. POST /v1/assistant/sessions
       if (method === 'POST' && pathname === '/v1/assistant/sessions') {
@@ -234,6 +251,124 @@ export class ApiServer {
         res.end(JSON.stringify({ error: String(err) }));
       }
     }
+  }
+
+  private authenticateAdmin(req: http.IncomingMessage): void {
+    const adminKeyHeader = req.headers['x-admin-key'];
+    const authHeader = req.headers.authorization;
+    const providedKey =
+      adminKeyHeader || (authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null);
+
+    if (!providedKey || providedKey !== this.adminKey) {
+      throw new UnauthorizedError('Invalid or missing admin credentials');
+    }
+  }
+
+  private async handleAdminRequest(
+    method: string,
+    pathname: string,
+    body: any,
+    res: http.ServerResponse,
+  ): Promise<void> {
+    const segments = pathname.split('/').filter(Boolean); // ['v1', 'admin', ...]
+
+    // /v1/admin/tenants
+    if (segments.length === 3 && segments[2] === 'tenants') {
+      if (method === 'POST') {
+        const tenant = this.adminService.createTenant(body);
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(tenant));
+        return;
+      }
+      if (method === 'GET') {
+        const tenants = this.adminService.listTenants();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(tenants));
+        return;
+      }
+    }
+
+    // /v1/admin/tenants/:id
+    if (segments.length === 4 && segments[2] === 'tenants') {
+      const tenantId = segments[3]!;
+      if (method === 'GET') {
+        const tenant = this.adminService.getTenant(tenantId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(tenant));
+        return;
+      }
+      if (method === 'PATCH') {
+        const updated = this.adminService.updateTenant(tenantId, body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(updated));
+        return;
+      }
+    }
+
+    // /v1/admin/tenants/:id/keys
+    if (segments.length === 5 && segments[2] === 'tenants' && segments[4] === 'keys') {
+      const tenantId = segments[3]!;
+      if (method === 'POST') {
+        const keyResult = this.adminService.createApiKey(tenantId, body);
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(keyResult));
+        return;
+      }
+      if (method === 'GET') {
+        const keys = this.adminService.listApiKeys(tenantId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(keys));
+        return;
+      }
+    }
+
+    // DELETE /v1/admin/tenants/:id/keys/:keyId
+    if (segments.length === 6 && segments[2] === 'tenants' && segments[4] === 'keys' && method === 'DELETE') {
+      const tenantId = segments[3]!;
+      const keyId = segments[5]!;
+      this.adminService.revokeApiKey(tenantId, keyId);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: `Key ${keyId} revoked` }));
+      return;
+    }
+
+    // /v1/admin/tenants/:id/connector
+    if (segments.length === 5 && segments[2] === 'tenants' && segments[4] === 'connector') {
+      const tenantId = segments[3]!;
+      if (method === 'POST') {
+        const config = this.adminService.configureConnector(tenantId, body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(config));
+        return;
+      }
+      if (method === 'GET') {
+        const config = this.adminService.getConnectorConfig(tenantId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(config));
+        return;
+      }
+    }
+
+    // POST /v1/admin/tenants/:id/connector/ping
+    if (segments.length === 6 && segments[2] === 'tenants' && segments[4] === 'connector' && segments[5] === 'ping' && method === 'POST') {
+      const tenantId = segments[3]!;
+      const pingResult = await this.adminService.pingConnector(tenantId, body?.branchId);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(pingResult));
+      return;
+    }
+
+    // GET /v1/admin/tenants/:id/audit-log
+    if (segments.length === 5 && segments[2] === 'tenants' && segments[4] === 'audit-log' && method === 'GET') {
+      const tenantId = segments[3]!;
+      const auditLog = this.adminService.getAuditLog(tenantId);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(auditLog));
+      return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: `Not found: ${method} ${pathname}` }));
   }
 
   private authenticateRequest(req: http.IncomingMessage) {

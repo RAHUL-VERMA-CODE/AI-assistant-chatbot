@@ -104,7 +104,12 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Spend guard with 50%, 80%, and 100% circuit breaker alerts (`packages/platform/src/metering/spend-guard.ts`)
   - [x] Background worker metering rollup job draining outbox events (`apps/worker/src/jobs/metering-rollup.ts`)
   - [x] 4 passing unit tests (125 total across repository in 2.7s)
-- [ ] **Phase 9: Tenant Administration & Self-Service**
+- [x] **Phase 9: Tenant Administration & Self-Service** *(Completed)*
+  - [x] Multi-tenant onboarding and plan tier configuration (`apps/api/src/admin/admin-service.ts`)
+  - [x] Secure API key lifecycle with SHA-256 hashing and zero plaintext key storage
+  - [x] Connector configuration with live cryptographic HMAC ping test
+  - [x] Immutable administrative audit logging (`/v1/admin/tenants/:id/audit-log`)
+  - [x] 4 passing unit and integration tests (129 total across repository in 5.1s)
 - [ ] **Phase 10: Performance, Scalability, and Operations**
 - [ ] **Phase 11: Evaluation, Safety Hardening, and Acceptance Gate**
 - [ ] **Phase 12: Documentation and Handover**
@@ -126,3 +131,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 6** | 2026-10-24 | 2026-10-24 | ✅ Completed | Speech Layer (STT/TTS interfaces, SentenceChunker), MockSpeechAdapters, RFC 6455 WebSocketConnection, Realtime Voice Server with binary 16kHz PCM frames & <3s voice latency tracking, 113/113 passing tests across 32 suites |
 | **Phase 7** | 2026-10-24 | 2026-10-24 | ✅ Completed | Web SDK (`VoiceClient`, `AudioRecorder`, `demo/index.html`), 121/121 passing tests across 34 suites in 2.4s |
 | **Phase 8** | 2026-10-24 | 2026-10-24 | ✅ Completed | Metering & Spend Guard (`UsageMeter`, `OutboxPublisher`, `SpendGuard`, `BillingAdapter`, `MeteringRollupJob`), 125/125 passing tests in 2.7s |
+| **Phase 9** | 2026-10-24 | 2026-10-24 | ✅ Completed | Tenant Administration & Self-Service (`AdminService`, `/v1/admin/*`), 129/129 passing tests in 5.1s |

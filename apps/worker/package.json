@@ -1,0 +1,17 @@
+{
+  "name": "@vca/worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "dependencies": {
+    "@vca/core": "workspace:*",
+    "@vca/platform": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "node --import tsx src/index.ts"
+  }
+}

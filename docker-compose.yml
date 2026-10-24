@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vca-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vca_user
+      POSTGRES_PASSWORD: vca_password
+      POSTGRES_DB: vca_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vca_user -d vca_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.22.0
+    container_name: vca-pgbouncer
+    restart: unless-stopped
+    environment:
+      DB_USER: vca_user
+      DB_PASSWORD: vca_password
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: vca_db
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      RESERVE_POOL_SIZE: 5
+      ADMIN_USERS: vca_user
+      AUTH_TYPE: scram-sha-256
+    ports:
+      - "6432:5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: vca-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy volatile-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: vca-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://vca_user:vca_password@pgbouncer:5432/vca_db
+      REDIS_URL: redis://redis:6379
+      SESSION_SIGNING_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      DEV_MASTER_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      LLM_PROVIDER: mock
+    depends_on:
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  realtime:
+    build:
+      context: .
+      dockerfile: apps/realtime/Dockerfile
+    container_name: vca-realtime
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      REDIS_URL: redis://redis:6379
+      SESSION_SIGNING_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      STT_PROVIDER: mock
+      TTS_PROVIDER: mock
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: vca-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://vca_user:vca_password@pgbouncer:5432/vca_db
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  demo-tenant:
+    build:
+      context: .
+      dockerfile: tools/demo-tenant/Dockerfile
+    container_name: vca-demo-tenant
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      TENANT_API_KEY: demo_tenant_api_key_secret_arpzo
+      CONNECTOR_SIGNING_SECRET: arpzo_connector_signing_secret_hmac_256
+
+volumes:
+  postgres-data:
+  redis-data:

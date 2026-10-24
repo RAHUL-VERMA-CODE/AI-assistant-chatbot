@@ -1,0 +1,21 @@
+{
+  "name": "@vca/orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@vca/core": "workspace:*",
+    "@vca/connector-sdk": "workspace:*",
+    "@vca/policy-engine": "workspace:*",
+    "@vca/policy-food": "workspace:*",
+    "@vca/llm": "workspace:*",
+    "@vca/speech": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx src/**/*.test.ts"
+  }
+}

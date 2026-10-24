@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/platform" },
+    { "path": "../../packages/connector-sdk" },
+    { "path": "../../packages/policy-engine" },
+    { "path": "../../packages/policy-food" },
+    { "path": "../../packages/orchestrator" }
+  ],
+  "include": ["src/**/*"]
+}

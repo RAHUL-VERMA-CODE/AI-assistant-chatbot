@@ -1,0 +1,18 @@
+{
+  "name": "@vca/connector-sdk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@vca/core": "workspace:*",
+    "@vca/connector-contract": "workspace:*",
+    "@vca/platform": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx src/**/*.test.ts"
+  }
+}

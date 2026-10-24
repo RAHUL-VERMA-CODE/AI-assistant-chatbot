@@ -63,7 +63,14 @@ This tracker documents the execution status of every phase in the Voice Commerce
   - [x] Live order tracking service with customer ownership check (`packages/policy-food/src/tracking/tracking-service.ts`)
   - [x] Dietary-compatible pairing suggestion recommender (`packages/policy-food/src/pairing/pairing-recommender.ts`)
   - [x] 36 passing unit tests (84 total across repository in 1.75s)
-- [ ] **Phase 4: LLM Layer & Provider Registry**
+- [x] **Phase 4: LLM Layer & Provider Registry** *(Completed)*
+  - [x] Provider registry with verified model metadata, pricing, and latency tiers (`packages/llm/src/registry/provider-registry.ts`)
+  - [x] Task complexity router routing fast intent tasks to ultra-low latency tier (`packages/llm/src/router/task-router.ts`)
+  - [x] Rate governor with multi-key rotation, 429 failover, and priority queues (`packages/llm/src/governor/rate-governor.ts`)
+  - [x] Single-turn deterministic tool argument JSON repair (`packages/llm/src/sanitizer/tool-repair.ts`)
+  - [x] Prompt guard defending against instruction injection and delimiter attacks (`packages/llm/src/sanitizer/prompt-guard.ts`)
+  - [x] 17 passing unit tests (94 total across repository in 1.75s)
+
 - [ ] **Phase 5: Orchestrator and Agentic State Machine**
 - [ ] **Phase 6: Speech Layer & Realtime WebSocket Gateway**
 - [ ] **Phase 7: Web SDK and Interactive Demo Client**
@@ -85,3 +92,4 @@ This tracker documents the execution status of every phase in the Voice Commerce
 | **Phase 1** | 2026-10-24 | 2026-10-24 | ✅ Completed | Platform Core, RLS Migration, LocalDevKmsAdapter, SessionToken, Concurrency, PiiScrubber, IdempotencyStore, Unified LLM Factory, 34/34 passing unit tests, git commit `eb16b22` |
 | **Phase 2** | 2026-10-24 | 2026-10-24 | ✅ Completed | Connector Contract Schemas, SsrfGuard, ConnectorSigner, ConnectorClient, ConformanceKit, Demo Tenant ARPZO, 48/48 total passing tests, git commit `1a0f398` |
 | **Phase 3** | 2026-10-24 | 2026-10-24 | ✅ Completed | TriState Kleene Logic, ConstraintEvaluator, ProposalManager, JainValidator, AllergenValidator, NutritionValidator, GroupBudgetSolver (<50ms), ReorderMapper, TrackingService, PairingRecommender, 84/84 passing tests |
+| **Phase 4** | 2026-10-24 | 2026-10-24 | ✅ Completed | ProviderRegistry, TaskRouter, RateGovernor (multi-key rotation), ToolRepair, PromptGuard, 94/94 total passing tests across 27 suites |

@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 /**
  * Typed environment configuration with strict fail-fast validation.
  */
@@ -38,7 +41,49 @@ export interface AppConfig {
   };
 }
 
+/**
+ * Minimal zero-dependency .env loader that searches upwards for a .env file
+ */
+export function populateEnvFromDotEnv(searchDir = process.cwd()): void {
+  let curr = path.resolve(searchDir);
+  for (let i = 0; i < 5; i++) {
+    const envPath = path.join(curr, '.env');
+    if (fs.existsSync(envPath)) {
+      try {
+        const content = fs.readFileSync(envPath, 'utf8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const eqIdx = trimmed.indexOf('=');
+          if (eqIdx > 0) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            let val = trimmed.slice(eqIdx + 1).trim();
+            if (
+              (val.startsWith('"') && val.endsWith('"')) ||
+              (val.startsWith("'") && val.endsWith("'"))
+            ) {
+              val = val.slice(1, -1);
+            }
+            if (process.env[key] === undefined) {
+              process.env[key] = val;
+            }
+          }
+        }
+      } catch {
+        // Ignore read errors
+      }
+      break;
+    }
+    const parent = path.dirname(curr);
+    if (parent === curr) break;
+    curr = parent;
+  }
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+  // Automatically load .env if not already loaded into process.env
+  populateEnvFromDotEnv();
+
   const nodeEnv = (env.NODE_ENV || 'development') as AppConfig['nodeEnv'];
 
   // Universal LLM provider resolution:

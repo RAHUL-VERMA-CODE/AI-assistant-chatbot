@@ -6,6 +6,8 @@ import { ConnectorClient } from '../../../packages/connector-sdk/src/client.ts';
 import { ProposalManager } from '../../../packages/policy-engine/src/proposal-manager.ts';
 import { TurnOrchestrator } from '../../../packages/orchestrator/src/state-machine/machine.ts';
 import { MockLLMProvider } from '../../../packages/llm/src/adapters/mock-adapter.ts';
+import { createLLMProvider } from '../../../packages/llm/src/factory.ts';
+import type { LLMProvider } from '../../../packages/llm/src/interfaces/llm-provider.ts';
 import {
   MockSTTProvider,
   MockTTSProvider,
@@ -21,6 +23,7 @@ export interface RealtimeServerOptions {
   readonly jwtSecret?: string;
   readonly sttProvider?: SpeechToTextProvider;
   readonly ttsProvider?: TextToSpeechProvider;
+  readonly llm?: LLMProvider;
 }
 
 export class RealtimeServer {
@@ -44,10 +47,20 @@ export class RealtimeServer {
       allowLocalhostForTesting: true,
     });
     this.proposalManager = new ProposalManager();
+
+    let llm = options.llm;
+    if (!llm) {
+      try {
+        llm = createLLMProvider();
+      } catch {
+        llm = new MockLLMProvider();
+      }
+    }
+
     this.orchestrator = new TurnOrchestrator({
       connector: this.connector,
       proposalManager: this.proposalManager,
-      llm: new MockLLMProvider(),
+      llm,
     });
     this.stt = options.sttProvider || new MockSTTProvider();
     this.tts = options.ttsProvider || new MockTTSProvider();

@@ -4,6 +4,8 @@ import { ConnectorClient } from '../../../packages/connector-sdk/src/client.ts';
 import { ProposalManager } from '../../../packages/policy-engine/src/proposal-manager.ts';
 import { TurnOrchestrator } from '../../../packages/orchestrator/src/state-machine/machine.ts';
 import { MockLLMProvider } from '../../../packages/llm/src/adapters/mock-adapter.ts';
+import { createLLMProvider } from '../../../packages/llm/src/factory.ts';
+import type { LLMProvider } from '../../../packages/llm/src/interfaces/llm-provider.ts';
 import { TrackingService } from '../../../packages/policy-food/src/tracking/tracking-service.ts';
 import { AdminService } from './admin/admin-service.ts';
 import {
@@ -33,6 +35,7 @@ export class ApiServer {
     connectorSecret: string;
     jwtSecret?: string;
     adminKey?: string;
+    llm?: LLMProvider;
   }) {
     this.sessionTokenService = new SessionTokenService(
       options.jwtSecret || 'vca_api_jwt_secret_32_characters_long_min',
@@ -43,10 +46,20 @@ export class ApiServer {
       allowLocalhostForTesting: true,
     });
     this.proposalManager = new ProposalManager();
+
+    let llm = options.llm;
+    if (!llm) {
+      try {
+        llm = createLLMProvider();
+      } catch {
+        llm = new MockLLMProvider();
+      }
+    }
+
     this.orchestrator = new TurnOrchestrator({
       connector: this.connector,
       proposalManager: this.proposalManager,
-      llm: new MockLLMProvider(),
+      llm,
     });
     this.adminService = new AdminService();
     this.adminKey = options.adminKey || 'vca_master_admin_secret';

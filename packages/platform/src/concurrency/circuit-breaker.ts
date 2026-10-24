@@ -42,7 +42,10 @@ export class CircuitBreaker {
     return this.state;
   }
 
-  public async execute<T>(fn: () => Promise<T>): Promise<T> {
+  public async execute<T>(
+    fn: () => Promise<T>,
+    isFailure?: (err: unknown) => boolean,
+  ): Promise<T> {
     const currentState = this.getState();
 
     if (currentState === 'OPEN') {
@@ -61,7 +64,10 @@ export class CircuitBreaker {
       this.onSuccess();
       return result;
     } catch (err) {
-      this.onFailure();
+      const countsAsFailure = isFailure ? isFailure(err) : true;
+      if (countsAsFailure) {
+        this.onFailure();
+      }
       throw err;
     }
   }

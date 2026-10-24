@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Voice Commerce Assistant - Tenant Connector API
+  version: 1.0.0
+  description: |
+    Standardized, versioned HTTPS connector contract exposed by the tenant platform.
+    The SaaS Voice Assistant consumes these endpoints using signed HTTPS requests with HMAC-SHA256.
+servers:
+  - url: https://{tenant-domain}/connector/v1
+    variables:
+      tenant-domain:
+        default: api.tenant.com
+paths:
+  /branches/{branch_id}/catalog:
+    get:
+      summary: Fetch authoritative branch catalog and verified dietary facts
+      parameters:
+        - name: branch_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Branch catalog with active menu version
+        '404':
+          description: Branch not found
+
+  /cart/validate:
+    post:
+      summary: Validate proposed line items, stock, and calculate authoritative charges
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [branchId, userRef, items]
+      responses:
+        '200':
+          description: Validated line items and calculated totals in minor units
+        '422':
+          description: Invalid items, options, or constraint mismatch
+
+  /cart/commit:
+    post:
+      summary: Atomically commit validated proposal to customer cart
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [branchId, userRef, proposalId, expectedCartVersion, items]
+      responses:
+        '200':
+          description: Cart committed successfully with new cart version
+        '409':
+          description: Stale cart version conflict
+
+  /users/{user_ref}/orders/latest:
+    get:
+      summary: Fetch customer's latest completed order for re-ordering
+      parameters:
+        - name: user_ref
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Past completed order line items and prices
+        '404':
+          description: No past orders found
+
+  /orders/{order_id}/status:
+    get:
+      summary: Fetch real-time delivery and preparation status
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: user_ref
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Authoritative live order status and opaque contact actions
+        '403':
+          description: User does not own the requested order
+        '404':
+          description: Order not found

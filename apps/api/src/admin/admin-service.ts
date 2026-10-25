@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { SubscriptionTier } from '../../../../packages/platform/src/billing/billing-adapter.ts';
 import { ConnectorClient } from '../../../../packages/connector-sdk/src/client.ts';
 import { ValidationError, NotFoundError, AppError } from '../../../../packages/core/src/index.ts';
+import { mongoRepos } from '../../../../packages/platform/src/database/mongodb/repositories.ts';
 
 export type TenantStatus = 'ACTIVE' | 'SUSPENDED';
 
@@ -91,6 +92,24 @@ export class AdminService {
 
     this.tenants.set(tenantId, record);
     this.tenantsBySlug.set(slug, tenantId);
+
+    // Persist to MongoDB
+    mongoRepos.tenants.updateOne(
+      { tenantId },
+      {
+        $set: {
+          tenantId,
+          name: record.name,
+          slug,
+          domain: record.domain,
+          vertical: 'food',
+          status: record.status,
+          planTier: record.planTier,
+          updatedAt: now,
+        },
+      },
+      { upsert: true },
+    );
 
     this.recordAudit({
       tenantId,

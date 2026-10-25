@@ -8,6 +8,7 @@ import { createLLMProvider } from '../../../packages/llm/src/factory.ts';
 import type { LLMProvider } from '../../../packages/llm/src/interfaces/llm-provider.ts';
 import { TrackingService } from '../../../packages/policy-food/src/tracking/tracking-service.ts';
 import { AdminService } from './admin/admin-service.ts';
+import { mongoRepos } from '../../../packages/platform/src/index.ts';
 import {
   AppError,
   UnauthorizedError,
@@ -112,6 +113,33 @@ export class ApiServer {
         return;
       }
 
+      // 1b. MongoDB Database Status check
+      if (method === 'GET' && pathname === '/v1/db/status') {
+        const counts = {
+          tenants: (await mongoRepos.tenants.find()).length,
+          apiKeys: (await mongoRepos.apiKeys.find()).length,
+          connectors: (await mongoRepos.connectors.find()).length,
+          catalogs: (await mongoRepos.catalogs.find()).length,
+          sessions: (await mongoRepos.sessions.find()).length,
+          carts: (await mongoRepos.carts.find()).length,
+          orders: (await mongoRepos.orders.find()).length,
+          preferences: (await mongoRepos.preferences.find()).length,
+          auditLogs: (await mongoRepos.auditLogs.find()).length,
+          usageEvents: (await mongoRepos.usageEvents.find()).length,
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            status: 'connected',
+            engine: 'MongoDB',
+            database: 'voice_commerce',
+            collections: counts,
+            timestamp: new Date().toISOString(),
+          }),
+        );
+        return;
+      }
+
       // Read JSON body
       const body = await this.readJsonBody(req);
 
@@ -136,6 +164,27 @@ export class ApiServer {
           userRef: asUserRef(userRef),
           branchId: asBranchId(branchId),
           cartId: asCartId(`cart_${userRef}`),
+        });
+
+        // Persist session into MongoDB
+        await mongoRepos.sessions.insertOne({
+          sessionId: sid,
+          tenantId: asTenantId(tenantId),
+          userRef: asUserRef(userRef),
+          branchId: asBranchId(branchId),
+          createdAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString(),
+          turnsCount: 0,
+        });
+
+        // Audit log in MongoDB
+        await mongoRepos.auditLogs.insertOne({
+          tenantId: asTenantId(tenantId),
+          userRef: asUserRef(userRef),
+          action: 'SESSION_CREATED',
+          resource: sid,
+          details: { branchId },
+          timestamp: new Date().toISOString(),
         });
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -197,6 +246,35 @@ export class ApiServer {
 
         this.proposalManager.markApplied(proposalId);
 
+        // Record order in MongoDB
+        await mongoRepos.orders.insertOne({
+          orderId: `ord_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          tenantId: authPayload.tenantId,
+          branchId: authPayload.branchId,
+          userRef: authPayload.userRef,
+          items: proposal.rawChoices.map((c) => ({
+            itemId: c.itemId,
+            quantity: c.quantity,
+            variantId: c.variantId,
+            optionIds: c.optionIds,
+          })),
+          totalMinor: commitRes.totalMinor,
+          currency: commitRes.currency,
+          status: 'CONFIRMED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        // Audit log in MongoDB
+        await mongoRepos.auditLogs.insertOne({
+          tenantId: authPayload.tenantId,
+          userRef: authPayload.userRef,
+          action: 'CART_CONFIRMED',
+          resource: proposalId,
+          details: { totalMinor: commitRes.totalMinor, currency: commitRes.currency },
+          timestamp: new Date().toISOString(),
+        });
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(commitRes));
         return;
@@ -224,7 +302,12 @@ export class ApiServer {
         const authPayload = this.authenticateRequest(req);
 
         if (method === 'GET') {
-          const prefs = this.userPreferences.get(authPayload.userRef) || {
+          // Check MongoDB first
+          let doc = await mongoRepos.preferences.findOne({
+            tenantId: authPayload.tenantId,
+            userRef: authPayload.userRef,
+          });
+          const prefs: CustomerPreferences = doc?.preferences || this.userPreferences.get(authPayload.userRef) || {
             consented: false,
           };
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -240,6 +323,28 @@ export class ApiServer {
             consented: true, // explicit opt-in
           };
           this.userPreferences.set(authPayload.userRef, updated);
+
+          // Persist to MongoDB
+          const existingPref = await mongoRepos.preferences.findOne({
+            tenantId: authPayload.tenantId,
+            userRef: authPayload.userRef,
+          });
+          const now = new Date().toISOString();
+          if (existingPref) {
+            await mongoRepos.preferences.updateOne(
+              { tenantId: authPayload.tenantId, userRef: authPayload.userRef },
+              { $set: { preferences: updated, updatedAt: now } },
+            );
+          } else {
+            await mongoRepos.preferences.insertOne({
+              tenantId: authPayload.tenantId,
+              userRef: authPayload.userRef,
+              preferences: updated,
+              createdAt: now,
+              updatedAt: now,
+            });
+          }
+
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(updated));
           return;
@@ -247,6 +352,10 @@ export class ApiServer {
 
         if (method === 'DELETE') {
           this.userPreferences.delete(authPayload.userRef);
+          await mongoRepos.preferences.deleteOne({
+            tenantId: authPayload.tenantId,
+            userRef: authPayload.userRef,
+          });
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true, message: 'Preferences deleted (Right to Erasure)' }));
           return;

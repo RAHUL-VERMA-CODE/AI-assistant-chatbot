@@ -19,5 +19,6 @@ export * from './metering/outbox-publisher.ts';
 export * from './metering/spend-guard.ts';
 export * from './observability/metrics.ts';
 export * from './observability/tracer.ts';
+export * from './database/mongodb/index.ts';
 
 export const PLATFORM_VERSION = '1.0.0';

@@ -38,9 +38,27 @@ async function startAll() {
   const wsPort = await realtimeServer.start(8081);
   console.log(`  ✓ 3. Realtime Voice WS:   ws://localhost:${wsPort}`);
 
-  // 4. Start Local Static HTTP Server for Demo UI (port 3000)
+  // 4. Start Local Static HTTP Server for Demo UI & Embeddable Widget (port 3000)
   const demoHtmlPath = path.join(__dirname, 'packages', 'web-sdk', 'src', 'demo', 'index.html');
+  const widgetJsPath = path.join(__dirname, 'packages', 'web-sdk', 'src', 'widget', 'voice-widget.js');
+
   const uiServer = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    const reqUrl = (req.url || '/').split('?')[0];
+    if (reqUrl === '/voice-widget.js' && fs.existsSync(widgetJsPath)) {
+      const content = fs.readFileSync(widgetJsPath, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+      res.end(content);
+      return;
+    }
+
     if (fs.existsSync(demoHtmlPath)) {
       const content = fs.readFileSync(demoHtmlPath, 'utf8');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });

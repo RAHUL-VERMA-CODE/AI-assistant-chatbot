@@ -5,6 +5,11 @@ import type {
   OrderStatusResponse,
 } from '../../../packages/connector-contract/src/index.ts';
 import { ARPZO_KORAMANGALA_CATALOG } from './seeds/arpzo-menu.ts';
+import {
+  FRESHMART_GROCERY_CATALOG,
+  TECHVAULT_RETAIL_CATALOG,
+  HEALTHCARE_PHARMACY_CATALOG,
+} from './seeds/multi-vertical-catalogs.ts';
 
 export interface StoredCart {
   readonly cartId: string;
@@ -24,8 +29,11 @@ export class DemoTenantDatabase {
   }
 
   private seed(): void {
-    // 1. Seed Branch Catalog
+    // 1. Seed Branch Catalogs (Multi-Vertical: Food, Grocery, Retail/Electronics, Pharmacy)
     this.catalogs.set(ARPZO_KORAMANGALA_CATALOG.branchId, ARPZO_KORAMANGALA_CATALOG);
+    this.catalogs.set(FRESHMART_GROCERY_CATALOG.branchId, FRESHMART_GROCERY_CATALOG);
+    this.catalogs.set(TECHVAULT_RETAIL_CATALOG.branchId, TECHVAULT_RETAIL_CATALOG);
+    this.catalogs.set(HEALTHCARE_PHARMACY_CATALOG.branchId, HEALTHCARE_PHARMACY_CATALOG);
 
     // 2. Seed Past Completed Order for customer 'usr_cust_01' (Cheese burst pizza medium + Dal)
     const samplePastOrder: PastOrder = {

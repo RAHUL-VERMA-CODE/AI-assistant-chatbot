@@ -37,6 +37,17 @@ describe('ApiServer REST Endpoints Integration', () => {
     assert.equal(body.status, 'ok');
   });
 
+  it('GET /v1/db/status returns connected MongoDB status and collections', async () => {
+    const res = await fetch(`${apiBaseUrl}/v1/db/status`);
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as any;
+    assert.equal(body.status, 'connected');
+    assert.equal(body.engine, 'MongoDB');
+    assert.equal(body.database, 'voice_commerce');
+    assert.ok(typeof body.collections.tenants === 'number');
+    assert.ok(typeof body.collections.sessions === 'number');
+  });
+
   it('POST /v1/assistant/sessions creates session token', async () => {
     const res = await fetch(`${apiBaseUrl}/v1/assistant/sessions`, {
       method: 'POST',

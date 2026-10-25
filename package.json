@@ -18,7 +18,7 @@
     "lint:fix": "eslint \"{apps,packages,tools}/**/*.ts*\" --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yaml,yml}\"",
-    "test": "pnpm -r test",
+    "test": "node tools/run-tests.js",
     "test:coverage": "pnpm -r test -- --coverage",
     "audit:deps": "pnpm audit --audit-level=high",
     "clean": "pnpm -r exec rm -rf dist coverage node_modules && rm -rf node_modules"

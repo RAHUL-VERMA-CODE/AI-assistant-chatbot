@@ -1,0 +1,28 @@
+[
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1792925169109_2sqyip",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-25T10:46:09.111Z",
+    "_id": "id_94d694d72c9f431281fb07a6c0a6f42a",
+    "createdAt": "2026-10-25T10:46:09.111Z",
+    "updatedAt": "2026-10-25T10:46:09.111Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1792925176569_eiv53u",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-25T10:46:16.571Z",
+    "_id": "id_95574c4f59354b75a603ec6784d0a0b7",
+    "createdAt": "2026-10-25T10:46:16.571Z",
+    "updatedAt": "2026-10-25T10:46:16.571Z"
+  }
+]

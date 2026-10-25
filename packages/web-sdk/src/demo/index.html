@@ -3,627 +3,1207 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voice Commerce Assistant SaaS - Universal Multi-Tenant Demo</title>
+  <title>Voice Commerce Assistant - AI Shopping Copilot</title>
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --primary-light: #e0e7ff;
-      --accent: #10b981;
-      --accent-hover: #059669;
-      --bg-dark: #0f172a;
-      --card-dark: #1e293b;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-main: #212121;
+      --bg-sidebar: #171717;
+      --bg-card: #2f2f2f;
+      --bg-card-hover: #383838;
+      --bg-input: #2f2f2f;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --text-primary: #ececec;
+      --text-secondary: #b4b4b4;
+      --text-muted: #8e8e8e;
+      --accent: #10a37f;
+      --accent-hover: #1a7f64;
+      --brand-indigo: #6366f1;
+      --brand-gradient: linear-gradient(135deg, #6366f1, #a855f7);
       --danger: #ef4444;
-      --radius: 16px;
       --radius-sm: 8px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-stack); }
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      padding: 24px 16px;
-      min-height: 100vh;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Main Application Shell */
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar (ChatGPT Style) */
+    .sidebar {
+      width: 270px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      align-items: center;
+      flex-shrink: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
     }
-    .app-shell {
-      max-width: 1200px;
-      width: 100%;
+
+    .sidebar-header {
+      padding: 16px 14px 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-    }
-    /* Top Header Bar */
-    .top-header {
-      background: var(--card-dark);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      box-shadow: var(--shadow);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
       gap: 12px;
     }
-    .brand-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), #818cf8);
+
+    .brand-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      justify-content: space-between;
     }
-    .brand-title {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-    }
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    /* System Status Bar */
-    .status-group {
+
+    .brand-badge {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
     }
-    .status-pill {
-      font-size: 12px;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-weight: 600;
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--brand-gradient);
       display: flex;
       align-items: center;
-      gap: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
-    .status-online { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
-    .status-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
-    .status-offline { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    /* Store Selector Bar */
-    .store-bar {
-      background: var(--card-dark);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 14px 20px;
+
+    .new-chat-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .vertical-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .v-tab {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
       transition: all 0.2s;
     }
-    .v-tab:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
+
+    .new-chat-btn:hover {
+      background: var(--bg-card);
+      border-color: rgba(255, 255, 255, 0.2);
     }
-    .v-tab.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-    /* Main Layout Grid */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 20px;
-    }
-    @media (max-width: 900px) {
-      .main-grid { grid-template-columns: 1fr; }
-    }
-    /* Left: Voice & Chat Card */
-    .chat-card {
-      background: var(--card-dark);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 24px;
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      box-shadow: var(--shadow);
     }
-    /* Quick Prompt Pills */
-    .prompt-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .section-label {
+
+    .section-title {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
+      padding: 4px 8px;
     }
-    .pills-container {
+
+    /* Vertical Selector Dropdown in Sidebar */
+    .vertical-select {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .vertical-select:focus {
+      border-color: var(--brand-indigo);
+    }
+
+    /* Chat Session List */
+    .session-list {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      flex-direction: column;
+      gap: 2px;
     }
-    .example-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: #cbd5e1;
-      font-size: 12.5px;
-      padding: 6px 12px;
-      border-radius: 9999px;
+
+    .session-item {
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: relative;
+    }
+
+    .session-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .session-item.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Database Explorer Button */
+    .db-nav-btn {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .db-nav-btn:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Sidebar Footer Status */
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-sidebar);
+    }
+
+    .user-profile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-dot-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      margin-right: 5px;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Main Chat Center */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      background: var(--bg-main);
+      overflow: hidden;
+    }
+
+    /* Top Bar Header */
+    .top-navbar {
+      height: 56px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      background: rgba(33, 33, 33, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .store-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .model-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-weight: 600;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-pills {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 2px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-full);
       cursor: pointer;
       transition: all 0.2s;
     }
-    .example-pill:hover {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: var(--primary);
+
+    .lang-btn.active {
+      background: var(--brand-indigo);
       color: white;
-      transform: translateY(-1px);
     }
-    /* Chat Stream Area */
-    .chat-stream {
-      height: 300px;
+
+    .action-icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .action-icon-btn:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .cart-count-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #10b981;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Message Stream Area */
+    .message-stream {
+      flex: 1;
       overflow-y: auto;
+      padding: 24px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      scroll-behavior: smooth;
+    }
+
+    .message-thread {
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ChatGPT Welcome Hero Screen */
+    .welcome-hero {
+      max-width: 820px;
+      width: 100%;
+      margin: 40px auto 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-subtitle {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      max-width: 580px;
+      line-height: 1.5;
+    }
+
+    .suggestion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .suggestion-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .suggestion-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .suggestion-prompt {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .suggestion-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Messages Formatting (ChatGPT Style) */
+    .message-row {
+      display: flex;
+      gap: 16px;
+      max-width: 100%;
+    }
+
+    .msg-user-row {
+      justify-content: flex-end;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-sm);
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .avatar-bot {
+      background: var(--brand-gradient);
+      color: white;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .avatar-user {
+      background: #475569;
+      color: white;
+    }
+
+    .msg-bubble {
+      max-width: 85%;
+      border-radius: var(--radius-lg);
+      padding: 12px 18px;
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    .msg-user-bubble {
+      background: #303030;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-bot-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Tool Call Execution Badges */
+    .tool-execution-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #94a3b8;
+      width: fit-content;
+    }
+
+    .tool-icon {
+      color: #fbbf24;
+      font-size: 12px;
+    }
+
+    /* Proposal Cards Inside Message */
+    .proposal-card {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius-md);
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      scroll-behavior: smooth;
+      margin-top: 4px;
     }
-    .chat-msg {
-      max-width: 82%;
-      padding: 12px 16px;
-      border-radius: 14px;
+
+    .proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .proposal-title {
       font-size: 14px;
-      line-height: 1.5;
-    }
-    .msg-user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, var(--primary), #4f46e5);
-      color: white;
-      border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
-    }
-    .msg-bot {
-      align-self: flex-start;
-      background: #1e293b;
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      border-bottom-left-radius: 4px;
-    }
-    /* Visualizer Waveform Canvas */
-    .visualizer-box {
-      width: 100%;
-      height: 48px;
-      background: rgba(15, 23, 42, 0.8);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--card-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-    #waveCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .wave-hint {
-      position: absolute;
-      font-size: 12px;
-      color: var(--text-muted);
-      pointer-events: none;
-    }
-    /* Voice Mic Control Center */
-    .voice-control-center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 0;
-      gap: 12px;
-    }
-    .mic-button {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), #4338ca);
-      color: white;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 34px;
-      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-    .mic-button:hover {
-      transform: scale(1.06);
-      box-shadow: 0 14px 28px -5px rgba(99, 102, 241, 0.6);
-    }
-    .mic-button.recording {
-      background: #ef4444;
-      animation: mic-pulse 1.4s infinite;
-    }
-    @keyframes mic-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 24px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-    .mic-status {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    /* Input Controls Row */
-    .input-bar {
-      display: flex;
-      gap: 10px;
-    }
-    .text-box {
-      flex: 1;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      font-size: 14px;
-      color: white;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .text-box:focus {
-      border-color: var(--primary);
-    }
-    .btn {
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-accent { background: var(--accent); color: white; }
-    .btn-accent:hover { background: var(--accent-hover); }
-    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; }
-    .btn-secondary:hover { background: rgba(255, 255, 255, 0.12); color: white; }
-    /* Language & Sound Toggles */
-    .controls-strip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .lang-pills {
-      display: flex;
-      gap: 6px;
-    }
-    .lang-pill {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 3px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .lang-pill.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    /* Right Column: Live Cart Drawer */
-    .cart-card {
-      background: var(--card-dark);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: var(--shadow);
-    }
-    .cart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 12px;
-    }
-    .cart-items-list {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 380px;
-      overflow-y: auto;
-    }
-    .cart-item {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .item-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .item-name {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-    .item-price {
-      font-size: 13.5px;
       font-weight: 700;
       color: #34d399;
-    }
-    .item-badges {
       display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
     }
-    .tag-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      color: #94a3b8;
+
+    .proposal-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: #34d399;
     }
-    .tag-veg { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-    .tag-jain { background: rgba(234, 179, 8, 0.15); color: #facc15; }
-    .item-stepper {
+
+    .proposal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-confirm {
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-confirm:hover {
+      background: #059669;
+    }
+
+    .btn-dismiss {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-dismiss:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+
+    /* Bottom Floating Input Container (ChatGPT Style) */
+    .input-wrapper {
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px 24px;
+      position: relative;
+    }
+
+    .input-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 10px 14px 10px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .textarea-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.5;
+      outline: none;
+      resize: none;
+      max-height: 140px;
+      min-height: 24px;
+    }
+
+    .chat-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .audio-wave-container {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .wave-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .wave-bar {
+      width: 3px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 2px;
+      animation: wave-bounce 1s infinite ease-in-out;
+    }
+
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.6s; }
+
+    @keyframes wave-bounce {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+
+    .buttons-cluster {
       display: flex;
       align-items: center;
       gap: 8px;
-      align-self: flex-end;
+      margin-left: auto;
     }
-    .step-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      border: none;
-      color: white;
+
+    .mic-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 16px;
+      transition: all 0.2s;
     }
-    .step-btn:hover { background: rgba(255, 255, 255, 0.15); }
-    .empty-cart-msg {
+
+    .mic-icon-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .mic-icon-btn.recording {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+      animation: mic-pulse 1.4s infinite;
+    }
+
+    @keyframes mic-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .send-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      color: var(--bg-main);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .send-icon-btn:disabled {
+      background: #404040;
+      color: #737373;
+      cursor: not-allowed;
+    }
+
+    .footer-disclaimer {
       text-align: center;
-      padding: 30px 10px;
+      font-size: 11.5px;
       color: var(--text-muted);
-      font-size: 13px;
+      margin-top: 8px;
     }
-    .cart-summary {
-      border-top: 1px solid var(--card-border);
-      padding-top: 12px;
+
+    /* Right Cart Drawer (Slide-Over Panel) */
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 360px;
+      max-width: 100vw;
+      height: 100vh;
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      font-size: 13px;
     }
-    .summary-row {
+
+    .cart-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drawer-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .drawer-close:hover { color: var(--text-primary); }
+
+    .drawer-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cart-empty-state {
+      text-align: center;
+      padding: 40px 10px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+
+    .cart-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cart-item-header {
       display: flex;
       justify-content: space-between;
-      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 13.5px;
     }
-    .summary-row.total {
+
+    .cart-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+    }
+
+    .qty-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+    }
+
+    .drawer-summary {
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+    }
+
+    .summary-total {
       font-size: 16px;
       font-weight: 800;
       color: #34d399;
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px dashed var(--card-border);
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-color);
     }
-    .proposal-banner {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+
+    .checkout-btn {
+      margin-top: 8px;
+      background: #10b981;
+      color: white;
+      border: none;
       border-radius: var(--radius-sm);
       padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .checkout-btn:hover { background: #059669; }
+    .checkout-btn:disabled { background: #404040; cursor: not-allowed; }
+
+    /* Database Explorer Modal */
+    .db-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .db-modal-overlay.open {
+      display: flex;
+    }
+
+    .db-modal {
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 900px;
+      max-width: 100%;
+      height: 600px;
+      max-height: 90vh;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .db-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .db-tabs {
+      display: flex;
       gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.2);
+      overflow-x: auto;
+    }
+
+    .db-tab-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .db-tab-btn.active {
+      background: var(--brand-indigo);
+      color: white;
+      border-color: var(--brand-indigo);
+    }
+
+    .db-modal-body {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 13px;
+      background: #0f172a;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .suggestion-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <!-- Top Header -->
-    <header class="top-header">
-      <div class="brand">
-        <div class="brand-logo">🎙️</div>
+  <div class="app-container">
+    <!-- Left Sidebar (ChatGPT Navigation) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-row">
+          <div class="brand-badge">
+            <div class="brand-icon">✦</div>
+            <span>Voice Commerce</span>
+          </div>
+        </div>
+
+        <button class="new-chat-btn" id="newChatBtn">
+          <span>+ New Chat</span>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 400;">Ctrl+K</span>
+        </button>
+
         <div>
-          <div class="brand-title">Voice Commerce Assistant SaaS</div>
-          <div class="brand-subtitle">Generic Multi-Tenant AI Platform (Food, Grocery, Retail, Pharmacy)</div>
+          <label class="section-title">ACTIVE STORE VERTICAL</label>
+          <select class="vertical-select" id="verticalSelect">
+            <option value="food" selected>🍕 Food (ARPZO Kitchen)</option>
+            <option value="grocery">🛒 Grocery (FreshMart Supermarket)</option>
+            <option value="retail">⚡ Electronics (TechVault Store)</option>
+            <option value="pharmacy">💊 Pharmacy (HealthCare Plus)</option>
+          </select>
         </div>
       </div>
-      <div class="status-group">
-        <div class="status-pill status-online" id="dbStatusPill">
-          <span class="status-dot"></span>
-          <span>MongoDB: Connected</span>
-        </div>
-        <div class="status-pill status-online" id="apiStatusPill">
-          <span class="status-dot"></span>
-          <span>API Gateway (8080)</span>
-        </div>
-        <div class="status-pill status-online" id="wsStatusPill">
-          <span class="status-dot"></span>
-          <span>WebSocket Realtime (8081)</span>
-        </div>
-      </div>
-    </header>
 
-    <!-- Multi-Vertical Store Switcher -->
-    <div class="store-bar">
-      <span class="section-label">SELECT DEMO STORE VERTICAL:</span>
-      <div class="vertical-tabs" id="verticalTabs">
-        <button class="v-tab active" data-tenant="tenant_arpzo" data-branch="branch_koramangala" data-vertical="food">
-          🍕 Food (ARPZO Kitchen)
-        </button>
-        <button class="v-tab" data-tenant="tenant_freshmart" data-branch="branch_freshmart_grocery" data-vertical="grocery">
-          🛒 Grocery (FreshMart)
-        </button>
-        <button class="v-tab" data-tenant="tenant_techvault" data-branch="branch_techvault_retail" data-vertical="retail">
-          ⚡ Electronics (TechVault)
-        </button>
-        <button class="v-tab" data-tenant="tenant_healthcare" data-branch="branch_healthcare_pharmacy" data-vertical="pharmacy">
-          💊 Pharmacy (HealthCare Plus)
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="main-grid">
-      <!-- Left Column: Voice Assistant & Interaction -->
-      <div class="chat-card">
-        <!-- Vertical Prompts Section -->
-        <div class="prompt-section">
-          <span class="section-label" id="examplesLabel">QUICK VOICE SUGGESTIONS FOR FOOD:</span>
-          <div class="pills-container" id="pillsContainer">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-
-        <!-- Chat Stream Window -->
-        <div class="chat-stream" id="chatStream">
-          <div class="chat-msg msg-bot">
-            Namaste! I am your AI Voice Commerce Assistant. You can speak in English, Hindi, or Hinglish to find items, customize dietary choices, or place an order.
-          </div>
-        </div>
-
-        <!-- Active Proposal Banner -->
-        <div id="proposalArea" style="display: none;"></div>
-
-        <!-- Audio Frequency Visualizer -->
-        <div class="visualizer-box">
-          <canvas id="waveCanvas"></canvas>
-          <div class="wave-hint" id="waveHint">Voice Audio Visualizer (Inactive)</div>
-        </div>
-
-        <!-- Mic Button Center -->
-        <div class="voice-control-center">
-          <button class="mic-button" id="micBtn" title="Click to Speak">🎙️</button>
-          <div class="mic-status" id="micStatus">Tap microphone to speak (English / Hindi / Hinglish)</div>
-        </div>
-
-        <!-- Text / Transcript Bar -->
-        <div class="input-bar">
-          <input type="text" id="textInput" class="text-box" placeholder="Speak with mic, or type message here..." />
-          <button class="btn btn-primary" id="sendBtn">Send</button>
-        </div>
-
-        <!-- Settings Strip -->
-        <div class="controls-strip">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span>Recognition Language:</span>
-            <div class="lang-pills">
-              <button class="lang-pill active" data-lang="en-IN">English (India)</button>
-              <button class="lang-pill" data-lang="hi-IN">हिन्दी</button>
-              <button class="lang-pill" data-lang="hinglish">Hinglish</button>
+      <div class="sidebar-scroll">
+        <div>
+          <div class="section-title">RECENT CONVERSATIONS</div>
+          <div class="session-list" id="sessionList">
+            <div class="session-item active">
+              <span>💬 Current Shopping Turn</span>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <button class="btn-secondary btn" id="ttsToggleBtn" style="padding:4px 8px; font-size:12px;">🔊 Voice: ON</button>
-            <span id="latencyPill" style="font-size:11px; color:#64748b;">RTT: --ms</span>
+        </div>
+
+        <div>
+          <div class="section-title">DEVELOPER & DATABASE</div>
+          <button class="db-nav-btn" id="openDbBtn">
+            <span>📊</span>
+            <span>Database Explorer (MongoDB)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="telemetry-row">
+          <span><span class="status-dot-pulse"></span>MongoDB Connected</span>
+          <span id="dbDocCount">4 collections</span>
+        </div>
+        <div class="user-profile-row">
+          <div class="user-info">
+            <div class="user-avatar">U</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600;">Customer User</div>
+              <div style="font-size: 11px; color: var(--text-muted);">usr_cust_01</div>
+            </div>
+          </div>
+          <button class="action-icon-btn" id="cartToggleBtn" title="View Cart">
+            🛒
+            <span class="cart-count-badge" id="cartCountBadge">0</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-container">
+      <!-- Top Navigation Header -->
+      <nav class="top-navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+          <div class="store-badge">
+            <span id="storeHeaderTitle">ARPZO Kitchen - Koramangala</span>
+            <span class="model-tag">GPT-OSS 120B</span>
+          </div>
+        </div>
+
+        <div class="navbar-right">
+          <div class="lang-pills">
+            <button class="lang-btn active" data-lang="en-IN">EN</button>
+            <button class="lang-btn" data-lang="hi-IN">हिन्दी</button>
+            <button class="lang-btn" data-lang="hinglish">Hinglish</button>
+          </div>
+          <button class="action-icon-btn" id="ttsVoiceBtn" title="Toggle Assistant Voice">🔊</button>
+        </div>
+      </nav>
+
+      <!-- Message History Stream -->
+      <div class="message-stream" id="messageStream">
+        <div class="message-thread" id="messageThread">
+          <!-- Welcome Hero Screen (ChatGPT Style) -->
+          <div class="welcome-hero" id="welcomeHero">
+            <h1 class="welcome-title">What would you like to order today?</h1>
+            <p class="welcome-subtitle">
+              Speak or type to search menus, customize dietary restrictions, repeat past orders, or track live deliveries in English, Hindi, and Hinglish.
+            </p>
+
+            <div class="suggestion-grid" id="suggestionGrid">
+              <!-- Populated dynamically based on selected vertical -->
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Interactive Cart & Store Checkout -->
-      <div class="cart-card">
-        <div class="cart-header">
-          <div style="font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <span>🛍️</span>
-            <span id="cartStoreName">ARPZO Kitchen Cart</span>
+      <!-- Bottom Sticky Input Bar (ChatGPT Style) -->
+      <div class="input-wrapper">
+        <div class="input-box">
+          <div class="textarea-row">
+            <textarea
+              class="chat-textarea"
+              id="chatInput"
+              rows="1"
+              placeholder="Message or tap mic to speak in English, Hindi, Hinglish..."
+            ></textarea>
           </div>
-          <span class="tag-badge" id="cartVersionBadge" style="background:#334155; color:#cbd5e1;">v1</span>
-        </div>
 
-        <!-- Cart Items -->
-        <div class="cart-items-list" id="cartItemsList">
-          <div class="empty-cart-msg">Your cart is empty.<br>Speak or type to add items!</div>
-        </div>
+          <div class="input-actions">
+            <div class="audio-wave-container" id="waveContainer">
+              <div class="wave-bars">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
+              <span id="recordingStatusText">Listening... Speak now</span>
+            </div>
 
-        <!-- Cart Financial Breakdown -->
-        <div class="cart-summary" id="cartSummary">
-          <div class="summary-row">
-            <span>Items Subtotal</span>
-            <span id="subtotalText">INR 0.00</span>
-          </div>
-          <div class="summary-row">
-            <span>Taxes & GST (5%)</span>
-            <span id="taxesText">INR 0.00</span>
-          </div>
-          <div class="summary-row">
-            <span>Packaging & Delivery</span>
-            <span id="deliveryText">INR 0.00</span>
-          </div>
-          <div class="summary-row total">
-            <span>Total Payable</span>
-            <span id="totalText">INR 0.00</span>
+            <div class="buttons-cluster">
+              <button class="mic-icon-btn" id="micBtn" title="Hold or tap to speak">🎙️</button>
+              <button class="send-icon-btn" id="sendBtn" title="Send message" disabled>↑</button>
+            </div>
           </div>
         </div>
+        <div class="footer-disclaimer">
+          AI Voice Assistant powered by Groq (GPT-OSS 120B). Deterministic connector guarantees price & allergy safety.
+        </div>
+      </div>
+    </main>
 
-        <!-- Checkout Action Button -->
-        <button class="btn btn-accent" id="checkoutBtn" style="width:100%; justify-content:center; padding:12px; font-size:14px;" disabled>
+    <!-- Slide-Over Interactive Cart Drawer -->
+    <aside class="cart-drawer" id="cartDrawer">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <span>🛍️ Your Order Cart</span>
+        </div>
+        <button class="drawer-close" id="closeCartBtn">&times;</button>
+      </div>
+
+      <div class="drawer-items" id="drawerItems">
+        <div class="cart-empty-state">
+          Your cart is currently empty.<br>Speak or type to add items!
+        </div>
+      </div>
+
+      <div class="drawer-summary">
+        <div class="summary-line">
+          <span>Items Subtotal</span>
+          <span id="subtotalValue">INR 0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>Taxes (5% GST)</span>
+          <span id="taxValue">INR 0.00</span>
+        </div>
+        <div class="summary-line">
+          <span>Packaging & Delivery</span>
+          <span id="deliveryValue">INR 0.00</span>
+        </div>
+        <div class="summary-line summary-total">
+          <span>Total Payable</span>
+          <span id="totalValue">INR 0.00</span>
+        </div>
+        <button class="checkout-btn" id="proceedCheckoutBtn" disabled>
           Proceed to Store Checkout →
         </button>
+      </div>
+    </aside>
+
+    <!-- Database Explorer Modal -->
+    <div class="db-modal-overlay" id="dbModalOverlay">
+      <div class="db-modal">
+        <div class="db-modal-header">
+          <div style="font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>📊</span>
+            <span>Platform MongoDB Database Inspector</span>
+          </div>
+          <button class="drawer-close" id="closeDbBtn">&times;</button>
+        </div>
+        <div class="db-tabs" id="dbTabs">
+          <button class="db-tab-btn active" data-col="tenants">tenants</button>
+          <button class="db-tab-btn" data-col="catalogs">catalogs</button>
+          <button class="db-tab-btn" data-col="orders">orders</button>
+          <button class="db-tab-btn" data-col="sessions">sessions</button>
+          <button class="db-tab-btn" data-col="preferences">customer_preferences</button>
+          <button class="db-tab-btn" data-col="auditLogs">audit_logs</button>
+        </div>
+        <div class="db-modal-body" id="dbModalBody">Loading collection data from MongoDB...</div>
       </div>
     </div>
   </div>
@@ -641,361 +1221,366 @@
     let ws = null;
     let isRecording = false;
     let isTtsEnabled = true;
-    let selectedLang = 'en-IN';
+    let activeLang = 'en-IN';
 
-    // Current Cart State in Demo
-    let cartState = {
+    // Cart State
+    let cart = {
       items: [],
       subtotalMinor: 0,
-      taxesMinor: 0,
+      taxMinor: 0,
       deliveryMinor: 0,
       totalMinor: 0,
-      version: 1
+      version: 1,
     };
 
     // DOM Elements
-    const chatStream = document.getElementById('chatStream');
-    const textInput = document.getElementById('textInput');
+    const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
     const micBtn = document.getElementById('micBtn');
-    const micStatus = document.getElementById('micStatus');
-    const proposalArea = document.getElementById('proposalArea');
-    const pillsContainer = document.getElementById('pillsContainer');
-    const examplesLabel = document.getElementById('examplesLabel');
-    const waveCanvas = document.getElementById('waveCanvas');
-    const waveHint = document.getElementById('waveHint');
-    const ttsToggleBtn = document.getElementById('ttsToggleBtn');
-    const latencyPill = document.getElementById('latencyPill');
-    const cartStoreName = document.getElementById('cartStoreName');
-    const cartItemsList = document.getElementById('cartItemsList');
-    const subtotalText = document.getElementById('subtotalText');
-    const taxesText = document.getElementById('taxesText');
-    const deliveryText = document.getElementById('deliveryText');
-    const totalText = document.getElementById('totalText');
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    const cartVersionBadge = document.getElementById('cartVersionBadge');
-    const dbStatusPill = document.getElementById('dbStatusPill');
+    const messageStream = document.getElementById('messageStream');
+    const messageThread = document.getElementById('messageThread');
+    const welcomeHero = document.getElementById('welcomeHero');
+    const suggestionGrid = document.getElementById('suggestionGrid');
+    const waveContainer = document.getElementById('waveContainer');
+    const recordingStatusText = document.getElementById('recordingStatusText');
+    const storeHeaderTitle = document.getElementById('storeHeaderTitle');
+    const verticalSelect = document.getElementById('verticalSelect');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const ttsVoiceBtn = document.getElementById('ttsVoiceBtn');
+    const cartToggleBtn = document.getElementById('cartToggleBtn');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartCountBadge = document.getElementById('cartCountBadge');
+    const drawerItems = document.getElementById('drawerItems');
+    const subtotalValue = document.getElementById('subtotalValue');
+    const taxValue = document.getElementById('taxValue');
+    const deliveryValue = document.getElementById('deliveryValue');
+    const totalValue = document.getElementById('totalValue');
+    const proceedCheckoutBtn = document.getElementById('proceedCheckoutBtn');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const openDbBtn = document.getElementById('openDbBtn');
+    const closeDbBtn = document.getElementById('closeDbBtn');
+    const dbModalOverlay = document.getElementById('dbModalOverlay');
+    const dbModalBody = document.getElementById('dbModalBody');
+    const dbTabs = document.getElementById('dbTabs');
 
-    // Vertical Specific Prompts
-    const VERTICAL_PROMPTS = {
+    // Suggestions per Vertical (ChatGPT Cards)
+    const SUGGESTIONS = {
       food: [
-        'Ek cheese burst pizza add kar do',
-        'For 3 people, 2 veg and 1 non veg, under 1500',
-        'Ek Jain Paneer Tikka add karo',
-        'Same as last time, make it Jain',
-        'Where is my order ord_live_77?'
+        { title: '🍕 Cheese Burst Pizza', prompt: 'Ek cheese burst pizza add kar do', desc: 'Loaded melted cheese crust with herbs' },
+        { title: '🥗 Jain Dinner under ₹1500', prompt: 'For 3 people, 2 veg and 1 non veg, under 1500', desc: 'Group ordering with strict budget allocation' },
+        { title: '🪷 Jain Paneer Tikka', prompt: 'Ek Jain Paneer Tikka add karo', desc: '100% verified recipe, zero root vegetables' },
+        { title: '📦 Track Active Order', prompt: 'Where is my order ord_live_77?', desc: 'Live rider dispatch status and ETA' },
       ],
       grocery: [
-        'Add 1kg Ratnagiri Alphonso mangoes',
-        'Add 2 packs of organic milk and sourdough bread',
-        'Ek packet basmati rice and 2 avocados add kar do',
-        'Show me dairy items'
+        { title: '🥭 Alphonso Mangoes', prompt: 'Add 1kg Ratnagiri Alphonso mangoes', desc: 'Naturally ripened sweet carbide-free' },
+        { title: '🥛 Farm Fresh Milk', prompt: 'Add 2 packs of organic cow milk', desc: 'Pasteurized single-origin A2 organic milk' },
+        { title: '🥖 Artisan Sourdough', prompt: 'Add country sourdough bread and basmati rice', desc: 'Slow-fermented 36-hour bakery bread' },
+        { title: '🥑 Hass Avocados', prompt: 'Order 2 Hass avocados', desc: 'Fresh monounsaturated rich avocados' },
       ],
       retail: [
-        'Add Sony WH-1000XM5 ANC headphones in black',
-        'Add Anker 65W GaN fast charger and USB-C cable',
-        'Show me mechanical keyboard options'
+        { title: '🎧 Sony ANC Headphones', prompt: 'Add Sony WH-1000XM5 ANC headphones in black', desc: 'Dual-processor 30hr battery headphones' },
+        { title: '⚡ 65W GaN Charger', prompt: 'Add Anker 65W GaN fast charger and USB-C cable', desc: 'Charges laptop and phone simultaneously' },
+        { title: '⌨️ Mechanical Keyboard', prompt: 'Show me Keychron wireless mechanical keyboard', desc: 'RGB hot-swappable tactile switches' },
+        { title: '🔋 MagSafe Power Bank', prompt: 'Add a 10000mAh magnetic power bank', desc: 'Fast wireless Qi portable charger' },
       ],
       pharmacy: [
-        'Add Dolo 650 paracetamol tablets',
-        'Add Limcee Vitamin C chewable tablets',
-        'Ek packet Optimum Nutrition whey protein isolate add karo'
-      ]
+        { title: '💊 Dolo 650 Paracetamol', prompt: 'Add Dolo 650 paracetamol tablets', desc: 'Fast fever and mild pain relief' },
+        { title: '🍊 Vitamin C Chewables', prompt: 'Add Limcee Vitamin C 500mg chewables', desc: 'Immunity booster with zinc' },
+        { title: '💪 Whey Protein Isolate', prompt: 'Add 1kg chocolate whey protein isolate', desc: '24g pure whey isolate per scoop' },
+        { title: '🩹 First Aid Antiseptic', prompt: 'Add antiseptic band-aids box of 50', desc: 'Emergency sterile adhesive bandages' },
+      ],
     };
 
-    // Render Prompts for Selected Vertical
-    function renderPrompts(vertical) {
-      examplesLabel.innerText = `QUICK VOICE SUGGESTIONS FOR ${vertical.toUpperCase()}:`;
-      pillsContainer.innerHTML = '';
-      const list = VERTICAL_PROMPTS[vertical] || VERTICAL_PROMPTS.food;
-      list.forEach((text) => {
-        const pill = document.createElement('span');
-        pill.className = 'example-pill';
-        pill.innerText = `"${text}"`;
-        pill.onclick = () => {
-          textInput.value = text;
-          sendText();
+    function renderSuggestions(vertical) {
+      suggestionGrid.innerHTML = '';
+      const list = SUGGESTIONS[vertical] || SUGGESTIONS.food;
+      list.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        card.innerHTML = `
+          <div class="suggestion-prompt">${item.title}</div>
+          <div class="suggestion-desc">${item.desc}</div>
+        `;
+        card.onclick = () => {
+          chatInput.value = item.prompt;
+          sendUserMessage();
         };
-        pillsContainer.appendChild(pill);
+        suggestionGrid.appendChild(card);
       });
     }
 
-    // Vertical Switcher Tabs
-    document.querySelectorAll('.v-tab').forEach((tab) => {
-      tab.onclick = () => {
-        document.querySelectorAll('.v-tab').forEach((t) => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentTenantId = tab.getAttribute('data-tenant');
-        currentBranchId = tab.getAttribute('data-branch');
-        currentVertical = tab.getAttribute('data-vertical');
-        cartStoreName.innerText = `${tab.innerText.trim()} Cart`;
-        renderPrompts(currentVertical);
-        // Reset Cart and Re-initialize session
-        cartState = { items: [], subtotalMinor: 0, taxesMinor: 0, deliveryMinor: 0, totalMinor: 0, version: 1 };
-        updateCartUI();
-        initSession();
+    // Vertical Switcher Handler
+    verticalSelect.onchange = (e) => {
+      currentVertical = e.target.value;
+      const verticalMap = {
+        food: { tenant: 'tenant_arpzo', branch: 'branch_koramangala', title: 'ARPZO Kitchen - Koramangala' },
+        grocery: { tenant: 'tenant_freshmart', branch: 'branch_freshmart_grocery', title: 'FreshMart Supermarket - Indiranagar' },
+        retail: { tenant: 'tenant_techvault', branch: 'branch_techvault_retail', title: 'TechVault Flagship - MG Road' },
+        pharmacy: { tenant: 'tenant_healthcare', branch: 'branch_healthcare_pharmacy', title: 'HealthCare Plus Medicos - Whitefield' },
       };
+      const cfg = verticalMap[currentVertical] || verticalMap.food;
+      currentTenantId = cfg.tenant;
+      currentBranchId = cfg.branch;
+      storeHeaderTitle.innerText = cfg.title;
+      renderSuggestions(currentVertical);
+      resetChat();
+    };
+
+    // Auto-resizing textarea
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 140) + 'px';
+      sendBtn.disabled = !chatInput.value.trim();
     });
 
-    // Language Selector Pills
-    document.querySelectorAll('.lang-pill').forEach((pill) => {
-      pill.onclick = () => {
-        document.querySelectorAll('.lang-pill').forEach((p) => p.classList.remove('active'));
-        pill.classList.add('active');
-        selectedLang = pill.getAttribute('data-lang');
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendUserMessage();
+      }
+    });
+
+    // Language pills
+    document.querySelectorAll('.lang-btn').forEach((btn) => {
+      btn.onclick = () => {
+        document.querySelectorAll('.lang-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeLang = btn.getAttribute('data-lang');
         if (speechRecognition) {
-          speechRecognition.lang = selectedLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
+          speechRecognition.lang = activeLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
         }
       };
     });
 
     // TTS Toggle
-    ttsToggleBtn.onclick = () => {
+    ttsVoiceBtn.onclick = () => {
       isTtsEnabled = !isTtsEnabled;
-      ttsToggleBtn.innerText = isTtsEnabled ? '🔊 Voice: ON' : '🔇 Voice: MUTED';
-      if (!isTtsEnabled && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      ttsVoiceBtn.innerText = isTtsEnabled ? '🔊' : '🔇';
+      if (!isTtsEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
     };
 
-    function appendMessage(role, text) {
-      const msg = document.createElement('div');
-      msg.className = `chat-msg ${role === 'user' ? 'msg-user' : 'msg-bot'}`;
-      msg.innerText = text;
-      chatStream.appendChild(msg);
-      chatStream.scrollTop = chatStream.scrollHeight;
+    // Mobile sidebar toggle
+    mobileMenuBtn.onclick = () => {
+      sidebar.classList.toggle('open');
+    };
+
+    // Cart Drawer Toggle
+    cartToggleBtn.onclick = () => cartDrawer.classList.add('open');
+    closeCartBtn.onclick = () => cartDrawer.classList.remove('open');
+
+    // New Chat Action
+    function resetChat() {
+      messageThread.innerHTML = '';
+      messageThread.appendChild(welcomeHero);
+      welcomeHero.style.display = 'flex';
+      cart = { items: [], subtotalMinor: 0, taxMinor: 0, deliveryMinor: 0, totalMinor: 0, version: 1 };
+      updateCartUI();
+      initSession();
+    }
+    newChatBtn.onclick = resetChat;
+
+    // Database Explorer Modal Handlers
+    openDbBtn.onclick = () => {
+      dbModalOverlay.classList.add('open');
+      loadDbCollection('tenants');
+    };
+    closeDbBtn.onclick = () => dbModalOverlay.classList.remove('open');
+
+    async function loadDbCollection(colName) {
+      dbModalBody.innerText = `Fetching collection '${colName}' from MongoDB...`;
+      try {
+        const res = await fetch(`${API_BASE}/v1/db/collections/${colName}`);
+        if (!res.ok) throw new Error('Failed to load collection');
+        const data = await res.json();
+        dbModalBody.innerText = JSON.stringify(data, null, 2);
+      } catch (e) {
+        dbModalBody.innerText = `Error querying MongoDB: ${e.message}`;
+      }
     }
 
-    // Assistant Voice Synthesis
-    function speakText(text) {
+    dbTabs.querySelectorAll('.db-tab-btn').forEach((tab) => {
+      tab.onclick = () => {
+        dbTabs.querySelectorAll('.db-tab-btn').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadDbCollection(tab.getAttribute('data-col'));
+      };
+    });
+
+    // Assistant Voice Output (TTS)
+    function speakAssistant(text) {
       if (!isTtsEnabled || !('speechSynthesis' in window)) return;
       try {
         window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = selectedLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
+        utter.lang = activeLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
         utter.rate = 1.05;
         window.speechSynthesis.speak(utter);
-      } catch (e) {
-        console.warn('TTS error:', e);
-      }
+      } catch (err) {}
     }
 
-    // Initialize Assistant Session
-    async function initSession() {
-      try {
-        const startT = performance.now();
-        const res = await fetch(`${API_BASE}/v1/assistant/sessions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tenantId: currentTenantId,
-            userRef: currentUserRef,
-            branchId: currentBranchId,
-          }),
-        });
-        const elapsed = Math.round(performance.now() - startT);
-        latencyPill.innerText = `RTT: ${elapsed}ms`;
-
-        if (!res.ok) throw new Error('Session creation failed');
-        const data = await res.json();
-        sessionToken = data.token;
-        initWebSocket();
-        checkDbStatus();
-      } catch (err) {
-        console.error('Session error:', err);
-      }
+    // Render Messages (ChatGPT Style)
+    function appendUserMessage(text) {
+      welcomeHero.style.display = 'none';
+      const row = document.createElement('div');
+      row.className = 'message-row msg-user-row';
+      row.innerHTML = `
+        <div class="msg-bubble msg-user-bubble">${escapeHtml(text)}</div>
+        <div class="msg-avatar avatar-user">U</div>
+      `;
+      messageThread.appendChild(row);
+      messageStream.scrollTop = messageStream.scrollHeight;
     }
 
-    // Check MongoDB Connection Status
-    async function checkDbStatus() {
-      try {
-        const res = await fetch(`${API_BASE}/v1/db/status`);
-        if (res.ok) {
-          const dbData = await res.json();
-          dbStatusPill.className = 'status-pill status-online';
-          dbStatusPill.innerHTML = `<span class="status-dot"></span><span>MongoDB: ${dbData.status} (${dbData.collections.tenants} tenants)</span>`;
-        }
-      } catch {
-        dbStatusPill.className = 'status-pill status-warning';
-        dbStatusPill.innerHTML = `<span class="status-dot"></span><span>MongoDB: Standby</span>`;
-      }
-    }
-
-    // Realtime WebSocket Connection
-    function initWebSocket() {
-      if (ws) {
-        ws.close();
-      }
-      ws = new WebSocket(`${WS_BASE}/?token=${encodeURIComponent(sessionToken)}`);
-      ws.binaryType = 'arraybuffer';
-
-      ws.onopen = () => {
-        document.getElementById('wsStatusPill').className = 'status-pill status-online';
-      };
-
-      ws.onclose = () => {
-        document.getElementById('wsStatusPill').className = 'status-pill status-warning';
-      };
-
-      ws.onmessage = (event) => {
-        if (typeof event.data === 'string') {
-          const msg = JSON.parse(event.data);
-          if (msg.type === 'transcript_partial') {
-            textInput.value = msg.text;
-          } else if (msg.type === 'transcript_final') {
-            textInput.value = msg.text;
-            appendMessage('user', msg.text);
-          } else if (msg.type === 'assistant_reply') {
-            appendMessage('bot', msg.replyText);
-            speakText(msg.replyText);
-            if (msg.proposalId) {
-              renderProposalBanner(msg);
-            }
-          }
-        }
-      };
-    }
-
-    // Render Proposal Action Card
-    function renderProposalBanner(proposal) {
-      proposalArea.style.display = 'block';
-      const formattedTotal = (proposal.proposalTotalMinor / 100).toFixed(2);
-      proposalArea.innerHTML = `
-        <div class="proposal-banner">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:700; color:#34d399; font-size:13.5px;">🛒 Proposed Cart Update</span>
-            <span style="font-size:16px; font-weight:800; color:#34d399;">INR ${formattedTotal}</span>
+    function appendBotMessage(data) {
+      const row = document.createElement('div');
+      row.className = 'message-row';
+      const hasToolCall = !!data.proposalId;
+      
+      row.innerHTML = `
+        <div class="msg-avatar avatar-bot">✦</div>
+        <div class="msg-bot-content">
+          ${hasToolCall ? `
+            <div class="tool-execution-badge">
+              <span class="tool-icon">⚡</span>
+              <span>Executed: propose_cart & allergen_check (Verified)</span>
+            </div>
+          ` : ''}
+          <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-primary);">
+            ${escapeHtml(data.replyText || data)}
           </div>
-          <div style="font-size:13px; color:#cbd5e1;">${proposal.replyText}</div>
-          <div style="display:flex; gap:10px; margin-top:4px;">
-            <button class="btn btn-accent" id="confirmProposalBtn">✓ Confirm & Apply</button>
-            <button class="btn btn-secondary" onclick="dismissProposal()">Dismiss</button>
+          ${data.proposalId ? renderProposalMarkup(data) : ''}
+        </div>
+      `;
+      messageThread.appendChild(row);
+      messageStream.scrollTop = messageStream.scrollHeight;
+      speakAssistant(data.replyText || data);
+    }
+
+    function renderProposalMarkup(proposal) {
+      const formattedTotal = (proposal.proposalTotalMinor / 100).toFixed(2);
+      return `
+        <div class="proposal-card" id="card_${proposal.proposalId}">
+          <div class="proposal-header">
+            <span class="proposal-title">🛒 Proposed Cart Preview</span>
+            <span class="proposal-price">INR ${formattedTotal}</span>
+          </div>
+          <div class="proposal-actions">
+            <button class="btn-confirm" onclick="confirmProposal('${proposal.proposalId}')">✓ Confirm & Add to Cart</button>
+            <button class="btn-dismiss" onclick="dismissCard('card_${proposal.proposalId}')">Dismiss</button>
           </div>
         </div>
       `;
-
-      document.getElementById('confirmProposalBtn').onclick = async () => {
-        const btn = document.getElementById('confirmProposalBtn');
-        btn.disabled = true;
-        btn.innerText = 'Applying...';
-        try {
-          const res = await fetch(`${API_BASE}/v1/cart/confirm`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${sessionToken}`,
-            },
-            body: JSON.stringify({ proposalId: proposal.proposalId }),
-          });
-          const data = await res.json();
-          proposalArea.style.display = 'none';
-
-          // Update demo cart with proposed items
-          applyProposalToCart(proposal, data);
-          appendMessage('bot', `✓ Cart updated! Total is ${data.currency} ${(data.totalMinor / 100).toFixed(2)}.`);
-          speakText('Your cart has been updated.');
-        } catch (err) {
-          btn.disabled = false;
-          btn.innerText = 'Retry';
-          alert('Failed to confirm cart: ' + err);
-        }
-      };
     }
 
-    function dismissProposal() {
-      proposalArea.style.display = 'none';
-      if (ws && ws.readyState === 1) {
-        ws.send(JSON.stringify({ type: 'cancel_turn' }));
+    window.dismissCard = (id) => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    };
+
+    window.confirmProposal = async (proposalId) => {
+      const card = document.getElementById(`card_${proposalId}`);
+      if (card) {
+        card.innerHTML = `<span style="color:#34d399; font-weight:600;">Applying confirmed items to cart...</span>`;
       }
-    }
-
-    function applyProposalToCart(proposal, commitResult) {
-      cartState.version = commitResult.newCartVersion || cartState.version + 1;
-      cartState.totalMinor = commitResult.totalMinor;
-      cartState.subtotalMinor = Math.round(cartState.totalMinor * 0.88);
-      cartState.taxesMinor = Math.round(cartState.totalMinor * 0.05);
-      cartState.deliveryMinor = cartState.totalMinor - cartState.subtotalMinor - cartState.taxesMinor;
-
-      // Add item to cart display
-      cartState.items = [
-        {
-          name: proposal.replyText.replace(/^Added\s+/i, '').split('.')[0] || 'Selected Item',
-          quantity: 1,
-          priceMinor: cartState.subtotalMinor,
-          isVeg: true,
+      try {
+        const res = await fetch(`${API_BASE}/v1/cart/confirm`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify({ proposalId }),
+        });
+        const result = await res.json();
+        if (card) {
+          card.innerHTML = `
+            <div style="font-weight:700; color:#34d399; font-size:13.5px;">✓ Order Confirmed in Cart!</div>
+            <div style="font-size:12px; color:#94a3b8;">Total: ${result.currency} ${(result.totalMinor / 100).toFixed(2)}</div>
+          `;
         }
-      ];
-      updateCartUI();
-    }
+        // Update Cart Drawer
+        cart.version = result.newCartVersion || cart.version + 1;
+        cart.totalMinor = result.totalMinor;
+        cart.subtotalMinor = Math.round(cart.totalMinor * 0.88);
+        cart.taxMinor = Math.round(cart.totalMinor * 0.05);
+        cart.deliveryMinor = cart.totalMinor - cart.subtotalMinor - cart.taxMinor;
+        cart.items = [{ name: 'Confirmed Voice Order Items', qty: 1, priceMinor: cart.subtotalMinor }];
+        updateCartUI();
+        cartDrawer.classList.add('open');
+      } catch (err) {
+        alert('Cart confirmation failed: ' + err.message);
+      }
+    };
 
-    // Update Interactive Cart UI
     function updateCartUI() {
-      cartVersionBadge.innerText = `v${cartState.version}`;
-      if (cartState.items.length === 0) {
-        cartItemsList.innerHTML = '<div class="empty-cart-msg">Your cart is empty.<br>Speak or type to add items!</div>';
-        subtotalText.innerText = 'INR 0.00';
-        taxesText.innerText = 'INR 0.00';
-        deliveryText.innerText = 'INR 0.00';
-        totalText.innerText = 'INR 0.00';
-        checkoutBtn.disabled = true;
+      cartCountBadge.innerText = cart.items.length;
+      if (cart.items.length === 0) {
+        drawerItems.innerHTML = '<div class="cart-empty-state">Your cart is currently empty.<br>Speak or type to add items!</div>';
+        subtotalValue.innerText = 'INR 0.00';
+        taxValue.innerText = 'INR 0.00';
+        deliveryValue.innerText = 'INR 0.00';
+        totalValue.innerText = 'INR 0.00';
+        proceedCheckoutBtn.disabled = true;
         return;
       }
 
-      cartItemsList.innerHTML = '';
-      cartState.items.forEach((item, idx) => {
+      drawerItems.innerHTML = '';
+      cart.items.forEach((item, idx) => {
         const itemEl = document.createElement('div');
-        itemEl.className = 'cart-item';
+        itemEl.className = 'cart-card-item';
         itemEl.innerHTML = `
-          <div class="item-top">
-            <span class="item-name">${item.name}</span>
-            <span class="item-price">INR ${(item.priceMinor / 100).toFixed(2)}</span>
+          <div class="cart-item-header">
+            <span>${item.name}</span>
+            <span style="color:#34d399;">INR ${(item.priceMinor / 100).toFixed(2)}</span>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="item-badges">
-              <span class="tag-badge tag-veg">🌱 Verified</span>
-            </div>
-            <div class="item-stepper">
-              <button class="step-btn" onclick="adjustQty(${idx}, -1)">-</button>
-              <span style="font-size:13px; font-weight:600;">${item.quantity}</span>
-              <button class="step-btn" onclick="adjustQty(${idx}, 1)">+</button>
+          <div class="cart-item-footer">
+            <span style="font-size:11px; color:#4ade80; background:rgba(34,197,94,0.15); padding:2px 6px; border-radius:4px;">Verified Clean</span>
+            <div class="qty-stepper">
+              <button class="qty-btn" onclick="adjustItemQty(${idx}, -1)">-</button>
+              <span style="font-size:12px; font-weight:700;">${item.qty}</span>
+              <button class="qty-btn" onclick="adjustItemQty(${idx}, 1)">+</button>
             </div>
           </div>
         `;
-        cartItemsList.appendChild(itemEl);
+        drawerItems.appendChild(itemEl);
       });
 
-      subtotalText.innerText = `INR ${(cartState.subtotalMinor / 100).toFixed(2)}`;
-      taxesText.innerText = `INR ${(cartState.taxesMinor / 100).toFixed(2)}`;
-      deliveryText.innerText = `INR ${(cartState.deliveryMinor / 100).toFixed(2)}`;
-      totalText.innerText = `INR ${(cartState.totalMinor / 100).toFixed(2)}`;
-      checkoutBtn.disabled = false;
+      subtotalValue.innerText = `INR ${(cart.subtotalMinor / 100).toFixed(2)}`;
+      taxValue.innerText = `INR ${(cart.taxMinor / 100).toFixed(2)}`;
+      deliveryValue.innerText = `INR ${(cart.deliveryMinor / 100).toFixed(2)}`;
+      totalValue.innerText = `INR ${(cart.totalMinor / 100).toFixed(2)}`;
+      proceedCheckoutBtn.disabled = false;
     }
 
-    window.adjustQty = (idx, delta) => {
-      if (cartState.items[idx]) {
-        cartState.items[idx].quantity += delta;
-        if (cartState.items[idx].quantity <= 0) {
-          cartState.items.splice(idx, 1);
+    window.adjustItemQty = (idx, delta) => {
+      if (cart.items[idx]) {
+        cart.items[idx].qty += delta;
+        if (cart.items[idx].qty <= 0) {
+          cart.items.splice(idx, 1);
         }
         updateCartUI();
       }
     };
 
-    checkoutBtn.onclick = () => {
-      alert(`🎉 Handoff to ${cartStoreName.innerText} Checkout:\n\nTotal: ${totalText.innerText}\nBranch: ${currentBranchId}\nUser: ${currentUserRef}\n\nAll commerce items and prices are verified.`);
+    proceedCheckoutBtn.onclick = () => {
+      alert(`🎉 Handoff to ${storeHeaderTitle.innerText} Checkout:\n\nTotal Payable: ${totalValue.innerText}\nBranch: ${currentBranchId}\nUser: ${currentUserRef}\n\nDeterministic commerce validation passed.`);
     };
 
-    // Send Text Input
-    function sendText() {
-      const text = textInput.value.trim();
+    // Send Message Logic
+    function sendUserMessage() {
+      const text = chatInput.value.trim();
       if (!text) return;
-      appendMessage('user', text);
-      textInput.value = '';
+      appendUserMessage(text);
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+      sendBtn.disabled = true;
 
-      if (ws && ws.readyState === 1) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'text_input', text }));
       } else {
-        // Fallback REST turn
+        // REST turns fallback
         fetch(`${API_BASE}/v1/assistant/turns`, {
           method: 'POST',
           headers: {
@@ -1005,72 +1590,14 @@
           body: JSON.stringify({ utterance: text }),
         })
           .then((r) => r.json())
-          .then((data) => {
-            appendMessage('bot', data.replyText);
-            speakText(data.replyText);
-            if (data.proposalId) {
-              renderProposalBanner(data);
-            }
-          })
-          .catch((err) => {
-            appendMessage('bot', 'Error processing turn: ' + err);
-          });
+          .then((data) => appendBotMessage(data))
+          .catch((e) => appendBotMessage({ replyText: 'Error processing turn: ' + e.message }));
       }
     }
 
-    sendBtn.onclick = sendText;
-    textInput.onkeydown = (e) => {
-      if (e.key === 'Enter') sendText();
-    };
+    sendBtn.onclick = sendUserMessage;
 
-    // Web Audio Context & Live Canvas Waveform Visualizer
-    let audioCtx = null;
-    let analyser = null;
-    let micStream = null;
-    let animFrameId = null;
-
-    function initVisualizer() {
-      const canvasCtx = waveCanvas.getContext('2d');
-      waveCanvas.width = waveCanvas.offsetWidth;
-      waveCanvas.height = waveCanvas.offsetHeight;
-
-      function draw() {
-        animFrameId = requestAnimationFrame(draw);
-        if (!analyser) return;
-
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyser.getByteTimeDomainData(dataArray);
-
-        canvasCtx.fillStyle = '#0f172a';
-        canvasCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
-
-        canvasCtx.lineWidth = 2;
-        canvasCtx.strokeStyle = '#6366f1';
-        canvasCtx.beginPath();
-
-        const sliceWidth = (waveCanvas.width * 1.0) / bufferLength;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          const v = dataArray[i] / 128.0;
-          const y = (v * waveCanvas.height) / 2;
-
-          if (i === 0) {
-            canvasCtx.moveTo(x, y);
-          } else {
-            canvasCtx.lineTo(x, y);
-          }
-          x += sliceWidth;
-        }
-
-        canvasCtx.lineTo(waveCanvas.width, waveCanvas.height / 2);
-        canvasCtx.stroke();
-      }
-      draw();
-    }
-
-    // Web Speech Recognition Engine
+    // Speech Recognition & Microphone Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let speechRecognition = null;
 
@@ -1078,104 +1605,128 @@
       speechRecognition = new SpeechRecognition();
       speechRecognition.continuous = false;
       speechRecognition.interimResults = true;
-      speechRecognition.lang = selectedLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
+      speechRecognition.lang = activeLang === 'hi-IN' ? 'hi-IN' : 'en-IN';
 
       speechRecognition.onresult = (event) => {
-        let interim = '';
+        let transcript = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          interim += event.results[i][0].transcript;
+          transcript += event.results[i][0].transcript;
         }
-        textInput.value = interim;
+        chatInput.value = transcript;
+        chatInput.style.height = 'auto';
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 140) + 'px';
+        sendBtn.disabled = !chatInput.value.trim();
+      };
+
+      speechRecognition.onend = () => {
+        stopMicrophone();
+        if (chatInput.value.trim()) {
+          sendUserMessage();
+        }
       };
 
       speechRecognition.onerror = (e) => {
         console.warn('Speech error:', e.error);
-        stopMic();
-      };
-
-      speechRecognition.onend = () => {
-        stopMic();
-        if (textInput.value.trim()) {
-          sendText();
-        }
+        stopMicrophone();
       };
     }
 
-    async function startMic() {
+    async function startMicrophone() {
       try {
         isRecording = true;
         micBtn.classList.add('recording');
-        micStatus.innerText = 'Listening... Speak in Hindi, English, or Hinglish';
-        waveHint.style.display = 'none';
+        waveContainer.style.display = 'flex';
+        recordingStatusText.innerText = 'Listening... Speak in Hindi, English, Hinglish';
 
-        // Connect real microphone for AudioContext visualizer
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 512;
-        const source = audioCtx.createMediaStreamSource(micStream);
-        source.connect(analyser);
-        initVisualizer();
-
-        // Start Speech Recognition
         if (speechRecognition) {
           speechRecognition.start();
         }
 
-        if (ws && ws.readyState === 1) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ type: 'start_turn' }));
         }
       } catch (err) {
-        isRecording = false;
-        micBtn.classList.remove('recording');
-        micStatus.innerText = 'Microphone permission denied or unavailable';
-        alert('Microphone access is required: ' + err.message);
+        stopMicrophone();
+        alert('Microphone error: ' + err.message);
       }
     }
 
-    function stopMic() {
+    function stopMicrophone() {
       if (!isRecording) return;
       isRecording = false;
       micBtn.classList.remove('recording');
-      micStatus.innerText = 'Processing your speech...';
-      waveHint.style.display = 'block';
+      waveContainer.style.display = 'none';
 
       if (speechRecognition) {
-        try { speechRecognition.stop(); } catch {}
+        try { speechRecognition.stop(); } catch (e) {}
       }
 
-      if (micStream) {
-        micStream.getTracks().forEach((t) => t.stop());
-        micStream = null;
-      }
-      if (audioCtx) {
-        audioCtx.close().catch(() => {});
-        audioCtx = null;
-      }
-      if (animFrameId) {
-        cancelAnimationFrame(animFrameId);
-        animFrameId = null;
-      }
-
-      if (ws && ws.readyState === 1) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'stop_turn' }));
       }
-      setTimeout(() => {
-        micStatus.innerText = 'Tap microphone to speak (English / Hindi / Hinglish)';
-      }, 2000);
     }
 
     micBtn.onclick = () => {
       if (isRecording) {
-        stopMic();
+        stopMicrophone();
       } else {
-        startMic();
+        startMicrophone();
       }
     };
 
-    // On Load Startup
+    // Initialize Assistant Session & WebSocket
+    async function initSession() {
+      try {
+        const res = await fetch(`${API_BASE}/v1/assistant/sessions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenantId: currentTenantId,
+            userRef: currentUserRef,
+            branchId: currentBranchId,
+          }),
+        });
+        if (!res.ok) throw new Error('Failed to create session');
+        const data = await res.json();
+        sessionToken = data.token;
+        initWebSocket();
+      } catch (e) {
+        console.warn('Session initialization warning:', e.message);
+      }
+    }
+
+    function initWebSocket() {
+      if (ws) ws.close();
+      ws = new WebSocket(`${WS_BASE}/?token=${encodeURIComponent(sessionToken)}`);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onmessage = (event) => {
+        if (typeof event.data === 'string') {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'transcript_partial') {
+            chatInput.value = msg.text;
+            sendBtn.disabled = false;
+          } else if (msg.type === 'transcript_final') {
+            chatInput.value = msg.text;
+            appendUserMessage(msg.text);
+          } else if (msg.type === 'assistant_reply') {
+            appendBotMessage(msg);
+          }
+        }
+      };
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // Startup
     window.onload = () => {
-      renderPrompts('food');
+      renderSuggestions('food');
       initSession();
     };
   </script>

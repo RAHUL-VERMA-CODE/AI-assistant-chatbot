@@ -1,0 +1,58 @@
+[
+  {
+    "tenantId": "tenant_arpzo",
+    "name": "ARPZO Demo Restaurant",
+    "slug": "arpzo",
+    "domain": "arpzo.com",
+    "vertical": "food",
+    "status": "ACTIVE",
+    "planTier": "growth",
+    "createdAt": "2026-10-25T10:39:47.770Z",
+    "updatedAt": "2026-10-25T10:46:16.522Z"
+  },
+  {
+    "tenantId": "tenant_freshmart",
+    "name": "FreshMart Daily Supermarket",
+    "slug": "freshmart",
+    "domain": "freshmart.com",
+    "vertical": "grocery",
+    "status": "ACTIVE",
+    "planTier": "enterprise",
+    "createdAt": "2026-10-25T10:39:47.770Z",
+    "updatedAt": "2026-10-25T10:39:47.770Z"
+  },
+  {
+    "tenantId": "tenant_techvault",
+    "name": "TechVault Retail Electronics",
+    "slug": "techvault",
+    "domain": "techvault.store",
+    "vertical": "retail",
+    "status": "ACTIVE",
+    "planTier": "growth",
+    "createdAt": "2026-10-25T10:39:47.770Z",
+    "updatedAt": "2026-10-25T10:39:47.770Z"
+  },
+  {
+    "tenantId": "tenant_healthcare",
+    "name": "HealthCare Plus Medicos",
+    "slug": "healthcare",
+    "domain": "healthcareplus.in",
+    "vertical": "pharmacy",
+    "status": "ACTIVE",
+    "planTier": "starter",
+    "createdAt": "2026-10-25T10:39:47.770Z",
+    "updatedAt": "2026-10-25T10:39:47.770Z"
+  },
+  {
+    "tenantId": "tenant_curry-express",
+    "name": "Curry Express",
+    "slug": "curry-express",
+    "domain": "curryexpress.in",
+    "vertical": "food",
+    "status": "ACTIVE",
+    "planTier": "growth",
+    "updatedAt": "2026-10-25T10:46:08.005Z",
+    "_id": "id_180e2c7d78fb4f6183eb5ec0581c67d6",
+    "createdAt": "2026-10-25T10:46:08.005Z"
+  }
+]

@@ -140,6 +140,32 @@ export class ApiServer {
         return;
       }
 
+      // 1c. MongoDB Collection Query / View
+      if (pathname.startsWith('/v1/db/collections/')) {
+        const colName = pathname.replace('/v1/db/collections/', '').split('/')[0];
+        const repo = (mongoRepos as any)[colName];
+        if (!repo) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Collection '${colName}' not found` }));
+          return;
+        }
+
+        if (method === 'GET') {
+          const docs = await repo.find({});
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(docs));
+          return;
+        }
+
+        if (method === 'POST') {
+          const queryBody = (await this.readJsonBody(req)) as any;
+          const docs = await repo.find(queryBody || {});
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(docs));
+          return;
+        }
+      }
+
       // Read JSON body
       const body = await this.readJsonBody(req);
 

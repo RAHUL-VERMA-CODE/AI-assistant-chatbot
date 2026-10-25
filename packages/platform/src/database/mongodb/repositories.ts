@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { MongoDatabase } from './mongo-store.ts';
 import type {
   TenantDocument,
@@ -124,6 +125,7 @@ export class MongoRepositories {
   }
 }
 
-// Global default singleton
-export const defaultMongoDb = new MongoDatabase('voice_commerce');
+// Global default singleton pointing to dedicated database/data directory
+const defaultStorageDir = path.resolve(process.cwd(), 'database', 'data');
+export const defaultMongoDb = new MongoDatabase('voice_commerce', defaultStorageDir);
 export const mongoRepos = new MongoRepositories(defaultMongoDb);

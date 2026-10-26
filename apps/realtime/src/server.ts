@@ -312,7 +312,7 @@ export class RealtimeServer {
 
       if (signal.aborted) return;
 
-      // Send structured assistant turn response to client (transcript + proposal card)
+      // Send structured assistant turn response to client (transcript + proposal card + items)
       ws.sendText(
         JSON.stringify({
           type: 'assistant_reply',
@@ -320,8 +320,11 @@ export class RealtimeServer {
           sessionState: turnResult.sessionState,
           proposalId: turnResult.proposalId,
           proposalTotalMinor: turnResult.proposalTotalMinor,
+          proposalItems: turnResult.proposalItems,
+          proposalCharges: turnResult.proposalCharges,
           currency: turnResult.currency,
           isFastPath: turnResult.isFastPath,
+          committedCart: turnResult.committedCart,
         }),
       );
 

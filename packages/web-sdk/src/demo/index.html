@@ -538,6 +538,59 @@
       color: #34d399;
     }
 
+    .proposal-items-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .prop-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .prop-item-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .prop-item-var {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    .prop-item-qty {
+      font-size: 11.5px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .prop-item-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    .prop-item-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: -2px;
+      margin-bottom: 2px;
+    }
+
     .proposal-btn-row {
       display: flex;
       gap: 10px;
@@ -1458,12 +1511,34 @@
 
     function renderProposalCard(prop) {
       const formattedTotal = (prop.proposalTotalMinor / 100).toFixed(2);
+      const itemsHtml = (prop.proposalItems && prop.proposalItems.length > 0)
+        ? `
+          <div class="proposal-items-preview">
+            ${prop.proposalItems.map(item => `
+              <div class="prop-item-row">
+                <div class="prop-item-info">
+                  <span class="prop-item-name">${escapeText(item.name)}</span>
+                  ${item.variant ? `<span class="prop-item-var">(${escapeText(item.variant)})</span>` : ''}
+                  <span class="prop-item-qty">x${item.quantity || 1}</span>
+                </div>
+                <span class="prop-item-price">INR ${(((item.subtotalMinor || (item.unitPriceMinor * (item.quantity || 1)))) / 100).toFixed(2)}</span>
+              </div>
+              ${item.dietaryNotes && item.dietaryNotes.length > 0 ? `
+                <div class="prop-item-badges">
+                  ${item.dietaryNotes.map(b => `<span class="clean-pill-tag">🌱 ${escapeText(b)}</span>`).join('')}
+                </div>
+              ` : ''}
+            `).join('')}
+          </div>
+        ` : '';
+
       return `
         <div class="in-chat-proposal" id="prop_${prop.proposalId}">
           <div class="proposal-top-row">
             <span class="proposal-label">🛒 Proposed Order Summary</span>
             <span class="proposal-sum">INR ${formattedTotal}</span>
           </div>
+          ${itemsHtml}
           <div class="proposal-btn-row">
             <button class="btn-apply-proposal" onclick="confirmCartProposal('${prop.proposalId}')">✓ Add to Cart</button>
             <button class="btn-dismiss-proposal" onclick="dismissProposalCard('prop_${prop.proposalId}')">Dismiss</button>
@@ -1501,21 +1576,56 @@
           `;
         }
 
-        // Update Right Cart Panel
-        cart.version = result.newCartVersion || cart.version + 1;
-        cart.totalMinor = result.totalMinor;
-        cart.subtotalMinor = Math.round(cart.totalMinor * 0.88);
-        cart.taxMinor = Math.round(cart.totalMinor * 0.05);
-        cart.deliveryMinor = cart.totalMinor - cart.subtotalMinor - cart.taxMinor;
-        cart.items = [{ name: 'Confirmed Commerce Items', qty: 1, priceMinor: cart.subtotalMinor }];
-        updateCartDisplay();
+        // Apply committed cart to right panel & MongoDB state
+        applyCommittedCart(result);
       } catch (err) {
         alert('Cart commitment failed: ' + err.message);
       }
     };
 
+    function applyCommittedCart(cartData) {
+      if (!cartData) return;
+      cart.version = cartData.version || cartData.newCartVersion || cartData.cartVersion || (cart.version + 1);
+      cart.totalMinor = cartData.totalMinor || 0;
+
+      if (cartData.charges) {
+        cart.subtotalMinor = cartData.charges.subtotalMinor;
+        cart.taxMinor = cartData.charges.taxMinor;
+        cart.deliveryMinor = cartData.charges.deliveryMinor;
+      } else {
+        cart.subtotalMinor = Math.round(cart.totalMinor * 0.88);
+        cart.taxMinor = Math.round(cart.totalMinor * 0.05);
+        cart.deliveryMinor = cart.totalMinor - cart.subtotalMinor - cart.taxMinor;
+      }
+
+      if (Array.isArray(cartData.items) && cartData.items.length > 0) {
+        cart.items = cartData.items.map(it => ({
+          name: it.name,
+          variant: it.variant,
+          qty: it.quantity || it.qty || 1,
+          unitPriceMinor: it.unitPriceMinor || it.priceMinor || Math.round(cart.subtotalMinor / cartData.items.length),
+          dietaryNotes: it.dietaryNotes || [],
+        }));
+      }
+      updateCartDisplay();
+    }
+
+    function recomputeCartFromItems() {
+      let sub = 0;
+      cart.items.forEach(it => {
+        const u = it.unitPriceMinor || it.priceMinor || 0;
+        const q = it.qty || it.quantity || 1;
+        sub += u * q;
+      });
+      cart.subtotalMinor = sub;
+      cart.taxMinor = Math.round(sub * 0.05);
+      cart.deliveryMinor = 0;
+      cart.totalMinor = cart.subtotalMinor + cart.taxMinor + cart.deliveryMinor;
+    }
+
     function updateCartDisplay() {
-      cartCountBadge.innerText = cart.items.length;
+      const totalCount = cart.items.reduce((acc, it) => acc + (it.qty || 1), 0);
+      cartCountBadge.innerText = totalCount;
       cartSumText.innerText = `INR ${(cart.totalMinor / 100).toFixed(2)}`;
       cartVersionTag.innerText = `v${cart.version}`;
 
@@ -1539,16 +1649,26 @@
       cart.items.forEach((item, idx) => {
         const itemCard = document.createElement('div');
         itemCard.className = 'cart-item-card';
+        const qty = item.qty || 1;
+        const unitPrice = item.unitPriceMinor || Math.round((cart.subtotalMinor || cart.totalMinor) / cart.items.length);
+        const lineTotal = (unitPrice * qty) / 100;
+        const badgesHtml = (item.dietaryNotes && item.dietaryNotes.length > 0)
+          ? item.dietaryNotes.map(n => `<span class="clean-pill-tag">🌱 ${escapeText(n)}</span>`).join(' ')
+          : `<span class="clean-pill-tag">🌱 Verified Clean</span>`;
+
         itemCard.innerHTML = `
           <div class="item-card-row1">
-            <span class="item-card-name">${item.name}</span>
-            <span class="item-card-price">INR ${(item.priceMinor / 100).toFixed(2)}</span>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span class="item-card-name">${escapeText(item.name)}</span>
+              ${item.variant ? `<span style="font-size:11px; color:var(--text-muted);">${escapeText(item.variant)}</span>` : ''}
+            </div>
+            <span class="item-card-price">INR ${lineTotal.toFixed(2)}</span>
           </div>
           <div class="item-card-row2">
-            <span class="clean-pill-tag">🌱 Verified Clean</span>
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">${badgesHtml}</div>
             <div class="stepper-control">
               <button class="stepper-btn" onclick="adjustQty(${idx}, -1)">-</button>
-              <span style="font-size:12px; font-weight:700;">${item.qty}</span>
+              <span style="font-size:12px; font-weight:700;">${qty}</span>
               <button class="stepper-btn" onclick="adjustQty(${idx}, 1)">+</button>
             </div>
           </div>
@@ -1565,10 +1685,11 @@
 
     window.adjustQty = (idx, delta) => {
       if (cart.items[idx]) {
-        cart.items[idx].qty += delta;
+        cart.items[idx].qty = (cart.items[idx].qty || 1) + delta;
         if (cart.items[idx].qty <= 0) {
           cart.items.splice(idx, 1);
         }
+        recomputeCartFromItems();
         updateCartDisplay();
       }
     };
@@ -1599,7 +1720,12 @@
           body: JSON.stringify({ utterance: text }),
         })
           .then((r) => r.json())
-          .then((data) => renderBotMsg(data))
+          .then((data) => {
+            renderBotMsg(data);
+            if (data.committedCart) {
+              applyCommittedCart(data.committedCart);
+            }
+          })
           .catch((err) => renderBotMsg({ replyText: 'Error processing turn: ' + err.message }));
       }
     }
@@ -1698,8 +1824,26 @@
         const data = await res.json();
         sessionToken = data.token;
         initWebSocket();
+        fetchActiveCart();
       } catch (err) {
         console.warn('Session init warning:', err.message);
+      }
+    }
+
+    async function fetchActiveCart() {
+      if (!sessionToken) return;
+      try {
+        const res = await fetch(`${API_BASE}/v1/cart`, {
+          headers: { Authorization: `Bearer ${sessionToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.items && data.items.length > 0) {
+            applyCommittedCart(data);
+          }
+        }
+      } catch (err) {
+        console.debug('No active cart fetched:', err.message);
       }
     }
 
@@ -1720,6 +1864,9 @@
           } else if (msg.type === 'assistant_reply') {
             // Note: Does NOT auto-speak! User clicks "Listen" when desired.
             renderBotMsg(msg);
+            if (msg.committedCart) {
+              applyCommittedCart(msg.committedCart);
+            }
           }
         }
       };

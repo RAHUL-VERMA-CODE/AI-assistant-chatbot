@@ -115,5 +115,208 @@
     "_id": "id_f8f601465e944281bf2408b899f2949a",
     "createdAt": "2026-10-26T10:17:25.111Z",
     "updatedAt": "2026-10-26T10:17:25.111Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793010168111_to2zgh",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:22:48.117Z",
+    "_id": "id_7623e046e77c4cc294862b4941bd99ab",
+    "createdAt": "2026-10-26T10:22:48.117Z",
+    "updatedAt": "2026-10-26T10:22:48.117Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793010169345_32gxev",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:22:49.347Z",
+    "_id": "id_3dc58cec8ec64d23b9695fd6a2f80aa0",
+    "createdAt": "2026-10-26T10:22:49.347Z",
+    "updatedAt": "2026-10-26T10:22:49.347Z"
+  },
+  {
+    "tenantId": "tenant_freshmart",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793010243121_0fnbmj",
+    "details": {
+      "branchId": "branch_freshmart_grocery"
+    },
+    "timestamp": "2026-10-26T10:24:03.124Z",
+    "_id": "id_8f21968b4f734d9ab06364b37a1ebbcb",
+    "createdAt": "2026-10-26T10:24:03.124Z",
+    "updatedAt": "2026-10-26T10:24:03.124Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793010245285_wpqeiw",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:24:05.287Z",
+    "_id": "id_e48a2ce0252543edb697c51d7b07e3aa",
+    "createdAt": "2026-10-26T10:24:05.287Z",
+    "updatedAt": "2026-10-26T10:24:05.287Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793010254413_6837pp",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:24:14.415Z",
+    "_id": "id_b9ec73d177f24b9c9b1331e128b2b9b8",
+    "createdAt": "2026-10-26T10:24:14.415Z",
+    "updatedAt": "2026-10-26T10:24:14.415Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011186510_ju1whp",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:39:46.512Z",
+    "_id": "id_8d914f30f180470ab05d46c77e3d2f7d",
+    "createdAt": "2026-10-26T10:39:46.512Z",
+    "updatedAt": "2026-10-26T10:39:46.512Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED_FASTPATH",
+    "resource": "cart_usr_cust_01",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR"
+    },
+    "timestamp": "2026-10-26T10:39:46.605Z",
+    "_id": "id_5cfe6443e9894bc88c03ea6e7a1a8245",
+    "createdAt": "2026-10-26T10:39:46.605Z",
+    "updatedAt": "2026-10-26T10:39:46.605Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011231400_3o895t",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:40:31.401Z",
+    "_id": "id_789704dc26334b1e9cd2c1a187e1881a",
+    "createdAt": "2026-10-26T10:40:31.401Z",
+    "updatedAt": "2026-10-26T10:40:31.401Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_26f9ee7d116d43fa",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T10:40:31.504Z",
+    "_id": "id_3ac92e3f0fc44242934993be0b1e53dc",
+    "createdAt": "2026-10-26T10:40:31.504Z",
+    "updatedAt": "2026-10-26T10:40:31.504Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011291090_u24jk8",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:41:31.093Z",
+    "_id": "id_14ca9b1c83ca4bf3bce52ff96d8e0d85",
+    "createdAt": "2026-10-26T10:41:31.093Z",
+    "updatedAt": "2026-10-26T10:41:31.093Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_a12ca16f597843a9",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T10:41:31.192Z",
+    "_id": "id_241a69b1ee0946f5b6208dfb0fd3bad1",
+    "createdAt": "2026-10-26T10:41:31.192Z",
+    "updatedAt": "2026-10-26T10:41:31.192Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011344356_47muer",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:42:24.358Z",
+    "_id": "id_7d0e22af2d7f4b22b6c7b4a32196c252",
+    "createdAt": "2026-10-26T10:42:24.358Z",
+    "updatedAt": "2026-10-26T10:42:24.358Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_c2463a82b13b4061",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T10:42:24.474Z",
+    "_id": "id_27ba57a826f34dd3b7240d206f2614a1",
+    "createdAt": "2026-10-26T10:42:24.474Z",
+    "updatedAt": "2026-10-26T10:42:24.474Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011349992_b9ns3k",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:42:29.995Z",
+    "_id": "id_cf88942624fc466fab070e478f21c6d8",
+    "createdAt": "2026-10-26T10:42:29.995Z",
+    "updatedAt": "2026-10-26T10:42:29.995Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED_FASTPATH",
+    "resource": "cart_usr_cust_01",
+    "details": {
+      "totalMinor": 48395,
+      "currency": "INR"
+    },
+    "timestamp": "2026-10-26T10:42:33.486Z",
+    "_id": "id_dfbcaf997a7a4d519ab73e6972250ab1",
+    "createdAt": "2026-10-26T10:42:33.486Z",
+    "updatedAt": "2026-10-26T10:42:33.486Z"
   }
 ]

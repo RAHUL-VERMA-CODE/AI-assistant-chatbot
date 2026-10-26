@@ -15,15 +15,19 @@ import {
   PairingRecommender,
 } from '../../../policy-food/src/index.ts';
 import { ConstraintEvaluator } from '../../../policy-engine/src/index.ts';
+import { mongoRepos } from '../../../platform/src/index.ts';
 
 export interface TurnExecutionResult {
   readonly replyText: string;
   readonly sessionState: string;
   readonly proposalId?: string;
   readonly proposalTotalMinor?: number;
+  readonly proposalItems?: readonly any[];
+  readonly proposalCharges?: any;
   readonly currency: string;
   readonly isFastPath: boolean;
   readonly durationMs: number;
+  readonly committedCart?: any;
 }
 
 export class TurnOrchestrator {
@@ -77,12 +81,59 @@ export class TurnOrchestrator {
     if (fastPath.handled) {
       this.contextManager.appendTurn(session, 'user', cleanText);
       this.contextManager.appendTurn(session, 'assistant', fastPath.assistantReply);
+
+      if (fastPath.proposalCommitted && fastPath.committedCart) {
+        // Persist order in MongoDB
+        await mongoRepos.orders.insertOne({
+          orderId: `ord_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          tenantId: session.tenantId,
+          branchId: session.branchId,
+          userRef: session.userRef,
+          items: fastPath.committedCart.items,
+          charges: fastPath.committedCart.charges,
+          totalMinor: fastPath.committedCart.totalMinor,
+          currency: fastPath.committedCart.currency,
+          status: 'CONFIRMED',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        // Persist/Update active cart in MongoDB
+        await mongoRepos.carts.updateOne(
+          { tenantId: session.tenantId, userRef: session.userRef },
+          {
+            $set: {
+              cartId: fastPath.committedCart.cartId,
+              branchId: session.branchId,
+              cartVersion: fastPath.committedCart.newCartVersion,
+              items: fastPath.committedCart.items,
+              charges: fastPath.committedCart.charges,
+              totalMinor: fastPath.committedCart.totalMinor,
+              currency: fastPath.committedCart.currency,
+              updatedAt: new Date().toISOString(),
+            },
+          },
+          { upsert: true },
+        );
+
+        // Audit log in MongoDB
+        await mongoRepos.auditLogs.insertOne({
+          tenantId: session.tenantId,
+          userRef: session.userRef,
+          action: 'CART_CONFIRMED_FASTPATH',
+          resource: fastPath.committedCart.cartId,
+          details: { totalMinor: fastPath.committedCart.totalMinor, currency: fastPath.committedCart.currency },
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       return {
         replyText: fastPath.assistantReply,
         sessionState: session.state,
         currency: 'INR',
         isFastPath: true,
         durationMs: performance.now() - startTime,
+        committedCart: fastPath.committedCart,
       };
     }
 
@@ -220,6 +271,8 @@ export class TurnOrchestrator {
         sessionState: session.state,
         proposalId: proposal.proposalId,
         proposalTotalMinor: proposal.charges.totalMinor,
+        proposalItems: proposal.items,
+        proposalCharges: proposal.charges,
         currency: catalog.currency,
         isFastPath: false,
         durationMs: performance.now() - startTime,
@@ -431,6 +484,8 @@ export class TurnOrchestrator {
       sessionState: session.state,
       proposalId: proposal.proposalId,
       proposalTotalMinor: proposal.charges.totalMinor,
+      proposalItems: proposal.items,
+      proposalCharges: proposal.charges,
       currency: catalog.currency,
       isFastPath: false,
       durationMs: performance.now() - startTime,

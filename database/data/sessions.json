@@ -97,5 +97,115 @@
     "turnsCount": 0,
     "_id": "id_e2560841c69f4985895ebc8317d118ea",
     "updatedAt": "2026-10-26T10:17:25.110Z"
+  },
+  {
+    "sessionId": "ses_1793010168111_to2zgh",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:22:48.115Z",
+    "lastActiveAt": "2026-10-26T10:22:48.115Z",
+    "turnsCount": 0,
+    "_id": "id_6ebb726214364367864b530f17f51eb5",
+    "updatedAt": "2026-10-26T10:22:48.116Z"
+  },
+  {
+    "sessionId": "ses_1793010169345_32gxev",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:22:49.345Z",
+    "lastActiveAt": "2026-10-26T10:22:49.345Z",
+    "turnsCount": 0,
+    "_id": "id_55d6ef8ba4f144a2b47f95d7279baac4",
+    "updatedAt": "2026-10-26T10:22:49.345Z"
+  },
+  {
+    "sessionId": "ses_1793010243121_0fnbmj",
+    "tenantId": "tenant_freshmart",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_freshmart_grocery",
+    "createdAt": "2026-10-26T10:24:03.121Z",
+    "lastActiveAt": "2026-10-26T10:24:03.121Z",
+    "turnsCount": 0,
+    "_id": "id_4837d620764b44e8b27032d7e08f8069",
+    "updatedAt": "2026-10-26T10:24:03.121Z"
+  },
+  {
+    "sessionId": "ses_1793010245285_wpqeiw",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:24:05.285Z",
+    "lastActiveAt": "2026-10-26T10:24:05.285Z",
+    "turnsCount": 0,
+    "_id": "id_26acedfc850b4cffba00955b5b4b5510",
+    "updatedAt": "2026-10-26T10:24:05.285Z"
+  },
+  {
+    "sessionId": "ses_1793010254413_6837pp",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:24:14.413Z",
+    "lastActiveAt": "2026-10-26T10:24:14.413Z",
+    "turnsCount": 0,
+    "_id": "id_877900a12b7845d298ea20d7caec456c",
+    "updatedAt": "2026-10-26T10:24:14.413Z"
+  },
+  {
+    "sessionId": "ses_1793011186510_ju1whp",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:39:46.511Z",
+    "lastActiveAt": "2026-10-26T10:39:46.511Z",
+    "turnsCount": 0,
+    "_id": "id_1124ab3d3c2946a3b96f91d00cf98ef7",
+    "updatedAt": "2026-10-26T10:39:46.511Z"
+  },
+  {
+    "sessionId": "ses_1793011231400_3o895t",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:40:31.400Z",
+    "lastActiveAt": "2026-10-26T10:40:31.401Z",
+    "turnsCount": 0,
+    "_id": "id_933ed3f834364a3e876ea997fcb6c1db",
+    "updatedAt": "2026-10-26T10:40:31.401Z"
+  },
+  {
+    "sessionId": "ses_1793011291090_u24jk8",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:41:31.091Z",
+    "lastActiveAt": "2026-10-26T10:41:31.091Z",
+    "turnsCount": 0,
+    "_id": "id_58d6edfcf75e4c19854a01e19f721be3",
+    "updatedAt": "2026-10-26T10:41:31.091Z"
+  },
+  {
+    "sessionId": "ses_1793011344356_47muer",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:42:24.357Z",
+    "lastActiveAt": "2026-10-26T10:42:24.357Z",
+    "turnsCount": 0,
+    "_id": "id_fea3fbb6ad0a4627bfe58f80707ab6a2",
+    "updatedAt": "2026-10-26T10:42:24.357Z"
+  },
+  {
+    "sessionId": "ses_1793011349992_b9ns3k",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:42:29.993Z",
+    "lastActiveAt": "2026-10-26T10:42:29.993Z",
+    "turnsCount": 0,
+    "_id": "id_f59e6e2f14c44286b78f5d59e4a4e05c",
+    "updatedAt": "2026-10-26T10:42:29.994Z"
   }
 ]

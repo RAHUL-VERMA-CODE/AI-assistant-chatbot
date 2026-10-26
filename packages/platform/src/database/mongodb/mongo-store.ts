@@ -104,7 +104,7 @@ export class MongoCollection<T extends BaseMongoDocument> {
 
     if (index === -1) {
       if (options?.upsert) {
-        const newDoc = { ...(update.$set || {}) } as T;
+        const newDoc = { ...(filter as any), ...(update.$set || {}) } as T;
         const res = await this.insertOne(newDoc);
         return { matchedCount: 0, modifiedCount: 1, upsertedId: res.insertedId };
       }

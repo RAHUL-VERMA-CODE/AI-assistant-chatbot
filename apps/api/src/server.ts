@@ -278,12 +278,8 @@ export class ApiServer {
           tenantId: authPayload.tenantId,
           branchId: authPayload.branchId,
           userRef: authPayload.userRef,
-          items: proposal.rawChoices.map((c) => ({
-            itemId: c.itemId,
-            quantity: c.quantity,
-            variantId: c.variantId,
-            optionIds: c.optionIds,
-          })),
+          items: proposal.items,
+          charges: proposal.charges,
           totalMinor: commitRes.totalMinor,
           currency: commitRes.currency,
           status: 'CONFIRMED',
@@ -291,18 +287,77 @@ export class ApiServer {
           updatedAt: new Date().toISOString(),
         });
 
+        // Record/Update active cart in MongoDB
+        await mongoRepos.carts.updateOne(
+          { tenantId: authPayload.tenantId, userRef: authPayload.userRef },
+          {
+            $set: {
+              cartId: commitRes.cartId,
+              branchId: authPayload.branchId,
+              cartVersion: commitRes.newCartVersion,
+              items: proposal.items,
+              charges: proposal.charges,
+              totalMinor: commitRes.totalMinor,
+              currency: commitRes.currency,
+              updatedAt: new Date().toISOString(),
+            },
+          },
+          { upsert: true },
+        );
+
         // Audit log in MongoDB
         await mongoRepos.auditLogs.insertOne({
           tenantId: authPayload.tenantId,
           userRef: authPayload.userRef,
           action: 'CART_CONFIRMED',
           resource: proposalId,
-          details: { totalMinor: commitRes.totalMinor, currency: commitRes.currency },
+          details: { totalMinor: commitRes.totalMinor, currency: commitRes.currency, itemsCount: proposal.items.length },
           timestamp: new Date().toISOString(),
         });
 
+        const fullResponse = {
+          ...commitRes,
+          items: proposal.items,
+          charges: proposal.charges,
+          summaryText: proposal.summaryText,
+        };
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(commitRes));
+        res.end(JSON.stringify(fullResponse));
+        return;
+      }
+
+      // 4b. GET /v1/cart (Fetch active customer cart)
+      if (method === 'GET' && pathname === '/v1/cart') {
+        const authPayload = this.authenticateRequest(req);
+        const cartDoc = await mongoRepos.carts.findOne({
+          tenantId: authPayload.tenantId,
+          userRef: authPayload.userRef,
+        });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify(
+            cartDoc || {
+              cartId: `cart_${authPayload.userRef}`,
+              cartVersion: 1,
+              items: [],
+              totalMinor: 0,
+              currency: 'INR',
+            },
+          ),
+        );
+        return;
+      }
+
+      // 4c. GET /v1/me/orders (Fetch customer past orders)
+      if (method === 'GET' && pathname === '/v1/me/orders') {
+        const authPayload = this.authenticateRequest(req);
+        const userOrders = await mongoRepos.orders.find({
+          tenantId: authPayload.tenantId,
+          userRef: authPayload.userRef,
+        });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(userOrders));
         return;
       }
 

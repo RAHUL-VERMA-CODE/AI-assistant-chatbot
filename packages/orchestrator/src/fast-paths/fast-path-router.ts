@@ -11,6 +11,14 @@ export interface FastPathResult {
   readonly assistantReply: string;
   readonly stateChanged: boolean;
   readonly proposalCommitted?: boolean;
+  readonly committedCart?: {
+    cartId: string;
+    newCartVersion: number;
+    totalMinor: number;
+    currency: string;
+    items: readonly any[];
+    charges: any;
+  };
 }
 
 export class FastPathRouter {
@@ -48,11 +56,21 @@ export class FastPathRouter {
         commitRes.currency,
       );
 
+      const committedCart = {
+        cartId: commitRes.cartId,
+        newCartVersion: commitRes.newCartVersion,
+        totalMinor: commitRes.totalMinor,
+        currency: commitRes.currency,
+        items: proposal.items,
+        charges: proposal.charges,
+      };
+
       return {
         handled: true,
         assistantReply: reply,
         stateChanged: true,
         proposalCommitted: true,
+        committedCart,
       };
     }
 

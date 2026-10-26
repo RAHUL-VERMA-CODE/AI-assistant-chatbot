@@ -132,4 +132,53 @@ describe('ApiServer REST Endpoints Integration', () => {
     assert.equal(body.etaMinutes, 10);
     assert.match(body.formattedSummary, /out for delivery/);
   });
+
+  it('POST /v1/cart/confirm updates database and returns line items and charges', async () => {
+    // 1. Create a proposal
+    const turnRes = await fetch(`${apiBaseUrl}/v1/assistant/turns`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionToken}`,
+      },
+      body: JSON.stringify({
+        utterance: 'Ek Jain Paneer Tikka add karo',
+      }),
+    });
+    const turnBody = (await turnRes.json()) as any;
+    assert.ok(turnBody.proposalId);
+
+    // 2. Confirm proposal
+    const confirmRes = await fetch(`${apiBaseUrl}/v1/cart/confirm`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionToken}`,
+      },
+      body: JSON.stringify({ proposalId: turnBody.proposalId }),
+    });
+    assert.equal(confirmRes.status, 200);
+    const confirmBody = (await confirmRes.json()) as any;
+    assert.equal(confirmBody.success, true);
+    assert.ok(confirmBody.items && confirmBody.items.length > 0);
+    assert.match(confirmBody.items[0].itemName, /Jain Paneer Tikka/);
+    assert.ok(confirmBody.charges);
+
+    // 3. GET /v1/cart returns updated active cart
+    const cartRes = await fetch(`${apiBaseUrl}/v1/cart`, {
+      headers: { Authorization: `Bearer ${sessionToken}` },
+    });
+    assert.equal(cartRes.status, 200);
+    const cartBody = (await cartRes.json()) as any;
+    assert.ok(cartBody.items && cartBody.items.length > 0);
+
+    // 4. GET /v1/me/orders returns confirmed order
+    const ordersRes = await fetch(`${apiBaseUrl}/v1/me/orders`, {
+      headers: { Authorization: `Bearer ${sessionToken}` },
+    });
+    assert.equal(ordersRes.status, 200);
+    const ordersBody = (await ordersRes.json()) as any;
+    assert.ok(ordersBody.length > 0);
+    assert.equal(ordersBody[ordersBody.length - 1].status, 'CONFIRMED');
+  });
 });

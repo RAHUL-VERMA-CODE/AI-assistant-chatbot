@@ -20,5 +20,82 @@
     "turnsCount": 0,
     "_id": "id_7dac3b3edf8e4e42a0b6258be9d941b8",
     "updatedAt": "2026-10-25T10:46:16.570Z"
+  },
+  {
+    "sessionId": "ses_1792925317123_60p6bu",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-25T10:48:37.124Z",
+    "lastActiveAt": "2026-10-25T10:48:37.124Z",
+    "turnsCount": 0,
+    "_id": "id_cfae74ae35274979a569355cc9000ecc",
+    "updatedAt": "2026-10-25T10:48:37.125Z"
+  },
+  {
+    "sessionId": "ses_1792925321102_9sr76x",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-25T10:48:41.102Z",
+    "lastActiveAt": "2026-10-25T10:48:41.102Z",
+    "turnsCount": 0,
+    "_id": "id_9f0a627e23e14ba2add8f688a033920f",
+    "updatedAt": "2026-10-25T10:48:41.102Z"
+  },
+  {
+    "sessionId": "ses_1792925488660_6khm4u",
+    "tenantId": "tenant_techvault",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_techvault_retail",
+    "createdAt": "2026-10-25T10:51:28.660Z",
+    "lastActiveAt": "2026-10-25T10:51:28.660Z",
+    "turnsCount": 0,
+    "_id": "id_2977666dec1a48b0bafcd610cde7ada9",
+    "updatedAt": "2026-10-25T10:51:28.660Z"
+  },
+  {
+    "sessionId": "ses_1792925492418_yb5mzd",
+    "tenantId": "tenant_healthcare",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_healthcare_pharmacy",
+    "createdAt": "2026-10-25T10:51:32.418Z",
+    "lastActiveAt": "2026-10-25T10:51:32.418Z",
+    "turnsCount": 0,
+    "_id": "id_509d1fa519a84125a4f29272482fb772",
+    "updatedAt": "2026-10-25T10:51:32.419Z"
+  },
+  {
+    "sessionId": "ses_1792925495468_e0v0x4",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-25T10:51:35.468Z",
+    "lastActiveAt": "2026-10-25T10:51:35.468Z",
+    "turnsCount": 0,
+    "_id": "id_f28a2a3ad1b44262b63c5771c813ccaf",
+    "updatedAt": "2026-10-25T10:51:35.468Z"
+  },
+  {
+    "sessionId": "ses_1793009837622_5aedw9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:17:17.623Z",
+    "lastActiveAt": "2026-10-26T10:17:17.623Z",
+    "turnsCount": 0,
+    "_id": "id_305f3f4f643442eb9adece524ca69765",
+    "updatedAt": "2026-10-26T10:17:17.623Z"
+  },
+  {
+    "sessionId": "ses_1793009845109_v9kzsb",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T10:17:25.110Z",
+    "lastActiveAt": "2026-10-26T10:17:25.110Z",
+    "turnsCount": 0,
+    "_id": "id_e2560841c69f4985895ebc8317d118ea",
+    "updatedAt": "2026-10-26T10:17:25.110Z"
   }
 ]

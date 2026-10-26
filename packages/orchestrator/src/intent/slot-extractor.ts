@@ -9,6 +9,11 @@ export interface ExtractedSlots {
   readonly isVeg?: boolean;
   readonly isGlutenFree?: boolean;
   readonly excludedAllergens: readonly string[];
+  readonly isGreeting?: boolean;
+  readonly isQuestion?: boolean;
+  readonly isDiscovery?: boolean;
+  readonly isPreferenceSave?: boolean;
+  readonly isAddIntent?: boolean;
   readonly groupMix?: {
     readonly partySize: number;
     readonly vegCount: number;
@@ -49,17 +54,24 @@ export class SlotExtractor {
     // 2. Quantity
     const quantity = normalized.extractedQuantities.length > 0 ? normalized.extractedQuantities[0]! : 1;
 
-    // 3. Group Mix detection (e.g. "for 3 people, 2 veg and 1 non veg, under 1500")
+    // 3. Conversational & Query Intent Flags
+    const isGreeting = /^(?:hi|hello|hey|namaste|pranam|bhook lagi hai|bhook lagi|kya hai|help)$/i.test(text.trim());
+    const isQuestion = /\b(?:calorie|calories|kcal|protein|ingredient|ingredients|samagri|spice level|kitna teekha|teekha hai|allergen|allergens|allergy|safe)\b/i.test(text);
+    const isDiscovery = /\b(?:dikhao|batao|options|kya milta hai|menu|list|under|below|sasta|cheap)\b/i.test(text) && !/\b(?:add|order|mangwa do|chahiye|daal do)\b/i.test(text);
+    const isPreferenceSave = /\b(?:save preference|remember my preference|meri preference|preference save|hamesha veg)\b/i.test(text);
+    const isAddIntent = /\b(?:add|order|mangwa do|chahiye|daal do|lelo|pack kardo|bhejo|1|2|3|4|5)\b/i.test(text) || normalized.isConfirmation;
+
+    // 4. Group Mix detection (e.g. "for 3 people, 2 veg and 1 non veg, under 1500" or "3 logon ke liye, 2 veg 1 non-veg, 1500 ke andar")
     let groupMix: ExtractedSlots['groupMix'];
-    const groupMatch = text.match(/(?:for|group of)\s+(\d+)\s+(?:people|persons|pax)/i);
-    const budgetMatch = text.match(/(?:under|below|budget|tak)\s+(?:inr|rs\.?|₹)?\s*(\d+)/i);
+    const groupMatch = text.match(/(?:for|group of)?\s*(\d+)\s*(?:people|persons|pax|log|logon)/i) || text.match(/(\d+)\s*(?:people|persons|pax|log|logon)/i);
+    const budgetMatch = text.match(/(?:under|below|budget|tak|ke\s*andar)\s+(?:inr|rs\.?|₹)?\s*(\d+)/i) || text.match(/(?:inr|rs\.?|₹)?\s*(\d+)\s*(?:ke\s*andar|tak)/i);
 
     if (groupMatch && budgetMatch) {
       const partySize = parseInt(groupMatch[1]!, 10);
       const budgetRupees = parseInt(budgetMatch[1]!, 10);
 
-      const vegMatch = text.match(/(\d+)\s+veg/i);
-      const nonVegMatch = text.match(/(\d+)\s+non\s*veg/i);
+      const vegMatch = text.match(/(\d+)\s*veg/i);
+      const nonVegMatch = text.match(/(\d+)\s*non\s*veg/i);
 
       const vegCount = vegMatch ? parseInt(vegMatch[1]!, 10) : partySize;
       const nonVegCount = nonVegMatch ? parseInt(nonVegMatch[1]!, 10) : 0;
@@ -123,6 +135,11 @@ export class SlotExtractor {
       isVeg: isVegOnly ? true : isNonVeg ? false : undefined,
       isGlutenFree,
       excludedAllergens,
+      isGreeting,
+      isQuestion,
+      isDiscovery,
+      isPreferenceSave,
+      isAddIntent,
       groupMix,
     };
   }

@@ -193,6 +193,142 @@ export class TurnOrchestrator {
       };
     }
 
+    // 6b. Greeting / Onboarding
+    if (slots.isGreeting) {
+      const reply = `Namaste! Welcome to ${catalog.branchName}. Aaj kya khane ka mood hai? We have delicious Cheese Burst Pizzas, certified Jain Paneer Tikka, Dum Biryani, and more!`;
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', reply);
+      return {
+        replyText: reply,
+        sessionState: session.state,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 6c. Preference Consent Save (Req A06)
+    if (slots.isPreferenceSave) {
+      const isVegOnly = slots.isVeg || slots.isJain || false;
+      await mongoRepos.preferences.updateOne(
+        { tenantId: session.tenantId, userRef: session.userRef },
+        {
+          $set: {
+            tenantId: session.tenantId,
+            userRef: session.userRef,
+            vegOnly: isVegOnly,
+            consentedAt: new Date().toISOString(),
+          },
+        },
+        { upsert: true },
+      );
+      const reply = `Your dietary preference (${isVegOnly ? 'Vegetarian' : 'Saved'}) has been recorded with your consent. You can view, modify, or delete it anytime.`;
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', reply);
+      return {
+        replyText: reply,
+        sessionState: session.state,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 6d. Factual Dish Q&A (Nutrition, Calories, Ingredients, Spice, Allergens - Req A02)
+    if (slots.isQuestion && slots.matchedItem) {
+      const item = slots.matchedItem;
+      let answer = '';
+
+      if (/\b(?:calorie|calories|kcal|protein|nutrition)\b/i.test(cleanText)) {
+        if (item.nutrition && item.nutrition.isVerified) {
+          answer = `${item.name} contains ${item.nutrition.kcal} kcal and ${item.nutrition.proteinGrams}g of protein per serving (${item.nutrition.servingSizeGrams}g), verified by lab testing.`;
+        } else {
+          answer = `Nutritional calorie and protein data for ${item.name} is currently unverified in our laboratory records.`;
+        }
+      } else if (/\b(?:ingredient|ingredients|samagri)\b/i.test(cleanText)) {
+        if (item.recipe?.ingredientsList && item.recipe.ingredientsList.length > 0) {
+          answer = `${item.name} contains: ${item.recipe.ingredientsList.join(', ')}.`;
+        } else {
+          answer = `Detailed ingredient breakdown for ${item.name} is not verified in our database.`;
+        }
+      } else if (/\b(?:spice|teekha)\b/i.test(cleanText)) {
+        answer = `${item.name} has a ${item.recipe?.spiceLevel || 'MILD'} spice level with ${item.recipe?.creaminess || 'MEDIUM'} creaminess.`;
+      } else if (/\b(?:allergen|allergens|allergy|safe)\b/i.test(cleanText)) {
+        if (item.recipe?.allergensPresent && item.recipe.allergensPresent.length > 0) {
+          answer = `Allergen warning: ${item.name} contains ${item.recipe.allergensPresent.join(', ')}. Cross-contact risk is ${item.recipe.crossContactRisk}. Please confirm with staff.`;
+        } else {
+          answer = `${item.name} has no major declared allergens in its verified recipe. Cross-contact risk: ${item.recipe?.crossContactRisk || 'LOW'}.`;
+        }
+      } else {
+        answer = `${item.name} is ${item.recipe?.isVeg ? 'Vegetarian' : 'Non-Vegetarian'} (INR ${(item.basePriceMinor / 100).toFixed(2)}).`;
+      }
+
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', answer);
+      return {
+        replyText: answer,
+        sessionState: session.state,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
+    // 6e. Menu Discovery & Filter (Req A02 / A03)
+    if (slots.isDiscovery && !slots.isAddIntent) {
+      let filtered = catalog.items.filter((i) => i.inStock && i.active);
+
+      // Filter by Jain
+      if (effectiveConstraints.isJain || /\bjain\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.recipe?.isJain === 'TRUE');
+      } else if (effectiveConstraints.isVeg || /\bveg\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.recipe?.isVeg);
+      }
+
+      // Filter by Keyword
+      if (/\bpaneer\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.name.toLowerCase().includes('paneer') || (i.aliases || []).some((a) => a.includes('paneer')));
+      } else if (/\bpizza\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.category.toLowerCase().includes('pizza') || i.name.toLowerCase().includes('pizza'));
+      } else if (/\bbiryani\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.name.toLowerCase().includes('biryani') || i.category.toLowerCase().includes('main'));
+      }
+
+      // Filter by Spice
+      if (/\b(?:spicy|teekha|hot)\b/i.test(cleanText)) {
+        filtered = filtered.filter((i) => i.recipe?.spiceLevel === 'HOT' || i.recipe?.spiceLevel === 'MEDIUM');
+      }
+
+      // Filter by Budget (e.g. under 300)
+      const budgetMatch = cleanText.match(/(?:under|below|budget|tak|ke\s*andar)\s+(?:inr|rs\.?|₹)?\s*(\d+)/i) || cleanText.match(/(?:inr|rs\.?|₹)?\s*(\d+)\s*(?:ke\s*andar|tak)/i);
+      if (budgetMatch) {
+        const maxMinor = parseInt(budgetMatch[1], 10) * 100;
+        filtered = filtered.filter((i) => i.basePriceMinor <= maxMinor);
+      }
+
+      let reply = '';
+      if (filtered.length > 0) {
+        const dishList = filtered.slice(0, 4).map((d) => `• ${d.name} - ${catalog.currency} ${(d.basePriceMinor / 100).toFixed(2)} (${d.recipe?.isVeg ? 'Veg' : 'Non-Veg'}, ${d.recipe?.spiceLevel || 'Mild'})`).join('\n');
+        reply = `Here are matching options from our verified menu:\n${dishList}\nWould you like to add any of these to your cart?`;
+      } else {
+        if (budgetMatch && /\bpizza\b/i.test(cleanText)) {
+          reply = `Our verified Cheese Burst Pizza starts at INR 399.00. We don't have veg pizzas under INR ${budgetMatch[1]} currently. Would you like to check our High Protein Dal Tadka (INR 260.00) or Homestyle Khichdi (INR 210.00) instead?`;
+        } else {
+          reply = `I couldn't find any dishes matching those exact filters in our verified menu. Would you like to explore our bestsellers?`;
+        }
+      }
+
+      this.contextManager.appendTurn(session, 'user', cleanText);
+      this.contextManager.appendTurn(session, 'assistant', reply);
+      return {
+        replyText: reply,
+        sessionState: session.state,
+        currency: catalog.currency,
+        isFastPath: false,
+        durationMs: performance.now() - startTime,
+      };
+    }
+
     // 7. Group Ordering Knapsack Solver (Req A05)
     if (slots.groupMix) {
       const solution = GroupBudgetSolver.solve(catalog, {

@@ -6,6 +6,8 @@ import { DemoTenantServer } from './tools/demo-tenant/src/server.ts';
 import { ApiServer } from './apps/api/src/server.ts';
 import { RealtimeServer } from './apps/realtime/src/server.ts';
 import { loadConfig } from './packages/platform/src/config/env.ts';
+import { mongoRepos } from './packages/platform/src/index.ts';
+import { ARPZO_KORAMANGALA_CATALOG } from './tools/demo-tenant/src/seeds/arpzo-menu.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +17,10 @@ async function startAll() {
   console.log('\n================================================================================');
   console.log('       VOICE COMMERCE ASSISTANT SAAS (MULTI-TENANT & MULTILINGUAL)');
   console.log('================================================================================');
+
+  // 0. Seed & initialize MongoDB Database
+  await mongoRepos.seedDefaults(ARPZO_KORAMANGALA_CATALOG);
+  console.log('  ✓ 0. MongoDB Storage Engine: database/data/ (Persistent JSON collections)');
 
   // 1. Start Demo Tenant (port 4000)
   const demoServer = new DemoTenantServer('arpzo_connector_signing_secret_hmac_256');

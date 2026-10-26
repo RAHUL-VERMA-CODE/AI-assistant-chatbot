@@ -317,5 +317,27 @@
     "turnsCount": 0,
     "_id": "id_03896287b9254b12b0787f6dc8929cc3",
     "updatedAt": "2026-10-26T11:28:40.007Z"
+  },
+  {
+    "sessionId": "ses_1793016317460_xdk2a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T12:05:17.460Z",
+    "lastActiveAt": "2026-10-26T12:05:17.460Z",
+    "turnsCount": 0,
+    "_id": "id_99450ba84db54ed781da6c2ba4f233c2",
+    "updatedAt": "2026-10-26T12:05:17.460Z"
+  },
+  {
+    "sessionId": "ses_1793016323098_tk23j9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "branchId": "branch_koramangala",
+    "createdAt": "2026-10-26T12:05:23.099Z",
+    "lastActiveAt": "2026-10-26T12:05:23.099Z",
+    "turnsCount": 0,
+    "_id": "id_e9aedd580c3a4dca9fc9ae363a9c2899",
+    "updatedAt": "2026-10-26T12:05:23.100Z"
   }
 ]

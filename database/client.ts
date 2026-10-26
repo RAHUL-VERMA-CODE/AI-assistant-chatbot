@@ -14,6 +14,8 @@ import type {
   UsageEventDocument,
 } from './models.ts';
 
+import { ARPZO_KORAMANGALA_CATALOG } from '../tools/demo-tenant/src/seeds/arpzo-menu.ts';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, 'data');
@@ -291,6 +293,18 @@ export class DatabaseClient {
           updatedAt: now,
         },
       ]);
+    }
+
+    const catExisting = await this.catalogs.findOne({ branchId: 'branch_koramangala' });
+    if (!catExisting) {
+      await this.catalogs.insertOne({
+        tenantId: ARPZO_KORAMANGALA_CATALOG.tenantId,
+        branchId: ARPZO_KORAMANGALA_CATALOG.branchId,
+        version: ARPZO_KORAMANGALA_CATALOG.menuVersion,
+        currency: ARPZO_KORAMANGALA_CATALOG.currency,
+        items: ARPZO_KORAMANGALA_CATALOG.items as any,
+        updatedAt: now,
+      });
     }
   }
 }

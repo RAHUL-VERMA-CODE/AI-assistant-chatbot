@@ -323,5 +323,134 @@
     "createdAt": "2026-10-26T11:28:45.070Z",
     "updatedAt": "2026-10-26T11:28:45.070Z",
     "_id": "id_9e92275ac17447a3b36be8abbeee29e0"
+  },
+  {
+    "orderId": "ord_1793016317569_croc",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "paneer_tikka_jain",
+        "itemName": "Jain Paneer Tikka",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 42000,
+        "lineTotalMinor": 42000
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 42000,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 50600
+    },
+    "totalMinor": 50600,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T12:05:17.569Z",
+    "updatedAt": "2026-10-26T12:05:17.569Z",
+    "_id": "id_f9e7a04a3c4c446e9702633bdb74fc7b"
+  },
+  {
+    "orderId": "ORD-317624-653",
+    "sessionId": "int_test_ses_01",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9988776655",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 86290,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "quantity": 2,
+        "pricePaise": 39900,
+        "lineTotalPaise": 79800
+      }
+    ],
+    "createdAt": "2026-10-26T12:05:17.624Z",
+    "updatedAt": "2026-10-26T12:05:17.627Z",
+    "_id": "id_fd9bd7a3147846eab48658ac95adb9ab"
+  },
+  {
+    "orderId": "ord_1793016326384_j0uv",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "pizza_cheese_burst",
+        "itemName": "Cheese Burst Pizza",
+        "variantId": "medium",
+        "variantName": "Medium",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 39900,
+        "lineTotalMinor": 39900
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 39900,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 48395
+    },
+    "totalMinor": 48395,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T12:05:26.384Z",
+    "updatedAt": "2026-10-26T12:05:26.384Z",
+    "_id": "id_f454dc77b14545e5a2355462658e2088"
+  },
+  {
+    "orderId": "ORD-326741-540",
+    "sessionId": "test_session_rest_01",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 37895,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "quantity": 1,
+        "pricePaise": 39900,
+        "lineTotalPaise": 39900
+      }
+    ],
+    "createdAt": "2026-10-26T12:05:26.741Z",
+    "updatedAt": "2026-10-26T12:05:26.863Z",
+    "_id": "id_9cb52e6a58ae4288ae18b7a38c990511"
+  },
+  {
+    "orderId": "ORD-326861-205",
+    "sessionId": "hinglish_user_session_01",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 42095,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "main_02",
+        "name": "Paneer Butter Masala",
+        "quantity": 1,
+        "pricePaise": 33900,
+        "lineTotalPaise": 33900
+      }
+    ],
+    "createdAt": "2026-10-26T12:05:26.861Z",
+    "updatedAt": "2026-10-26T12:05:26.866Z",
+    "_id": "id_097c9447a0834de0bca756822c93670d"
   }
 ]

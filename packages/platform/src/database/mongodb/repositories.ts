@@ -60,19 +60,20 @@ export class MongoRepositories {
         createdAt: now,
         updatedAt: now,
       });
+    }
 
-      if (defaultCatalog) {
-        await this.catalogs.insertOne({
-          tenantId: 'tenant_arpzo',
-          branchId: defaultCatalog.branchId,
-          branchName: defaultCatalog.branchName,
-          currency: defaultCatalog.currency,
-          menuVersion: defaultCatalog.menuVersion || 1,
-          isOpen: true,
-          items: defaultCatalog.items || [],
-          updatedAt: now,
-        });
-      }
+    const catExisting = await this.catalogs.findOne({ tenantId: 'tenant_arpzo' });
+    if (!catExisting && defaultCatalog) {
+      await this.catalogs.insertOne({
+        tenantId: 'tenant_arpzo',
+        branchId: defaultCatalog.branchId,
+        branchName: defaultCatalog.branchName,
+        currency: defaultCatalog.currency,
+        menuVersion: defaultCatalog.menuVersion || 1,
+        isOpen: true,
+        items: defaultCatalog.items || [],
+        updatedAt: now,
+      });
     }
 
     // 2. FreshMart (Grocery)

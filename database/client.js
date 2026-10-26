@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ARPZO_KORAMANGALA_CATALOG } from '../tools/demo-tenant/src/seeds/arpzo-menu.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -250,6 +251,19 @@ export class DatabaseClient {
           updatedAt: now,
         },
       ]);
+    }
+
+    const catExisting = await this.catalogs.findOne({ branchId: 'branch_koramangala' });
+    if (!catExisting) {
+      await this.catalogs.insertOne({
+        tenantId: ARPZO_KORAMANGALA_CATALOG.tenantId,
+        branchId: ARPZO_KORAMANGALA_CATALOG.branchId,
+        branchName: ARPZO_KORAMANGALA_CATALOG.branchName,
+        version: ARPZO_KORAMANGALA_CATALOG.menuVersion,
+        currency: ARPZO_KORAMANGALA_CATALOG.currency,
+        items: ARPZO_KORAMANGALA_CATALOG.items,
+        updatedAt: now,
+      });
     }
   }
 }

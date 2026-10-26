@@ -147,9 +147,40 @@ export interface RestaurantInfo {
   isOpen: boolean;
 }
 
-// 42 Seed Dishes across 6 Categories
+// 46 Seed Dishes across 7 Categories
 const INITIAL_MENU: MenuItem[] = [
+  // 0. Gourmet Pizza
+  {
+    id: 'pizza_01',
+    name: 'Cheese Burst Margherita Pizza',
+    category: 'Gourmet Pizza',
+    pricePaise: 28000,
+    isVeg: true,
+    spiceLevel: 1,
+    allergens: ['dairy', 'gluten'],
+    description: 'Crisp hand-tossed artisan crust loaded with molten mozzarella, San Marzano herb sauce, and cheddar.',
+    portion: '8-inch regular (Serves 1-2)',
+    calories: 520,
+    tags: ['pizza', 'popular', 'veg', 'under_300', 'bestseller'],
+    inStock: true,
+    imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=80',
+  },
   // 1. Starters & Appetizers
+  {
+    id: 'starter_jain_01',
+    name: 'Jain Tandoori Paneer Tikka',
+    category: 'Starters',
+    pricePaise: 32000,
+    isVeg: true,
+    spiceLevel: 2,
+    allergens: ['dairy'],
+    description: '100% Jain certified preparation with zero onion, garlic, or root vegetables. Lab-verified 480 kcal and 26g protein.',
+    portion: '6 pieces',
+    calories: 480,
+    tags: ['jain', 'veg', 'chef_special', 'high_protein', 'lab_tested'],
+    inStock: true,
+    imageUrl: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=500&auto=format&fit=crop&q=80',
+  },
   {
     id: 'starter_01',
     name: 'Paneer Tikka (Tandoori)',
@@ -391,6 +422,36 @@ const INITIAL_MENU: MenuItem[] = [
     tags: ['comfort_food', 'vegan_available'],
     inStock: true,
     imageUrl: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'main_dal_protein',
+    name: 'High Protein Dal Tadka',
+    category: 'Main Course',
+    pricePaise: 24000,
+    isVeg: true,
+    spiceLevel: 2,
+    allergens: [],
+    description: 'Yellow arhar and moong dal tempered with cumin, whole red chilies, and ghee. Lab verified 28g protein per serving.',
+    portion: '500 ml (Serves 2)',
+    calories: 360,
+    tags: ['high_protein', 'veg', 'healthy', 'protein_rich'],
+    inStock: true,
+    imageUrl: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'main_khichdi_01',
+    name: 'Homestyle Moong Dal Khichdi',
+    category: 'Main Course',
+    pricePaise: 18000,
+    isVeg: true,
+    spiceLevel: 1,
+    allergens: [],
+    description: 'Comforting moong dal and rice porridge tempered with hing and cumin. Nutritional values unverified by lab.',
+    portion: '450g bowl',
+    calories: undefined,
+    tags: ['comfort', 'veg', 'light'],
+    inStock: true,
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80',
   },
 
   // 3. Biryani & Rice
@@ -1053,6 +1114,31 @@ export class RestaurantDatabase {
     this.orders.set(order.id, order);
     this.clearCart(params.sessionId);
     this.saveToDisk();
+
+    // Sync to MongoDB orders collection asynchronously
+    try {
+      import('../packages/platform/src/index.ts').then(({ mongoRepos }) => {
+        mongoRepos.orders.insertOne({
+          orderId: order.id,
+          sessionId: order.sessionId,
+          tenantId: 'tenant_arpzo',
+          userRef: order.phone || 'usr_guest',
+          status: order.status,
+          total: { amountPaise: order.totalPaise, currency: 'INR' },
+          lines: order.items.map((it) => ({
+            itemId: it.dishId,
+            name: it.name,
+            quantity: it.quantity,
+            pricePaise: it.pricePaise,
+            lineTotalPaise: it.lineTotalPaise,
+          })),
+          createdAt: now,
+          updatedAt: now,
+        }).catch(() => {});
+      }).catch(() => {});
+    } catch {
+      // Safe fallback
+    }
 
     return order;
   }

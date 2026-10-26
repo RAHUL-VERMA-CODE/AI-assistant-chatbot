@@ -8,7 +8,7 @@
     "status": "ACTIVE",
     "planTier": "growth",
     "createdAt": "2026-10-25T10:39:47.770Z",
-    "updatedAt": "2026-10-26T11:28:39.957Z"
+    "updatedAt": "2026-10-26T12:14:00.801Z"
   },
   {
     "tenantId": "tenant_freshmart",
@@ -51,7 +51,7 @@
     "vertical": "food",
     "status": "ACTIVE",
     "planTier": "growth",
-    "updatedAt": "2026-10-26T11:28:33.646Z",
+    "updatedAt": "2026-10-26T12:05:16.622Z",
     "_id": "id_180e2c7d78fb4f6183eb5ec0581c67d6",
     "createdAt": "2026-10-25T10:46:08.005Z"
   }

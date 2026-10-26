@@ -318,5 +318,223 @@
     "_id": "id_dfbcaf997a7a4d519ab73e6972250ab1",
     "createdAt": "2026-10-26T10:42:33.486Z",
     "updatedAt": "2026-10-26T10:42:33.486Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793011993437_f3c15x",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:53:13.442Z",
+    "_id": "id_802e93a7138244279b4e3373f96ca455",
+    "createdAt": "2026-10-26T10:53:13.442Z",
+    "updatedAt": "2026-10-26T10:53:13.442Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED_FASTPATH",
+    "resource": "cart_usr_cust_01",
+    "details": {
+      "totalMinor": 48395,
+      "currency": "INR"
+    },
+    "timestamp": "2026-10-26T10:55:55.941Z",
+    "_id": "id_854369aec00f47dfa665798616ee973a",
+    "createdAt": "2026-10-26T10:55:55.941Z",
+    "updatedAt": "2026-10-26T10:55:55.941Z"
+  },
+  {
+    "tenantId": "tenant_freshmart",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793012213052_6i4r31",
+    "details": {
+      "branchId": "branch_freshmart_grocery"
+    },
+    "timestamp": "2026-10-26T10:56:53.054Z",
+    "_id": "id_1a2d78bc014d4ddc8f8f99a9004c8f6d",
+    "createdAt": "2026-10-26T10:56:53.054Z",
+    "updatedAt": "2026-10-26T10:56:53.054Z"
+  },
+  {
+    "tenantId": "tenant_techvault",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793012215302_5nn7km",
+    "details": {
+      "branchId": "branch_techvault_retail"
+    },
+    "timestamp": "2026-10-26T10:56:55.304Z",
+    "_id": "id_f83fc7ec663d4cca9d44d469e612dfa1",
+    "createdAt": "2026-10-26T10:56:55.304Z",
+    "updatedAt": "2026-10-26T10:56:55.304Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793012219473_yk6dft",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T10:56:59.475Z",
+    "_id": "id_32b7d5421a6540518c8b3e08dd011e2f",
+    "createdAt": "2026-10-26T10:56:59.475Z",
+    "updatedAt": "2026-10-26T10:56:59.475Z"
+  },
+  {
+    "tenantId": "tenant_freshmart",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793012352074_zv9chx",
+    "details": {
+      "branchId": "branch_freshmart_grocery"
+    },
+    "timestamp": "2026-10-26T10:59:12.077Z",
+    "_id": "id_63aa03d57637453b83d0892b12d04d3e",
+    "createdAt": "2026-10-26T10:59:12.077Z",
+    "updatedAt": "2026-10-26T10:59:12.077Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793013517947_ovj1zj",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T11:18:37.948Z",
+    "_id": "id_05df9469028b40ed88b704d2c3cb9d7a",
+    "createdAt": "2026-10-26T11:18:37.948Z",
+    "updatedAt": "2026-10-26T11:18:37.948Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_6303d3116bc94cf4",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T11:18:38.051Z",
+    "_id": "id_e80b299f78c3463399fc7d0f9f2ce809",
+    "createdAt": "2026-10-26T11:18:38.051Z",
+    "updatedAt": "2026-10-26T11:18:38.051Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793013758704_3mdg3l",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T11:22:38.707Z",
+    "_id": "id_45932f61f2e0480fa564f99f4a311472",
+    "createdAt": "2026-10-26T11:22:38.707Z",
+    "updatedAt": "2026-10-26T11:22:38.707Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_35f9c67d8e7844e0",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T11:22:38.833Z",
+    "_id": "id_b4a3098f5cf54c4bab78c8e1192d1431",
+    "createdAt": "2026-10-26T11:22:38.833Z",
+    "updatedAt": "2026-10-26T11:22:38.833Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793013790029_v7f1pn",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T11:23:10.031Z",
+    "_id": "id_e9bf5a58e6344b0c809cf1f1974020e6",
+    "createdAt": "2026-10-26T11:23:10.031Z",
+    "updatedAt": "2026-10-26T11:23:10.031Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_e7f3b68b77754ded",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T11:23:10.156Z",
+    "_id": "id_26a7fb36ea994e1f910c2c7f502bf3c0",
+    "createdAt": "2026-10-26T11:23:10.157Z",
+    "updatedAt": "2026-10-26T11:23:10.157Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793014114342_viqhls",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T11:28:34.344Z",
+    "_id": "id_4188b81a81404c8fa8306ecad0ca2758",
+    "createdAt": "2026-10-26T11:28:34.344Z",
+    "updatedAt": "2026-10-26T11:28:34.344Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED",
+    "resource": "prop_64df6cef6ca34c08",
+    "details": {
+      "totalMinor": 50600,
+      "currency": "INR",
+      "itemsCount": 1
+    },
+    "timestamp": "2026-10-26T11:28:34.474Z",
+    "_id": "id_561ed4466e174801816687b741fb89f0",
+    "createdAt": "2026-10-26T11:28:34.474Z",
+    "updatedAt": "2026-10-26T11:28:34.474Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "SESSION_CREATED",
+    "resource": "ses_1793014120006_n26m29",
+    "details": {
+      "branchId": "branch_koramangala"
+    },
+    "timestamp": "2026-10-26T11:28:40.007Z",
+    "_id": "id_1ee26459977341d582f320ee2c8492dc",
+    "createdAt": "2026-10-26T11:28:40.008Z",
+    "updatedAt": "2026-10-26T11:28:40.008Z"
+  },
+  {
+    "tenantId": "tenant_arpzo",
+    "userRef": "usr_cust_01",
+    "action": "CART_CONFIRMED_FASTPATH",
+    "resource": "cart_usr_cust_01",
+    "details": {
+      "totalMinor": 48395,
+      "currency": "INR"
+    },
+    "timestamp": "2026-10-26T11:28:45.073Z",
+    "_id": "id_6460ef0068164207b5838a349c36d70a",
+    "createdAt": "2026-10-26T11:28:45.073Z",
+    "updatedAt": "2026-10-26T11:28:45.073Z"
   }
 ]

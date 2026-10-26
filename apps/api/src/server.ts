@@ -8,6 +8,7 @@ import { createLLMProvider } from '../../../packages/llm/src/factory.ts';
 import type { LLMProvider } from '../../../packages/llm/src/interfaces/llm-provider.ts';
 import { TrackingService } from '../../../packages/policy-food/src/tracking/tracking-service.ts';
 import { AdminService } from './admin/admin-service.ts';
+import { handleRestaurantApi } from './restaurant-router.ts';
 import { mongoRepos } from '../../../packages/platform/src/index.ts';
 import {
   AppError,
@@ -106,6 +107,16 @@ export class ApiServer {
     const method = (req.method || 'GET').toUpperCase();
 
     try {
+      // 0. Restaurant Endpoints (/api/*)
+      if (pathname.startsWith('/api/')) {
+        let body: any = null;
+        if (method === 'POST' || method === 'PATCH' || method === 'PUT' || method === 'DELETE') {
+          body = await this.readJsonBody(req);
+        }
+        const handled = await handleRestaurantApi(method, pathname, parsedUrl, body, req, res);
+        if (handled) return;
+      }
+
       // 1. Health check
       if (method === 'GET' && pathname === '/health') {
         res.writeHead(200, { 'Content-Type': 'application/json' });

@@ -1,0 +1,331 @@
+[
+  {
+    "id": "ORD-554621-830",
+    "sessionId": "test_session_rest_01",
+    "customerName": "Aarav Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 1,
+        "lineTotalPaise": 39900
+      }
+    ],
+    "subtotalPaise": 39900,
+    "discountPaise": 10000,
+    "couponCode": "WELCOME50",
+    "gstPaise": 1495,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 37895,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:19:14.621Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:19:14.621Z",
+    "updatedAt": "2026-10-26T11:19:14.621Z"
+  },
+  {
+    "id": "ORD-682137-349",
+    "sessionId": "test_session_rest_01",
+    "customerName": "Aarav Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 1,
+        "lineTotalPaise": 39900
+      }
+    ],
+    "subtotalPaise": 39900,
+    "discountPaise": 10000,
+    "couponCode": "WELCOME50",
+    "gstPaise": 1495,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 37895,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:21:22.137Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:21:22.137Z",
+    "updatedAt": "2026-10-26T11:21:22.137Z"
+  },
+  {
+    "id": "ORD-682170-442",
+    "sessionId": "hinglish_user_session_01",
+    "customerName": "Rahul (Guest)",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_02",
+        "name": "Paneer Butter Masala",
+        "isVeg": true,
+        "pricePaise": 33900,
+        "quantity": 1,
+        "lineTotalPaise": 33900
+      }
+    ],
+    "subtotalPaise": 33900,
+    "discountPaise": 0,
+    "gstPaise": 1695,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 42095,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:21:22.170Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:21:22.170Z",
+    "updatedAt": "2026-10-26T11:21:22.170Z"
+  },
+  {
+    "id": "ORD-730844-838",
+    "sessionId": "test_session_rest_01",
+    "customerName": "Aarav Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 1,
+        "lineTotalPaise": 39900
+      }
+    ],
+    "subtotalPaise": 39900,
+    "discountPaise": 10000,
+    "couponCode": "WELCOME50",
+    "gstPaise": 1495,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 37895,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:22:10.844Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:22:10.844Z",
+    "updatedAt": "2026-10-26T11:22:10.844Z"
+  },
+  {
+    "id": "ORD-730894-733",
+    "sessionId": "hinglish_user_session_01",
+    "customerName": "Rahul (Guest)",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_02",
+        "name": "Paneer Butter Masala",
+        "isVeg": true,
+        "pricePaise": 33900,
+        "quantity": 1,
+        "lineTotalPaise": 33900
+      }
+    ],
+    "subtotalPaise": 33900,
+    "discountPaise": 0,
+    "gstPaise": 1695,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 42095,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:22:10.894Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:22:10.894Z",
+    "updatedAt": "2026-10-26T11:22:10.894Z"
+  },
+  {
+    "id": "ORD-790203-681",
+    "sessionId": "int_test_ses_01",
+    "customerName": "Karan Mehra",
+    "phone": "9988776655",
+    "orderType": "delivery",
+    "deliveryAddress": "Indiranagar 12th Main",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 2,
+        "lineTotalPaise": 79800
+      }
+    ],
+    "subtotalPaise": 79800,
+    "discountPaise": 0,
+    "gstPaise": 3990,
+    "deliveryFeePaise": 0,
+    "totalPaise": 86290,
+    "status": "Preparing",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:23:10.203Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Preparing",
+        "timestamp": "2026-10-26T11:23:10.206Z",
+        "note": "Chef fired tandoor"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:23:10.203Z",
+    "updatedAt": "2026-10-26T11:23:10.206Z"
+  },
+  {
+    "id": "ORD-114511-932",
+    "sessionId": "int_test_ses_01",
+    "customerName": "Karan Mehra",
+    "phone": "9988776655",
+    "orderType": "delivery",
+    "deliveryAddress": "Indiranagar 12th Main",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 2,
+        "lineTotalPaise": 79800
+      }
+    ],
+    "subtotalPaise": 79800,
+    "discountPaise": 0,
+    "gstPaise": 3990,
+    "deliveryFeePaise": 0,
+    "totalPaise": 86290,
+    "status": "Preparing",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:28:34.511Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Preparing",
+        "timestamp": "2026-10-26T11:28:34.516Z",
+        "note": "Chef fired tandoor"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:28:34.511Z",
+    "updatedAt": "2026-10-26T11:28:34.516Z"
+  },
+  {
+    "id": "ORD-125417-914",
+    "sessionId": "test_session_rest_01",
+    "customerName": "Aarav Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_01",
+        "name": "Butter Chicken (Murgh Makhani)",
+        "isVeg": false,
+        "pricePaise": 39900,
+        "quantity": 1,
+        "lineTotalPaise": 39900
+      }
+    ],
+    "subtotalPaise": 39900,
+    "discountPaise": 10000,
+    "couponCode": "WELCOME50",
+    "gstPaise": 1495,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 37895,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:28:45.417Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:28:45.417Z",
+    "updatedAt": "2026-10-26T11:28:45.417Z"
+  },
+  {
+    "id": "ORD-125438-669",
+    "sessionId": "hinglish_user_session_01",
+    "customerName": "Rahul (Guest)",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_02",
+        "name": "Paneer Butter Masala",
+        "isVeg": true,
+        "pricePaise": 33900,
+        "quantity": 1,
+        "lineTotalPaise": 33900
+      }
+    ],
+    "subtotalPaise": 33900,
+    "discountPaise": 0,
+    "gstPaise": 1695,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 42095,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T11:28:45.438Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T11:28:45.438Z",
+    "updatedAt": "2026-10-26T11:28:45.438Z"
+  }
+]

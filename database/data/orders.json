@@ -145,5 +145,183 @@
     "createdAt": "2026-10-26T10:42:33.484Z",
     "updatedAt": "2026-10-26T10:42:33.484Z",
     "_id": "id_d621caba55214c388c76bfaafeab2507"
+  },
+  {
+    "orderId": "ord_1793012155937_h5dr",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "pizza_cheese_burst",
+        "itemName": "Cheese Burst Pizza",
+        "variantId": "medium",
+        "variantName": "Medium",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 39900,
+        "lineTotalMinor": 39900
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 39900,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 48395
+    },
+    "totalMinor": 48395,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T10:55:55.937Z",
+    "updatedAt": "2026-10-26T10:55:55.937Z",
+    "_id": "id_48f844a068934744a13b1bd0bcfad576"
+  },
+  {
+    "orderId": "ord_1793013518050_coeh",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "paneer_tikka_jain",
+        "itemName": "Jain Paneer Tikka",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 42000,
+        "lineTotalMinor": 42000
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 42000,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 50600
+    },
+    "totalMinor": 50600,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T11:18:38.050Z",
+    "updatedAt": "2026-10-26T11:18:38.050Z",
+    "_id": "id_e4589187dbe0424c9f0d917b51ebdde1"
+  },
+  {
+    "orderId": "ord_1793013758831_exid",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "paneer_tikka_jain",
+        "itemName": "Jain Paneer Tikka",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 42000,
+        "lineTotalMinor": 42000
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 42000,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 50600
+    },
+    "totalMinor": 50600,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T11:22:38.831Z",
+    "updatedAt": "2026-10-26T11:22:38.831Z",
+    "_id": "id_396b45db85f2450087748d7439cdef06"
+  },
+  {
+    "orderId": "ord_1793013790154_eblb",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "paneer_tikka_jain",
+        "itemName": "Jain Paneer Tikka",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 42000,
+        "lineTotalMinor": 42000
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 42000,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 50600
+    },
+    "totalMinor": 50600,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T11:23:10.154Z",
+    "updatedAt": "2026-10-26T11:23:10.154Z",
+    "_id": "id_29cf81fb22644179af25592c14ec2ff6"
+  },
+  {
+    "orderId": "ord_1793014114473_iopm",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "paneer_tikka_jain",
+        "itemName": "Jain Paneer Tikka",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 42000,
+        "lineTotalMinor": 42000
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 42000,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 50600
+    },
+    "totalMinor": 50600,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T11:28:34.473Z",
+    "updatedAt": "2026-10-26T11:28:34.473Z",
+    "_id": "id_efe73e9b068f43c0a73909c7941fed31"
+  },
+  {
+    "orderId": "ord_1793014125070_ekh7",
+    "tenantId": "tenant_arpzo",
+    "branchId": "branch_koramangala",
+    "userRef": "usr_cust_01",
+    "items": [
+      {
+        "itemId": "pizza_cheese_burst",
+        "itemName": "Cheese Burst Pizza",
+        "variantId": "medium",
+        "variantName": "Medium",
+        "optionIds": [],
+        "quantity": 1,
+        "unitPriceMinor": 39900,
+        "lineTotalMinor": 39900
+      }
+    ],
+    "charges": {
+      "subtotalMinor": 39900,
+      "deliveryFeeMinor": 4000,
+      "packagingFeeMinor": 2500,
+      "discountMinor": 0,
+      "totalMinor": 48395
+    },
+    "totalMinor": 48395,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-26T11:28:45.070Z",
+    "updatedAt": "2026-10-26T11:28:45.070Z",
+    "_id": "id_9e92275ac17447a3b36be8abbeee29e0"
   }
 ]

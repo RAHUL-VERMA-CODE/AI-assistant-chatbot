@@ -1,0 +1,54 @@
+[
+  {
+    "id": "TBL-54624",
+    "customerName": "Priya Verma",
+    "phone": "9876501234",
+    "date": "2026-10-26",
+    "time": "20:00",
+    "guests": 4,
+    "tableNumber": 3,
+    "section": "Indoor AC",
+    "specialRequests": "Window seat if possible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-26T11:19:14.624Z"
+  },
+  {
+    "id": "TBL-82140",
+    "customerName": "Priya Verma",
+    "phone": "9876501234",
+    "date": "2026-10-26",
+    "time": "20:00",
+    "guests": 4,
+    "tableNumber": 3,
+    "section": "Indoor AC",
+    "specialRequests": "Window seat if possible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-26T11:21:22.140Z"
+  },
+  {
+    "id": "TBL-30849",
+    "customerName": "Priya Verma",
+    "phone": "9876501234",
+    "date": "2026-10-26",
+    "time": "20:00",
+    "guests": 4,
+    "tableNumber": 3,
+    "section": "Indoor AC",
+    "specialRequests": "Window seat if possible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-26T11:22:10.849Z"
+  },
+  {
+    "id": "TBL-25419",
+    "customerName": "Priya Verma",
+    "phone": "9876501234",
+    "date": "2026-10-26",
+    "time": "20:00",
+    "guests": 4,
+    "tableNumber": 3,
+    "section": "Indoor AC",
+    "specialRequests": "Window seat if possible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-26T11:28:45.419Z"
+  }
+]

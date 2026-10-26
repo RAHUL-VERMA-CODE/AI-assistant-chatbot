@@ -181,4 +181,69 @@ describe('ApiServer REST Endpoints Integration', () => {
     assert.ok(ordersBody.length > 0);
     assert.equal(ordersBody[ordersBody.length - 1].status, 'CONFIRMED');
   });
+
+  it('handles restaurant AI chat, cart, orders, and admin live status updates via /api/*', async () => {
+    // 1. GET /api/menu
+    const menuRes = await fetch(`${apiBaseUrl}/api/menu`);
+    assert.equal(menuRes.status, 200);
+    const menuData = (await menuRes.json()) as any;
+    assert.ok(menuData.count >= 20);
+    assert.ok(menuData.dishes.length > 0);
+
+    // 2. POST /api/chat (Bhook lagi hai query)
+    const chatRes = await fetch(`${apiBaseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: 'int_test_ses_01', message: 'Bhook lagi hai kya milega?' }),
+    });
+    assert.equal(chatRes.status, 200);
+    const chatData = (await chatRes.json()) as any;
+    assert.ok(chatData.text);
+    assert.ok(chatData.quickReplies.length > 0);
+
+    // 3. POST /api/cart/add
+    const addRes = await fetch(`${apiBaseUrl}/api/cart/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: 'int_test_ses_01', dishId: 'main_01', quantity: 2 }),
+    });
+    assert.equal(addRes.status, 200);
+    const cartData = (await addRes.json()) as any;
+    assert.equal(cartData.cart.items.length, 1);
+    assert.equal(cartData.cart.items[0].dishId, 'main_01');
+
+    // 4. POST /api/orders (Place order)
+    const orderRes = await fetch(`${apiBaseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'int_test_ses_01',
+        customerName: 'Karan Mehra',
+        phone: '9988776655',
+        orderType: 'delivery',
+        deliveryAddress: 'Indiranagar 12th Main',
+        paymentMethod: 'UPI',
+      }),
+    });
+    assert.equal(orderRes.status, 201);
+    const orderData = (await orderRes.json()) as any;
+    assert.ok(orderData.order.id.startsWith('ORD-'));
+    assert.equal(orderData.order.status, 'Placed');
+
+    // 5. PATCH /api/orders/:id/status (Admin updates status to Preparing)
+    const updateRes = await fetch(`${apiBaseUrl}/api/orders/${orderData.order.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Preparing', note: 'Chef fired tandoor' }),
+    });
+    assert.equal(updateRes.status, 200);
+    const updateData = (await updateRes.json()) as any;
+    assert.equal(updateData.order.status, 'Preparing');
+
+    // 6. GET /api/admin/analytics
+    const statsRes = await fetch(`${apiBaseUrl}/api/admin/analytics`);
+    assert.equal(statsRes.status, 200);
+    const statsData = (await statsRes.json()) as any;
+    assert.ok(statsData.totalOrders > 0);
+  });
 });

@@ -25,6 +25,7 @@ export interface SessionState {
   language: 'en' | 'hi' | 'hinglish';
   lastDishMentioned?: string;
   activeOrderId?: string;
+  cancellationOrderPending?: string;
   allergies: string[];
   dietaryPreference?: 'veg' | 'non-veg';
   turnsCount: number;
@@ -32,6 +33,10 @@ export interface SessionState {
 }
 
 export class RestaurantOrchestrator {
+  private formatClockTime(): string {
+    return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+
   private sessions: Map<string, SessionState> = new Map();
 
   public getSession(sessionId: string): SessionState {
@@ -55,24 +60,54 @@ export class RestaurantOrchestrator {
   public async handleTurn(sessionId: string, userText: string): Promise<ChatMessage> {
     const session = this.getSession(sessionId);
     session.turnsCount++;
-    const text = userText.trim();
+    let text = userText.trim();
+    // Normalize typos & phonetics
+    const typoMap: [RegExp, string][] = [
+      [/\bcoldrik\b/gi, 'coldrink'],
+      [/\bcold\s*drink\b/gi, 'coldrink'],
+      [/\bcolddrink\b/gi, 'coldrink'],
+      [/\bjucie\b/gi, 'juice'],
+      [/\bjuce\b/gi, 'juice'],
+      [/\bpiza\b/gi, 'pizza'],
+      [/\bpizaa\b/gi, 'pizza'],
+      [/\bbiryanni\b/gi, 'biryani'],
+      [/\bbriyani\b/gi, 'biryani'],
+      [/\bpaner\b/gi, 'paneer'],
+      [/\bpneer\b/gi, 'paneer'],
+      [/\btika\b/gi, 'tikka'],
+      [/\btikaa\b/gi, 'tikka'],
+      [/\blasii\b/gi, 'lassi'],
+      [/\bchass\b/gi, 'chaas'],
+      [/\bchaach\b/gi, 'chaas'],
+      [/\blight food\b/gi, 'healthy food'],
+      [/\bdiet food\b/gi, 'healthy food'],
+      [/\blow cal\b/gi, 'low calorie'],
+      [/\blow calriesw\b/gi, 'low calorie'],
+      [/\blow calries\b/gi, 'low calorie'],
+    ];
+    for (const [pat, rep] of typoMap) {
+      text = text.replace(pat, rep);
+    }
     const lower = text.toLowerCase();
 
-    // 1. Language detection
-    const isHindiOrHinglish =
-      /[अ-ह]/.test(text) ||
-      /\b(karo|kar|hai|kya|bhook|khana|chahiye|kitna|bhai|batao|shukriya|namaste|theek|haan|nahi|kardo|lelo|rakhlo)\b/i.test(lower);
+    // 1. Dynamic Multilingual Detection (Pure Hindi, Hinglish, English)
+    const isHindiScript = /[ऀ-ॿ]/.test(text);
+    const isHinglishWords = /\b(karo|kar|hai|hain|kya|kyun|kaun|kaise|bhook|khana|chahiye|kitna|kitne|kitni|bhai|batao|bataiye|dikhao|dikhaye|shukriya|dhanyawad|namaste|namaskar|theek|haan|ha|nahi|na|kardo|lelo|rakhlo|mangwa|mangao|daal|daalo|paratha|pichli|baar|jaisa|purana|mera|meri|mere|aap|aapka|aapke|hum|mujhe|hamare|paas|kahan|pahuncha|kab|aayega|aayegi|bhejo|bhej|dekhna|dekhao|rok|hatao|badal|kam|jyada|teekha|meetha|roti|sabji|swagat|logon|ke\s*liye|andar|kuch|achha|accha|saaf)\b/i.test(lower);
+    const isEnglishOnly = !isHindiScript && !isHinglishWords && /\b(the|is|are|show|what|where|how|can|please|add|order|view|menu|dish|dishes|table|reserve|cancel|track|thanks|thank you|hello|hi|hey|good|morning|evening|hungry|want|give|cost|price|bill|cart|food)\b/i.test(lower);
 
-    if (isHindiOrHinglish) {
-      session.language = /[अ-ह]/.test(text) ? 'hi' : 'hinglish';
+    if (isHindiScript) {
+      session.language = 'hi';
+    } else if (isHinglishWords) {
+      session.language = 'hinglish';
+    } else if (isEnglishOnly) {
+      session.language = 'en';
     }
 
-    // 2. Human Handoff / Frustration Check
+    // 2. Human Handoff / Frustration Check (Only when customer explicitly requests human staff or files severe complaint)
     if (
-      /\b(human|manager|waiter|staff|talk to agent|real person|support|complaint|angry|cheated|worst|ganda)\b/i.test(
+      /\b(human|manager|waiter|staff|talk to agent|real person|support ticket|complaint|cheated|worst|ganda|bakwas|fraud)\b/i.test(
         lower
-      ) ||
-      session.unresolvedCount >= 2
+      )
     ) {
       const toolRes = RestaurantTools.createHandoffTicket({
         sessionId,
@@ -84,21 +119,329 @@ export class RestaurantOrchestrator {
       return this.formatMessage(toolRes, session);
     }
 
-    // 3. Greeting / Onboarding
-    if (/^(hi|hello|hey|namaste|pranam|start|help|bhook lagi)\b/i.test(lower)) {
+    // 2b. Order Cancellation Confirmation or Reason Selection (Flipkart / Amazon style)
+    const isCancelReason =
+      /\b(ordered by mistake|wrong dish|wrong item|too long|delivery time|change address|change delivery address|payment issue|pricing issue|changed my mind|found alternative|galti se|galat dish|der ho gayi|address badalna|mistake|reason)\b/i.test(lower) ||
+      lower.includes('ordered by mistake') || lower.includes('wrong dish') || lower.includes('changed my mind') || lower.includes('found alternative') || lower.includes('delivery time');
+
+    const isKeepOrder =
+      /\b(keep|keep my order|don'?t cancel|mat cancel|mat karo|nahi cancel|rehne do|no cancel|रहने दो|मत काटो|कैंसिल मत करो)\b/i.test(lower) ||
+      lower.includes('keep my order') || lower.includes("don't cancel");
+
+    if (isKeepOrder || isCancelReason || session.cancellationOrderPending) {
+      let ordId = session.cancellationOrderPending || session.activeOrderId;
+      if (!ordId) {
+        const allOrders = restaurantDb.getAllOrders();
+        const active = allOrders.find(o => o.status !== 'Cancelled' && o.status !== 'Delivered') || allOrders[0];
+        ordId = active ? active.id : 'ORD-7821-49';
+      }
+
+      if (isKeepOrder) {
+        session.cancellationOrderPending = undefined;
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: `Got it! Your order #${ordId} remains active and is being prepared fresh in our kitchen. 🍽️`,
+          timestamp: this.formatClockTime(),
+          quickReplies: [`Track #${ordId}`, '🍕 View Menu', '🛒 View Cart'],
+          toolExecuted: 'keep_order',
+        };
+      }
+
+      session.cancellationOrderPending = undefined;
+      const cleanReason = text.replace(/^[^\w\s]+/, '').trim();
+      try {
+        const cancelled = restaurantDb.cancelOrder(ordId, cleanReason);
+        const amount = (cancelled.totalPaise / 100).toFixed(2);
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: `We have cancelled your order #${ordId} as requested.\n\nReason: ${cleanReason}\n\n100% refund of ₹${amount} will be credited to your original payment method within 15-30 minutes. We apologize for the inconvenience!\n\nAs a token of apology, please use code WELCOME50 on your next order for 50% discount.`,
+          timestamp: this.formatClockTime(),
+          uiComponent: {
+            type: 'cancellation_confirmed',
+            payload: { orderId: ordId, reason: cleanReason, refundAmount: amount },
+          },
+          quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🛒 View Cart'],
+          toolExecuted: 'cancel_order',
+        };
+      } catch (err: any) {
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: `Could not cancel order #${ordId}: ${err.message}`,
+          timestamp: this.formatClockTime(),
+          quickReplies: [`Track #${ordId}`, 'Talk to Staff', 'View Menu'],
+        };
+      }
+    }
+
+    // 2c. Flipkart / Amazon Follow-Up Queries
+    if (/^(no,? i am good|no i'm good|no thanks|bas itna hi|kuch nahi|sab theek hai)$/i.test(lower)) {
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: `Glad to hear that! Feel free to reach out anytime you get hungry. Have a wonderful day ahead! 😊`,
+        timestamp: this.formatClockTime(),
+        quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '📅 Book a Table'],
+      };
+    }
+    if (/^(yes,? i still need help|need help|help chahiye|more help|help|support|i need help)$/i.test(lower)) {
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: session.language === 'hi'
+          ? `नमस्ते! मैं ChefZaika, आपका AI कलिनरी और कस्टमर सपोर्ट कंसीयर्ज एजेंट हूँ। 🤖 मैं आपकी पूरी सहायता के लिए यहाँ हूँ। आप नीचे दिए गए किसी भी विषय पर पूछ सकते हैं या सीधे अपनी ज़रूरत बता सकते हैं:`
+          : session.language === 'hinglish'
+          ? `Hello! Main ChefZaika, aapka AI culinary & customer support concierge agent hoon. 🤖 Main aapki puri help karne ke liye ready hoon. Aap in common topics me se pooch sakte hain ya direct mujhse sawaal pooch sakte hain:`
+          : `Hello! I am ChefZaika, your personal AI culinary concierge & customer support agent. 🤖 I'm here to assist you with anything you need. Please choose a question below or tell me what you need:`,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'concierge_help_card',
+          payload: {
+            topics: [
+              { icon: '🔍', title: 'Check Refund Status', query: 'Where is my refund?' },
+              { icon: '🥗', title: 'Healthy & Low-Calorie Food', query: 'Suggest healthy low calorie options' },
+              { icon: '🪷', title: 'Strict Jain & Pure Veg', query: 'What Jain dishes are available?' },
+              { icon: '📅', title: 'Reserve Dining Table', query: 'Book a table for 2 guests' },
+              { icon: '💳', title: 'Active Offers & Coupons', query: 'What discounts are available?' },
+              { icon: '👨‍🍳', title: 'Connect with Manager', query: 'I want to talk to restaurant manager' },
+            ],
+          },
+        },
+        quickReplies: ['🔍 Where is my refund?', '🥗 Healthy options', '🪷 Jain dishes', '📅 Book a table', '👨‍🍳 Talk to Manager'],
+        toolExecuted: 'agentic_help',
+      };
+    }
+
+    // 2d. Inquiries: Refund status
+    if (/\b(refund|refund\s*kab|kahan\s*hai\s*refund|refund\s*status|money\s*back|paise\s*wapas|रिफंड)\b/i.test(lower)) {
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: session.language === 'hi'
+          ? `✓ 100% रिफ़ंड गारंटी: रद्द किए गए ऑर्डर का पूरा रिफ़ंड 15 से 30 मिनट के अंदर आपके मूल बैंक खाते / UPI में क्रेडिट हो जाता है।\n\nअगर रिफ़ंड में कोई देरी होती है, तो मैं तुरंत रेस्टोरेंट मैनेजर को अलर्ट कर सकता हूँ।`
+          : session.language === 'hinglish'
+          ? `✓ 100% Refund Guarantee: Cancelled order ka pura refund agle 15-30 minutes me aapke original payment method (UPI / Bank Account) par credit ho jaata hai.\n\nAgar aapko koi delay lagta hai, toh main direct restaurant manager ko alert bhej sakta hoon.`
+          : `✓ 100% Instant Refund Guarantee: Your refund is initiated immediately and credited to your original payment method (UPI/Card/Bank) within 15-30 minutes.\n\nIf you need expedited support, I can directly escalate to our restaurant manager.`,
+        timestamp: this.formatClockTime(),
+        quickReplies: ['👨‍🍳 Talk to Manager', '🍕 Browse Menu', '🛒 View Cart'],
+        toolExecuted: 'refund_inquiry',
+      };
+    }
+
+    // 2e. Inquiries: Dietary & Health (Low Calorie / High Protein / Nutrition with interactive dish cards)
+    if (/\b(healthy|diet|dietary|low\s*calorie|high\s*protein|kam\s*calorie|weight\s*loss|health|nutrition|पौष्टिक|कम\s*कैलोरी)\b/i.test(lower)) {
+      const lowCalDishes = restaurantDb.getMenu().filter(
+        d => (d.calories !== undefined && d.calories <= 260) || d.tags.includes('healthy') || d.tags.includes('cooling') || d.tags.includes('digestive')
+      ).slice(0, 4);
+
+      let reply = '';
+      if (session.language === 'hi') {
+        reply = 'यहाँ हमारे शेफ़ के प्रमाणित पौष्टिक (Healthy & Low-Calorie < 300 kcal) व्यंजन हैं:\n\n• Masala Spiced Chaas (75 कैलोरी, पाचक)\n• Fresh Mint Lime Soda (60 कैलोरी, ताज़ा नींबू)\n• Tandoori Paneer Tikka (हाई प्रोटीन, तंदूर भुना)\n\nआप नीचे दिए गए कार्ड्स में से किसी भी डिश को सीधे कार्ट में जोड़ सकते हैं:';
+      } else if (session.language === 'hinglish') {
+        reply = 'Ye rahe hamare chef ke certified nutritious (Healthy & Low-Calorie < 300 kcal) dishes:\n\n• Masala Spiced Chaas (75 calories, light & digestive)\n• Fresh Mint Lime Soda (60 calories, zero fat)\n• Tandoori Paneer Tikka (High protein, tandoor grilled)\n\nAap neeche diye gaye cards me se directly add kar sakte hain:';
+      } else {
+        reply = 'Here are our certified nutritious (Healthy & Low-Calorie < 300 kcal) recommendations:\n\n• Masala Spiced Chaas (75 kcal, digestive)\n• Fresh Mint Lime Soda (60 kcal, vegan & hydrating)\n• Tandoori Paneer Tikka (High protein, tandoor grilled)\n\nTap any dish card below to add it directly to your basket:';
+      }
+
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: reply,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'dish_carousel',
+          payload: {
+            title: 'Healthy & Low-Calorie Recommendations (< 300 kcal)',
+            dishes: lowCalDishes.length > 0 ? lowCalDishes : restaurantDb.getMenu().slice(0, 4),
+          },
+        },
+        quickReplies: ['Add Masala Chaas (75 kcal)', 'Add Lime Soda (60 kcal)', 'Add Paneer Tikka', '🍕 View Menu'],
+        toolExecuted: 'dietary_inquiry',
+      };
+    }
+
+    // 2e2. Generic Beverage / Drink / Juice Request (Must show visual beverage carousel, NEVER pick a dish blindly!)
+    if (
+      /\b(coldrink|juice|drink|drinks|beverage|beverages|sharbat|shake|peene\s*ke\s*liye|kuch\s*thanda|thanda\s*pina|कोल्ड्रिंक|जूस|पेय)\b/i.test(lower) &&
+      !/\b(mango\s*lassi|lime\s*soda|mint\s*lime|masala\s*chaas|buttermilk|kulhad\s*chai|chai|tea)\b/i.test(lower)
+    ) {
+      const bevDishes = restaurantDb.getMenu().filter(d => d.category === 'Beverages' && d.inStock);
+      const isAddRequest = /\b(add|chahiye|daal\s*do|daalo|daal|mangao|mangwa\s*do|cart|kar\s*do)\b/i.test(lower);
+
+      let reply = '';
+      if (isAddRequest) {
+        reply = session.language === 'hi'
+          ? 'हमारे पास कई प्रकार के ताज़ा और स्वादिष्ट पेय और जूस हैं! आप इनमें से कौन सा अपनी कार्ट में जोड़ना चाहेंगे?'
+          : session.language === 'hinglish'
+          ? 'Hamare paas kai tarah ke refreshing beverages, drinks aur juices hain! Aap inme se kaun sa cart me add karna chahenge?'
+          : 'We have a variety of refreshing beverages & juices! Which one would you like to add to your food basket?';
+      } else {
+        reply = session.language === 'hi'
+          ? 'यहाँ हमारे सबसे लोकप्रिय और ताज़ा पेय, जूस और लस्सी हैं। किसी भी ड्रिंक को सीधे कार्ट में जोड़ने के लिए टैप करें:'
+          : session.language === 'hinglish'
+          ? 'Ye rahe hamare popular aur refreshing cold drinks, juices aur lassi. Direct add karne ke liye tap karein:'
+          : 'Here are our chef\'s signature refreshing beverages, juices & shakes. Tap any drink to add it to your basket:';
+      }
+
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: reply,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'dish_carousel',
+          payload: {
+            title: 'Refreshing Beverages, Juices & Shakes',
+            dishes: bevDishes.length > 0 ? bevDishes : restaurantDb.getMenu().slice(0, 4),
+          },
+        },
+        quickReplies: [
+          '🍋 Add Fresh Mint Lime Soda (₹99)',
+          '🥭 Add Alphonso Mango Lassi (₹149)',
+          '🥛 Add Masala Chaas (₹89)',
+          '☕ Add Kulhad Chai (₹79)',
+        ],
+        toolExecuted: 'beverage_menu',
+      };
+    }
+
+    // 2e3. Cart Item Removal & Clear Cart (Handles "cancel", "cart se remove kar do", "clear cart", etc.)
+    const isCartRemove =
+      /\b(remove|hata|hatao|nikal|nikalo|delete|clear\s*cart|empty\s*cart|रिमूव|हटाओ|हटा\s*दो|निकालो|डिलीट|खाली\s*करो)\b/i.test(lower) ||
+      /^(cancel|rehne do|mat dalo|don\'?t add|not this|hatao|nahi chahiye|galti se|रहने दो|मत डालो)$/i.test(lower) ||
+      lower.includes('cart se remove') || lower.includes('cart se hata');
+
+    if (isCartRemove && !/\b(cancel order|order cancel|cancel my order|order radd)\b/i.test(lower)) {
+      const isClearAll = /\b(clear\s*cart|empty\s*cart|sab\s*hata|pura\s*cart|remove\s*all|saara\s*hata)\b/i.test(lower);
+      if (isClearAll) {
+        restaurantDb.clearCart(sessionId);
+        const reply = session.language === 'hi'
+          ? '✓ आपकी कार्ट पूरी तरह खाली कर दी गई है। क्या आप मेनू देखना चाहेंगे?'
+          : session.language === 'hinglish'
+          ? '✓ Aapki cart poori tarah clear kar di gayi hai. Kya aap hamara menu browse karna chahenge?'
+          : '✓ Your food basket has been cleared completely. Would you like to explore our menu?';
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: reply,
+          timestamp: this.formatClockTime(),
+          uiComponent: { type: 'cart_sync_trigger', payload: { cleared: true } },
+          quickReplies: ['🍕 Browse Menu', '⭐ Chef Specials', '🛒 View Cart'],
+          toolExecuted: 'remove_from_cart',
+        };
+      }
+
+      const cart = restaurantDb.getCart(sessionId);
+      if (cart.items.length === 0) {
+        const reply = session.language === 'hi'
+          ? 'आपकी कार्ट अभी खाली है। क्या आप मेनू में से कुछ जोड़ना चाहते हैं?'
+          : session.language === 'hinglish'
+          ? 'Aapki cart abhi empty hai! Kuch add karne ke liye hamara verified menu browse karein.'
+          : 'Your food basket is currently empty. Would you like to explore our chef specials?';
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: reply,
+          timestamp: this.formatClockTime(),
+          quickReplies: ['🍕 Browse Menu', '⭐ Chef Specials', '🛒 View Cart'],
+          toolExecuted: 'remove_from_cart',
+        };
+      }
+
+      let dishToRemove = cart.items[cart.items.length - 1];
+      for (const it of cart.items) {
+        const nameParts = it.name.toLowerCase().split(' ');
+        if (nameParts.some((p) => p.length > 3 && lower.includes(p))) {
+          dishToRemove = it;
+          break;
+        }
+      }
+
+      restaurantDb.removeFromCart(sessionId, dishToRemove.dishId);
+      const updatedCart = restaurantDb.getCart(sessionId);
+      const totalInr = (updatedCart.totalPaise / 100).toFixed(2);
+      const dishName = dishToRemove.name;
+
+      let reply = '';
+      if (updatedCart.items.length === 0) {
+        reply = session.language === 'hi'
+          ? `✓ ${dishName} को आपकी कार्ट से हटा दिया गया है। आपकी कार्ट अब खाली है।`
+          : session.language === 'hinglish'
+          ? `✓ ${dishName} ko aapki cart se remove kar diya gaya hai. Aapki cart ab empty hai.`
+          : `✓ Removed ${dishName} from your food basket. Your cart is now empty.`;
+      } else {
+        reply = session.language === 'hi'
+          ? `✓ ${dishName} को हटा दिया गया है। नया कार्ट कुल: ₹${totalInr}।`
+          : session.language === 'hinglish'
+          ? `✓ ${dishName} remove ho gaya hai. Updated cart total: ₹${totalInr}.`
+          : `✓ Removed ${dishName} from your food basket! Updated subtotal is ₹${totalInr}.`;
+      }
+
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: reply,
+        timestamp: this.formatClockTime(),
+        uiComponent: { type: 'cart_sync_trigger', payload: { removedDishId: dishToRemove.dishId } },
+        quickReplies: ['🛒 View Cart', '🍕 Browse Menu', '💳 Checkout'],
+        toolExecuted: 'remove_from_cart',
+      };
+    }
+
+    // 2f. Inquiries: Jain & Pure Veg
+    if (/\b(jain|bina\s*pyaj|no\s*onion|no\s*garlic|shuddh\s*jain|जैन)\b/i.test(lower)) {
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: session.language === 'hi'
+          ? `हमारे यहाँ 100% शुद्ध जैन तैयारी का विशेष ध्यान रखा जाता है (बिना प्याज़, बिना लहसुन, बिना ज़मीकंद):\n\n• Jain Tandoori Paneer Tikka (₹320) - ताज़ा पनीर और शिमला मिर्च\n• Jain Dal Tadka (₹210) - जीरा और देशी घी का तड़का\n• Tandoori Roti & Steamed Rice\n\nक्या मैं आपके लिए जैन पनीर टिक्का जोड़ दूँ?`
+          : session.language === 'hinglish'
+          ? `Hamare kitchen me strict 100% Jain preparation follow hoti hai (No onion, No garlic, No root vegetables):\n\n• Jain Tandoori Paneer Tikka (₹320) - Fresh paneer & capsicum\n• Jain Dal Tadka (₹210) - Pure desi ghee & cumin tempering\n• Tandoori Roti & Steamed Rice\n\nKya main aapke liye Jain Paneer Tikka cart me add kar doon?`
+          : `We strictly follow 100% certified Jain preparation (No onion, no garlic, no root vegetables):\n\n• Jain Tandoori Paneer Tikka (₹320) - Fresh cottage cheese & bell peppers\n• Jain Dal Tadka (₹210) - Tempered with cumin & pure ghee\n• Tandoori Roti & Steamed Rice\n\nShall I add Jain Paneer Tikka to your basket?`,
+        timestamp: this.formatClockTime(),
+        quickReplies: ['Add Jain Paneer Tikka', 'Add Lime Soda', '🍕 View Menu'],
+        toolExecuted: 'jain_inquiry',
+      };
+    }
+
+    // 3. Greeting / Onboarding (handles hi, hii, hiii, hey, heyy, hello, hlo, namaste, etc.)
+    if (/^(hi+|hey+|hello+|hlo|namaste|namaskar|pranam|kaisa|start|help|bhook\s*lagi)\b/i.test(lower)) {
+      session.unresolvedCount = 0;
       const greeting =
         session.language === 'hi'
-          ? `नमस्ते! 'द स्पाइस लाउंज' में आपका स्वागत है। मैं आपका डिजिटल वेटर हूँ। आज आप क्या खाना पसंद करेंगे?`
+          ? `नमस्ते! 'द स्पाइस लाउंज' में आपका स्वागत है। 🍽️ मैं हूँ ChefZaika (शेफ़ जायका), आपका AI कलिनरी असिस्टेंट। आज आप क्या खाना पसंद करेंगे?`
           : session.language === 'hinglish'
-          ? `Namaste! The Spice Lounge me aapka swagat hai. Aaj kya khane ka mood hai? Hamare paas best Dum Biryani aur Butter Chicken hai!`
-          : `Hello & welcome to The Spice Lounge & Grill! I am your AI dining assistant. What are you in the mood for today?`;
+          ? `Namaste! The Spice Lounge me aapka swagat hai. 🍽️ Main hoon ChefZaika, aapka AI culinary dining partner. Aaj kya khane ka mood hai? Hamare paas authentic Dum Biryani, Paneer Tikka aur Chef Specials hain!`
+          : `Hello & welcome to The Spice Lounge & Grill! 🍽️ I am ChefZaika, your personal AI culinary assistant. What are you in the mood to taste today?`;
 
       return {
         id: `msg_${Date.now()}`,
         sender: 'bot',
         text: greeting,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🍛 Biryani & Curries', '📅 Book a Table', '📦 Track Order'],
+        timestamp: this.formatClockTime(),
+        quickReplies: ['🍕 View Menu', '🔥 Spicy Veg under ₹300', '⭐ Chef Specials', '🍛 Biryani Specials', '📦 Track Order', '📅 Book Table'],
+      };
+    }
+
+    // 3b. Affirmative / Agreement ("haa", "haan", "ha", "yes", "sure", "ok", "theek hai", "sahi hai", etc.)
+    if (/^(haa+|haan+|ha+|yes+|yeah+|yep+|ok+|okay+|theek hai|sahi hai|bilkul|ji haan|sure|karo|batao|dikhao)\b/i.test(lower)) {
+      session.unresolvedCount = 0;
+      const toolRes = RestaurantTools.searchMenu({ popularOnly: true });
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text:
+          session.language === 'hi'
+            ? `बहुत बढ़िया! यहाँ हमारे सबसे लोकप्रिय और स्वादिष्ट व्यंजन हैं। आप किसी भी डिश पर क्लिक करके या बोलकर सीधे कार्ट में जोड़ सकते हैं:`
+            : session.language === 'hinglish'
+            ? `Badhiya! Ye rahe hamare top popular dishes. Aap kisi bhi dish par tap karke ya bol kar cart me add kar sakte hain:`
+            : `Awesome! Here are our chef's top-rated signature dishes today. Tap any dish or simply tell me what you'd like to order:`,
+        timestamp: this.formatClockTime(),
+        uiComponent: toolRes.uiComponent,
+        quickReplies: ['🍕 View Full Menu', '🍛 Biryani Specials', '⭐ Chef Specials', '🛒 View Cart', '📅 Book Table'],
+        toolExecuted: 'search_menu',
       };
     }
 
@@ -117,20 +460,72 @@ export class RestaurantOrchestrator {
       return this.formatMessage(toolRes, session);
     }
 
-    // 5. Cancel Order
-    if (/\b(cancel order|order cancel|cancel kar do)\b/i.test(lower)) {
-      const orderId = orderIdMatch ? orderIdMatch[1].toUpperCase() : session.activeOrderId;
+    // 5. Cancel Order (Flipkart / Amazon Interactive Flow)
+    if (/\b(cancel order|order cancel|cancel kar do|cancel my order|cancel karna hai)\b/i.test(lower)) {
+      let orderId = orderIdMatch ? orderIdMatch[1].toUpperCase() : session.activeOrderId;
+      if (!orderId) {
+        const all = restaurantDb.getAllOrders();
+        if (all.length > 0) orderId = all[0].id;
+      }
+
       if (!orderId) {
         return {
           id: `msg_${Date.now()}`,
           sender: 'bot',
-          text: 'Please mention the Order ID you would like to cancel (e.g., ORD-123456-789).',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          quickReplies: ['Track Order', 'Speak with Staff'],
+          text: 'You do not have any active orders to cancel. Would you like to explore our menu?',
+          timestamp: this.formatClockTime(),
+          quickReplies: ['🍕 View Menu', '⭐ Chef Specials', 'Talk to Staff'],
         };
       }
-      const toolRes = RestaurantTools.cancelOrder({ orderId, reason: 'Customer requested via chat' });
-      return this.formatMessage(toolRes, session);
+
+      session.cancellationOrderPending = orderId;
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: `I understand you wish to cancel order #${orderId}. To help us improve, could you please select the reason for cancellation below?`,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'cancellation_reason_picker',
+          payload: {
+            orderId,
+            reasons: [
+              '⏱️ Expected delivery time is too long / delayed',
+              '🛒 Ordered by mistake / wrong dish added',
+              '📍 Want to change delivery address',
+              '💳 Payment or pricing issue',
+              '❌ Changed my mind / found alternative',
+            ],
+          },
+        },
+        quickReplies: [
+          '⏱️ Delivery time too long',
+          '🛒 Ordered by mistake',
+          '📍 Change address',
+          '💳 Payment issue',
+          'Don\'t Cancel',
+        ],
+        toolExecuted: 'request_cancellation_reason',
+      };
+    }
+
+    // 5b. Permanent Order Removal from Database
+    if (/\b(delete order|remove order|database se remove|database se delete)\b/i.test(lower)) {
+      let orderId = orderIdMatch ? orderIdMatch[1].toUpperCase() : session.activeOrderId;
+      if (!orderId) {
+        const all = restaurantDb.getAllOrders();
+        if (all.length > 0) orderId = all[0].id;
+      }
+      if (orderId) {
+        restaurantDb.deleteOrder(orderId);
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: `✓ Order #${orderId} has been completely deleted and removed from the database records.`,
+          timestamp: this.formatClockTime(),
+          quickReplies: ['🍕 View Menu', '🛒 View Cart'],
+          toolExecuted: 'delete_order',
+        };
+      }
     }
 
     // 6. Restaurant Information (Timings, Address, Location, Parking)
@@ -177,7 +572,7 @@ export class RestaurantOrchestrator {
         id: `msg_${Date.now()}`,
         sender: 'bot',
         text: `Here are our active deals today! Tap any coupon to apply it directly to your cart:`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: this.formatClockTime(),
         uiComponent: {
           type: 'coupon_card',
           payload: {
@@ -192,8 +587,8 @@ export class RestaurantOrchestrator {
       };
     }
 
-    // 9. View Cart
-    if (/\b(view cart|show cart|my cart|cart dekhao|cart me kya hai|checkout|bill)\b/i.test(lower)) {
+    // 9. View Cart (supports "show cart", "view cart", "open cart", "cart dikhao", "basket", "cart", etc.)
+    if (/\b(view\s*cart|show\s*cart|open\s*cart|see\s*cart|my\s*cart|cart\s*dikhao|cart\s*dekhao|cart\s*kholo|cart\s*me\s*kya|kya\s*hai\s*cart|check\s*cart|cart\s*check|basket|my\s*basket|show\s*basket|open\s*basket|bag\s*dikhao|shopping\s*cart|cart)\b/i.test(lower)) {
       const toolRes = RestaurantTools.viewCart({ sessionId });
       return this.formatMessage(toolRes, session);
     }
@@ -228,50 +623,61 @@ export class RestaurantOrchestrator {
         id: `msg_${Date.now()}`,
         sender: 'bot',
         text: `✓ Noted with your consent! I have saved your dining preference: "${prefStr}". I will keep this in mind for all future recommendations. You can update or clear this anytime.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: this.formatClockTime(),
         quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🛒 View Cart'],
         toolExecuted: 'save_preference',
       };
     }
 
-    // 9c. Re-Order Past Meal ("pichli baar jaisa")
-    if (/\b(pichli baar|last time|repeat order|reorder|same as before|purana order)\b/i.test(lower)) {
+    // 9c. Re-Order Past Meal ("pichli baar jaisa", "reorder", "repeat order", "same order again")
+    if (/\b(pichli\s*baar|pichla\s*order|last\s*time|repeat\s*order|repeat\s*my\s*order|reorder|re-order|same\s*as\s*before|same\s*as\s*last\s*time|purana\s*order|purana\s*wala|pehle\s*wala|same\s*order\s*again)\b/i.test(lower)) {
       const orders = restaurantDb.getAllOrders();
-      const pastOrder = orders.length > 0 ? orders[0] : null;
+      const pastOrder = orders.find((o) => o.sessionId === sessionId) || (orders.length > 0 ? orders[0] : null);
 
-      if (!pastOrder) {
+      if (!pastOrder || !pastOrder.items || pastOrder.items.length === 0) {
         return {
           id: `msg_${Date.now()}`,
           sender: 'bot',
-          text: `I could not find any previous completed orders for your account yet. Would you like to explore our popular chef specials to get started?`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text:
+            session.language === 'hi'
+              ? `मुझे आपके खाते में कोई पिछला पूरा हुआ ऑर्डर नहीं मिला। क्या आप हमारे शेफ़ स्पेशल देखना चाहेंगे?`
+              : session.language === 'hinglish'
+              ? `Aapka koi previous order record me nahi mila. Kya aap hamare popular chef specials browse karna chahenge?`
+              : `I could not find any previous completed orders for your account yet. Would you like to explore our popular chef specials to get started?`,
+          timestamp: this.formatClockTime(),
           quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🍛 Biryani Specials'],
+          toolExecuted: 'reorder',
         };
       }
 
-      const currentMenu = restaurantDb.getMenu();
-      const mappedItems = pastOrder.items.map(it => {
-        const current = currentMenu.find(m => m.id === it.dishId);
-        return {
-          dishId: it.dishId,
-          name: it.name,
-          quantity: it.quantity,
-          currentPricePaise: current ? current.pricePaise : it.pricePaise,
-          inStock: current ? current.inStock : true,
-        };
-      });
+      // Add each item from past order directly to user's cart
+      for (const it of pastOrder.items) {
+        restaurantDb.addToCart(sessionId, it.dishId, it.quantity, it.notes);
+      }
+      const updatedCart = restaurantDb.getCart(sessionId);
+      const itemsSummary = pastOrder.items.map((it) => `${it.quantity}x ${it.name}`).join(', ');
+      const totalInr = (updatedCart.totalPaise / 100).toFixed(2);
 
-      const currentSubtotal = mappedItems.reduce((acc, it) => acc + it.currentPricePaise * it.quantity, 0);
-      const estGst = Math.round(currentSubtotal * 0.05);
-      const itemsList = mappedItems.map(it => `• ${it.quantity}x ${it.name} @ ₹${(it.currentPricePaise / 100).toFixed(2)}`).join('\n');
+      let text = '';
+      if (session.language === 'hi') {
+        text = `✓ आपका पिछला ऑर्डर (#{pastOrder.id}) सफलतापूर्वक कार्ट में जोड़ दिया गया है! 🍲\n\nव्यंजन: {itemsSummary} (कुल बिल: ₹{totalInr})।\n\nक्या आप अभी ऑर्डर प्लेस करना चाहेंगे, या मेनू से कुछ और भी जोड़ना चाहते हैं?`;
+      } else if (session.language === 'hinglish') {
+        text = `✓ Aapka pichla order (#{pastOrder.id}) cart me successfully add ho gaya hai! 🍲\n\nItems: {itemsSummary} (Total: ₹{totalInr})।\n\nKya aap abhi order place karna chahenge, ya menu se kuch aur add karna hai?`;
+      } else {
+        text = `✓ Added your previous order (#{pastOrder.id}) to your food basket! 🍲\n\nItems: {itemsSummary} (Total: ₹{totalInr}).\n\nWould you like to place the order now, or add something else from our menu?`;
+      }
 
       return {
         id: `msg_${Date.now()}`,
         sender: 'bot',
-        text: `Found your previous order (${pastOrder.id})! Here are the items with today's verified menu prices:\n\n${itemsList}\n\nEstimated Total: ₹${((currentSubtotal + estGst) / 100).toFixed(2)} (incl. 5% GST). Would you like to add these to your cart?`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        quickReplies: ['✓ Add Re-order to Cart', '🍕 View Menu', '🛒 View Cart'],
-        toolExecuted: 'reorder_lookup',
+        text,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'cart_sync_trigger',
+          payload: { reorder: true, pastOrderId: pastOrder.id },
+        },
+        quickReplies: ['💳 Place Order Now', '🍕 Add More Items', '🛒 View Cart'],
+        toolExecuted: 'reorder',
       };
     }
 
@@ -321,7 +727,7 @@ export class RestaurantOrchestrator {
         id: `msg_${Date.now()}`,
         sender: 'bot',
         text: summaryText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: this.formatClockTime(),
         uiComponent: {
           type: 'dish_list',
           payload: {
@@ -343,7 +749,7 @@ export class RestaurantOrchestrator {
             id: `msg_${Date.now()}`,
             sender: 'bot',
             text: `Jain Tandoori Paneer Tikka contains 480 kcal and 26g protein per serving (lab-verified). It is 100% Jain certified with zero onion, garlic, or root vegetables.`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: this.formatClockTime(),
             quickReplies: ['Add Jain Paneer Tikka', 'View Ingredients', 'View Menu'],
           };
         }
@@ -352,7 +758,7 @@ export class RestaurantOrchestrator {
             id: `msg_${Date.now()}`,
             sender: 'bot',
             text: `High Protein Dal Tadka contains 360 kcal and a verified 28g protein per 500ml serving, prepared with pure desi ghee and arhar/moong dal.`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: this.formatClockTime(),
             quickReplies: ['Add Dal Tadka', 'View Menu'],
           };
         }
@@ -361,7 +767,7 @@ export class RestaurantOrchestrator {
             id: `msg_${Date.now()}`,
             sender: 'bot',
             text: `For ${dish.name}, verified lab nutritional data (calories/protein) is currently unavailable in our certified restaurant database. It is a light, homestyle comforting dish.`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: this.formatClockTime(),
             quickReplies: ['View Ingredients', 'View Menu'],
           };
         }
@@ -369,7 +775,7 @@ export class RestaurantOrchestrator {
           id: `msg_${Date.now()}`,
           sender: 'bot',
           text: `${dish.name} contains approximately ${dish.calories} kcal per serving (${dish.portion}). Prepared with fresh ingredients, ${dish.spiceLevel === 1 ? 'mild spice' : dish.spiceLevel === 2 ? 'medium spice' : 'fiery spice'}.`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: this.formatClockTime(),
           quickReplies: [`Add ${dish.name}`, 'View Menu', 'View Cart'],
         };
       }
@@ -399,7 +805,7 @@ export class RestaurantOrchestrator {
           id: `msg_${Date.now()}`,
           sender: 'bot',
           text: `Here are our verified dishes matching your request:`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: this.formatClockTime(),
           uiComponent: {
             type: 'dish_carousel',
             payload: { title, dishes: matchedDishes.slice(0, 6) },
@@ -418,7 +824,7 @@ export class RestaurantOrchestrator {
           id: `msg_${Date.now()}`,
           sender: 'bot',
           text: 'Your cart is empty! Add some delicious dishes before checkout.',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: this.formatClockTime(),
           quickReplies: ['View Menu', 'Biryani Specials', 'Butter Chicken'],
         };
       }
@@ -438,14 +844,17 @@ export class RestaurantOrchestrator {
       return this.formatMessage(toolRes, session);
     }
 
-    // 11. Add to Cart Intent
-    if (/\b(add|chahiye|order|mangwa do|daal do|lena hai)\b/i.test(lower)) {
+    // 11. Add to Cart Intent (handles voice STT variants like "cartman kar do", "cart me daal do", "naan daalo", etc.)
+    const isCartAdd =
+      /\b(cartman|cart\s*me|cart\s*mein|cart\s*mai|cart\s*pe|cartman\s*kar\s*do|add\s*to\s*cart|add|chahiye|mangwa\s*do|mangao|manga\s*do|daal\s*do|daalo|daal|lena\s*hai|kar\s*do|kardo|order\s*kar\s*do|de\s*do|bhejo|जोड़ो|डाल\s*दो|डालो|डाल|चाहिए|ऐड|कर\s*दो|भेजो)\b/i.test(lower);
+    if (isCartAdd) {
       // Find matching dish in menu
       const match = this.findDishInUtterance(text);
       if (match) {
         session.lastDishMentioned = match.id;
-        const qtyMatch = text.match(/(\d+)\s*(plate|portion|pack|order|x)?/i);
-        const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+        const cleanForQty = lower.replace(/\b\d+\s*(?:calories|calorie|kcal|cal|rs|rupees|inr)\b/gi, '').replace(/₹\s*\d+/g, '');
+        const qtyMatch = cleanForQty.match(/\b([1-9]|10)\s*(?:plate|plates|portion|portions|order|orders|x|glass|glasses|cup|cups)?\b/i);
+        const qty = qtyMatch ? Math.min(10, Math.max(1, parseInt(qtyMatch[1], 10))) : 1;
 
         // Check for notes like "less spicy"
         let notes: string | undefined;
@@ -494,6 +903,24 @@ export class RestaurantOrchestrator {
     else if (/dessert|meetha|sweet|gulab jamun|halwa|kulfi/i.test(lower)) category = 'Desserts';
     else if (/drink|beverage|lassi|chaas|chai|tea|soda/i.test(lower)) category = 'Beverages';
 
+    if (/special|specials|chef|signature|bestseller|popular|recommend/i.test(lower)) {
+      const toolRes = RestaurantTools.searchMenu({ popularOnly: true });
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text:
+          session.language === 'hi'
+            ? `यहाँ हमारे शेफ़ के सबसे प्रसिद्ध और सिग्नेचर स्पेशल व्यंजन हैं। किसी भी डिश को टैप करके सीधे कार्ट में जोड़ें:`
+            : session.language === 'hinglish'
+            ? `Ye rahe hamare chef ke top-rated signature specials aur bestsellers. Aap kisi bhi dish par tap karke cart me add kar sakte hain:`
+            : `Here are our chef's signature specials and highest-rated bestsellers today. Tap any dish to add directly to your basket:`,
+        timestamp: this.formatClockTime(),
+        uiComponent: toolRes.uiComponent,
+        quickReplies: ['🍕 View Full Menu', '🍛 Biryani Specials', '🥗 Low Calorie', '🛒 View Cart'],
+        toolExecuted: 'search_menu',
+      };
+    }
+
     if (category || /menu|dishes|kya khana hai|list|khana/i.test(lower)) {
       const isVegOnly = /veg|vegetarian|shakahari/i.test(lower);
       const toolRes = RestaurantTools.searchMenu({
@@ -503,21 +930,26 @@ export class RestaurantOrchestrator {
       return this.formatMessage(toolRes, session);
     }
 
-    // 15. Fallback - Polite clarifying question
+    // 15. Fallback - Polite clarifying question (never forces a manager ticket!)
     session.unresolvedCount++;
     const fallbackText =
       session.language === 'hi'
         ? `माफ़ कीजिये, मैं ठीक से समझ नहीं पाया। क्या आप हमारा मेनू देखना चाहेंगे, कोई डिश ऑर्डर करना चाहते हैं, या टेबल बुक करना चाहते हैं?`
         : session.language === 'hinglish'
-        ? `Sorry, main theek se samajh nahi paya. Kya aap menu dekhna chahte hain, cart dekhna chahte hain ya table book karni hai?`
+        ? `Main theek se samajh nahi paya. Kya aap menu dekhna chahte hain, cart check karna hai ya table book karni hai?`
         : `I’m not quite sure I caught that. Would you like to explore our menu, check your cart, or book a table?`;
+
+    const quickReplies =
+      session.unresolvedCount >= 3
+        ? ['🍕 View Full Menu', '🔥 Spicy Veg under ₹300', '⭐ Chef Specials', '🛒 View Cart', '🙋 Talk to Staff']
+        : ['🍕 View Full Menu', '🔥 Spicy Veg under ₹300', '⭐ Chef Specials', '🍛 Biryani Specials', '🛒 View Cart'];
 
     return {
       id: `msg_${Date.now()}`,
       sender: 'bot',
       text: fallbackText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      quickReplies: ['🍕 View Full Menu', '⭐ Chef Specials', '🛒 View Cart', '📅 Book Table', '🙋 Talk to Staff'],
+      timestamp: this.formatClockTime(),
+      quickReplies,
     };
   }
 
@@ -552,16 +984,127 @@ export class RestaurantOrchestrator {
   }
 
   private formatMessage(toolRes: ToolExecutionResult, session: SessionState): ChatMessage {
+    let text = toolRes.message;
+
+    if (session.language === 'hi') {
+      text = this.translateToHindi(text, toolRes);
+    } else if (session.language === 'hinglish') {
+      text = this.translateToHinglish(text, toolRes);
+    }
+
     return {
       id: `msg_${Date.now()}`,
       sender: 'bot',
-      text: toolRes.message,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text,
+      timestamp: this.formatClockTime(),
       uiComponent: toolRes.uiComponent,
-      quickReplies: toolRes.quickReplies,
+      quickReplies: this.adaptQuickReplies(toolRes.quickReplies, session.language),
       toolExecuted: toolRes.toolName,
       data: toolRes.data,
     };
+  }
+
+  private translateToHindi(text: string, toolRes: ToolExecutionResult): string {
+    if (toolRes.toolName === 'search_menu') {
+      return text
+        .replace(/Here are our verified dishes matching your request from \*\*The Spice Lounge \(Koramangala\)\*\*:/i, 'यहाँ **द स्पाइस लाउंज (कोरमंगला)** के हमारे प्रमाणित और ताज़ा व्यंजन हैं:')
+        .replace(/Here are our verified dishes matching your request:/i, 'यहाँ आपकी खोज के अनुसार हमारे प्रमाणित व्यंजन हैं:')
+        .replace(/I couldn't find any verified menu items matching those exact criteria\./i, 'माफ़ कीजिये, आपके खोज के अनुसार कोई व्यंजन नहीं मिला।');
+    }
+    if (toolRes.toolName === 'add_to_cart') {
+      return text
+        .replace(/Added (\d+)x (.+) to your food basket\./i, '✓ $1x $2 आपके कार्ट में जोड़ दिया गया है।')
+        .replace(/Added (\d+)x (.+) to your cart\./i, '✓ $1x $2 आपके कार्ट में जोड़ दिया गया है।')
+        .replace(/Would you like to add/i, 'क्या आप इसके साथ कुछ और जोड़ना चाहेंगे?');
+    }
+    if (toolRes.toolName === 'get_order_status') {
+      return text
+        .replace(/Order #(\S+) is currently (.+)\. Estimated delivery: (.+)\./i, 'ऑर्डर #$1 की वर्तमान स्थिति \'$2\' है। अनुमानित समय: $3।')
+        .replace(/Order #(\S+) is (.+)\./i, 'ऑर्डर #$1 अभी \'$2\' स्थिति में है।');
+    }
+    if (toolRes.toolName === 'book_table') {
+      return text
+        .replace(/Table booked successfully for (\d+) guests/i, '✓ बहुत बढ़िया! $1 व्यक्तियों के लिए टेबल बुक हो गई है')
+        .replace(/Date:/i, 'तारीख:')
+        .replace(/Time:/i, 'समय:');
+    }
+    if (toolRes.toolName === 'apply_coupon') {
+      return text.replace(/Coupon (\S+) applied successfully!/i, '✓ कूपन $1 सफलतापूर्वक लागू हो गया!');
+    }
+    if (toolRes.toolName === 'view_cart') {
+      return text.replace(/Your cart contains/i, 'आपके कार्ट में वर्तमान व्यंजन:');
+    }
+    if (toolRes.toolName === 'propose_cart') {
+      return text
+        .replace(/I have prepared your order proposal for/i, 'मैंने आपके ऑर्डर का विवरण तैयार कर लिया है:')
+        .replace(/Please confirm to add to your cart:/i, 'कृपया कार्ट में जोड़ने के लिए पुष्टि करें:');
+    }
+    return text;
+  }
+
+  private translateToHinglish(text: string, toolRes: ToolExecutionResult): string {
+    if (toolRes.toolName === 'search_menu') {
+      return text
+        .replace(/Here are our verified dishes matching your request from \*\*The Spice Lounge \(Koramangala\)\*\*:/i, 'Ye rahe **The Spice Lounge (Koramangala)** ke verified aur fresh dishes:')
+        .replace(/Here are our verified dishes matching your request:/i, 'Ye rahe aapki pasand ke verified aur fresh dishes:')
+        .replace(/I couldn't find any verified menu items matching those exact criteria\./i, 'Mujhe aapke filter ke according koi menu item nahi mila.');
+    }
+    if (toolRes.toolName === 'add_to_cart') {
+      return text
+        .replace(/Added (\d+)x (.+) to your food basket\./i, '✓ $1x $2 aapke cart me add ho gaya hai!')
+        .replace(/Added (\d+)x (.+) to your cart\./i, '✓ $1x $2 aapke cart me add ho gaya hai!')
+        .replace(/Would you like to add/i, 'Kya aap iske sath breads ya drinks add karna chahenge?');
+    }
+    if (toolRes.toolName === 'get_order_status') {
+      return text
+        .replace(/Order #(\S+) is currently (.+)\. Estimated delivery: (.+)\./i, 'Order #$1 abhi \'$2\' status par hai. Estimated delivery: $3.')
+        .replace(/Order #(\S+) is (.+)\./i, 'Order #$1 abhi \'$2\' status par hai.');
+    }
+    if (toolRes.toolName === 'book_table') {
+      return text
+        .replace(/Table booked successfully for (\d+) guests/i, '✓ Shandar! $1 guests ke liye table confirm book ho gayi hai')
+        .replace(/Date:/i, 'Date:')
+        .replace(/Time:/i, 'Time:');
+    }
+    if (toolRes.toolName === 'apply_coupon') {
+      return text.replace(/Coupon (\S+) applied successfully!/i, '✓ Coupon $1 successfully apply ho gaya!');
+    }
+    if (toolRes.toolName === 'view_cart') {
+      return text.replace(/Your cart contains/i, 'Aapke cart me ye items hain:');
+    }
+    if (toolRes.toolName === 'propose_cart') {
+      return text
+        .replace(/I have prepared your order proposal for/i, 'Maine aapka order proposal ready kar diya hai:')
+        .replace(/Please confirm to add to your cart:/i, 'Cart me add karne ke liye confirm karein:');
+    }
+    return text;
+  }
+
+  private adaptQuickReplies(replies: string[] | undefined, lang: string): string[] | undefined {
+    if (!replies) return undefined;
+    if (lang === 'hi') {
+      return replies.map(r => {
+        if (/view menu/i.test(r)) return '🍕 मेनू देखें';
+        if (/view cart/i.test(r)) return '🛒 कार्ट देखें';
+        if (/chef specials/i.test(r)) return '⭐ शेफ़ स्पेशल';
+        if (/track order/i.test(r)) return '📦 ऑर्डर ट्रैक करें';
+        if (/book table/i.test(r)) return '📅 टेबल बुक करें';
+        if (/talk to staff/i.test(r)) return '🙋 स्टाफ़ से बात करें';
+        return r;
+      });
+    }
+    if (lang === 'hinglish') {
+      return replies.map(r => {
+        if (/view menu/i.test(r)) return '🍕 Menu Dekho';
+        if (/view cart/i.test(r)) return '🛒 Cart Dekho';
+        if (/chef specials/i.test(r)) return '⭐ Chef Specials';
+        if (/track order/i.test(r)) return '📦 Order Track';
+        if (/book table/i.test(r)) return '📅 Table Book';
+        if (/talk to staff/i.test(r)) return '🙋 Talk to Staff';
+        return r;
+      });
+    }
+    return replies;
   }
 }
 

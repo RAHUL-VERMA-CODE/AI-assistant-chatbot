@@ -1,438 +1,245 @@
 [
   {
-    "orderId": "ord_1793011186602_ras8",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:39:46.602Z",
-    "updatedAt": "2026-10-26T10:39:46.602Z",
-    "_id": "id_0010066c92264bcfa91bb05376690a04"
-  },
-  {
-    "orderId": "ord_1793011231502_iak6",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:40:31.502Z",
-    "updatedAt": "2026-10-26T10:40:31.502Z",
-    "_id": "id_eadda7f67adb41e09882341bce26f328"
-  },
-  {
-    "orderId": "ord_1793011291189_gajk",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:41:31.189Z",
-    "updatedAt": "2026-10-26T10:41:31.189Z",
-    "_id": "id_342d4b4a746f4610a7161a32f87b01ca"
-  },
-  {
-    "orderId": "ord_1793011344472_3jei",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:42:24.472Z",
-    "updatedAt": "2026-10-26T10:42:24.472Z",
-    "_id": "id_c2e7332f9bab4533a202f77992c65dea"
-  },
-  {
-    "orderId": "ord_1793011353484_h4fg",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "pizza_cheese_burst",
-        "itemName": "Cheese Burst Pizza",
-        "variantId": "medium",
-        "variantName": "Medium",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 39900,
-        "lineTotalMinor": 39900
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 39900,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 48395
-    },
-    "totalMinor": 48395,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:42:33.484Z",
-    "updatedAt": "2026-10-26T10:42:33.484Z",
-    "_id": "id_d621caba55214c388c76bfaafeab2507"
-  },
-  {
-    "orderId": "ord_1793012155937_h5dr",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "pizza_cheese_burst",
-        "itemName": "Cheese Burst Pizza",
-        "variantId": "medium",
-        "variantName": "Medium",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 39900,
-        "lineTotalMinor": 39900
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 39900,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 48395
-    },
-    "totalMinor": 48395,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T10:55:55.937Z",
-    "updatedAt": "2026-10-26T10:55:55.937Z",
-    "_id": "id_48f844a068934744a13b1bd0bcfad576"
-  },
-  {
-    "orderId": "ord_1793013518050_coeh",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T11:18:38.050Z",
-    "updatedAt": "2026-10-26T11:18:38.050Z",
-    "_id": "id_e4589187dbe0424c9f0d917b51ebdde1"
-  },
-  {
-    "orderId": "ord_1793013758831_exid",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T11:22:38.831Z",
-    "updatedAt": "2026-10-26T11:22:38.831Z",
-    "_id": "id_396b45db85f2450087748d7439cdef06"
-  },
-  {
-    "orderId": "ord_1793013790154_eblb",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T11:23:10.154Z",
-    "updatedAt": "2026-10-26T11:23:10.154Z",
-    "_id": "id_29cf81fb22644179af25592c14ec2ff6"
-  },
-  {
-    "orderId": "ord_1793014114473_iopm",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T11:28:34.473Z",
-    "updatedAt": "2026-10-26T11:28:34.473Z",
-    "_id": "id_efe73e9b068f43c0a73909c7941fed31"
-  },
-  {
-    "orderId": "ord_1793014125070_ekh7",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "pizza_cheese_burst",
-        "itemName": "Cheese Burst Pizza",
-        "variantId": "medium",
-        "variantName": "Medium",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 39900,
-        "lineTotalMinor": 39900
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 39900,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 48395
-    },
-    "totalMinor": 48395,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T11:28:45.070Z",
-    "updatedAt": "2026-10-26T11:28:45.070Z",
-    "_id": "id_9e92275ac17447a3b36be8abbeee29e0"
-  },
-  {
-    "orderId": "ord_1793016317569_croc",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "paneer_tikka_jain",
-        "itemName": "Jain Paneer Tikka",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 42000,
-        "lineTotalMinor": 42000
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 42000,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 50600
-    },
-    "totalMinor": 50600,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T12:05:17.569Z",
-    "updatedAt": "2026-10-26T12:05:17.569Z",
-    "_id": "id_f9e7a04a3c4c446e9702633bdb74fc7b"
-  },
-  {
-    "orderId": "ORD-317624-653",
-    "sessionId": "int_test_ses_01",
-    "tenantId": "tenant_arpzo",
-    "userRef": "9988776655",
-    "status": "Placed",
-    "total": {
-      "amountPaise": 86290,
-      "currency": "INR"
-    },
-    "lines": [
-      {
-        "itemId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "quantity": 2,
-        "pricePaise": 39900,
-        "lineTotalPaise": 79800
-      }
-    ],
-    "createdAt": "2026-10-26T12:05:17.624Z",
-    "updatedAt": "2026-10-26T12:05:17.627Z",
-    "_id": "id_fd9bd7a3147846eab48658ac95adb9ab"
-  },
-  {
-    "orderId": "ord_1793016326384_j0uv",
-    "tenantId": "tenant_arpzo",
-    "branchId": "branch_koramangala",
-    "userRef": "usr_cust_01",
-    "items": [
-      {
-        "itemId": "pizza_cheese_burst",
-        "itemName": "Cheese Burst Pizza",
-        "variantId": "medium",
-        "variantName": "Medium",
-        "optionIds": [],
-        "quantity": 1,
-        "unitPriceMinor": 39900,
-        "lineTotalMinor": 39900
-      }
-    ],
-    "charges": {
-      "subtotalMinor": 39900,
-      "deliveryFeeMinor": 4000,
-      "packagingFeeMinor": 2500,
-      "discountMinor": 0,
-      "totalMinor": 48395
-    },
-    "totalMinor": 48395,
-    "currency": "INR",
-    "status": "CONFIRMED",
-    "createdAt": "2026-10-26T12:05:26.384Z",
-    "updatedAt": "2026-10-26T12:05:26.384Z",
-    "_id": "id_f454dc77b14545e5a2355462658e2088"
-  },
-  {
-    "orderId": "ORD-326741-540",
-    "sessionId": "test_session_rest_01",
+    "orderId": "ORD-633118-981",
+    "sessionId": "session_verify_order_tracking",
     "tenantId": "tenant_arpzo",
     "userRef": "9876543210",
     "status": "Placed",
     "total": {
-      "amountPaise": 37895,
+      "amountPaise": 35900,
       "currency": "INR"
     },
     "lines": [
       {
-        "itemId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
         "quantity": 1,
-        "pricePaise": 39900,
-        "lineTotalPaise": 39900
+        "unitPricePaise": 28000,
+        "lineTotalPaise": 28000
       }
     ],
-    "createdAt": "2026-10-26T12:05:26.741Z",
-    "updatedAt": "2026-10-26T12:05:26.863Z",
-    "_id": "id_9cb52e6a58ae4288ae18b7a38c990511"
+    "createdAt": "2026-10-28T17:30:33.118Z",
+    "updatedAt": "2026-10-28T17:30:33.118Z"
   },
   {
-    "orderId": "ORD-326861-205",
-    "sessionId": "hinglish_user_session_01",
+    "orderId": "ORD-461380-296",
+    "sessionId": "ses_1793206366176_abkxa",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 63190,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "quantity": 1,
+        "unitPricePaise": 29900,
+        "lineTotalPaise": 29900
+      },
+      {
+        "itemId": "starter_03",
+        "name": "Tandoori Soya Chaap",
+        "quantity": 1,
+        "unitPricePaise": 27900,
+        "lineTotalPaise": 27900
+      }
+    ],
+    "createdAt": "2026-10-28T16:54:21.380Z",
+    "updatedAt": "2026-10-28T16:54:21.380Z"
+  },
+  {
+    "orderId": "ORD-285222-969",
+    "sessionId": "test_session_18028",
+    "tenantId": "tenant_arpzo",
+    "userRef": "+919876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 69490,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "main_06",
+        "name": "Palak Paneer (Garlic Infused)",
+        "quantity": 2,
+        "unitPricePaise": 31900,
+        "lineTotalPaise": 63800
+      }
+    ],
+    "createdAt": "2026-10-28T16:51:25.222Z",
+    "updatedAt": "2026-10-28T16:51:25.222Z"
+  },
+  {
+    "orderId": "ORD-425038-749",
+    "sessionId": "test_session_16556",
+    "tenantId": "tenant_arpzo",
+    "userRef": "+919876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 69490,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "main_06",
+        "name": "Palak Paneer (Garlic Infused)",
+        "quantity": 2,
+        "unitPricePaise": 31900,
+        "lineTotalPaise": 63800
+      }
+    ],
+    "createdAt": "2026-10-28T12:10:25.038Z",
+    "updatedAt": "2026-10-28T12:10:25.038Z"
+  },
+  {
+    "orderId": "ORD-890397-122",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 71695,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "quantity": 1,
+        "unitPricePaise": 37900,
+        "lineTotalPaise": 37900
+      },
+      {
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "quantity": 1,
+        "unitPricePaise": 28000,
+        "lineTotalPaise": 28000
+      }
+    ],
+    "createdAt": "2026-10-28T08:58:10.398Z",
+    "updatedAt": "2026-10-28T08:58:10.398Z"
+  },
+  {
+    "orderId": "ORD-535851-981",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Cancelled",
+    "total": {
+      "amountPaise": 46295,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "quantity": 1,
+        "unitPricePaise": 37900,
+        "lineTotalPaise": 37900
+      }
+    ],
+    "createdAt": "2026-10-28T08:35:35.851Z",
+    "updatedAt": "2026-10-28T08:37:05.021Z",
+    "cancellationReason": "Changed my mind / found alternative"
+  },
+  {
+    "orderId": "ORD-286099-461",
+    "sessionId": "test_session_1793176285",
+    "tenantId": "tenant_arpzo",
+    "userRef": "+919876543210",
+    "status": "Cancelled",
+    "total": {
+      "amountPaise": 23090,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "bread_01",
+        "name": "Butter Garlic Naan",
+        "quantity": 2,
+        "unitPricePaise": 7900,
+        "lineTotalPaise": 15800
+      }
+    ],
+    "createdAt": "2026-10-28T08:31:26.100Z",
+    "updatedAt": "2026-10-28T08:31:26.196Z",
+    "cancellationReason": "Ordered by mistake / wrong dish added"
+  },
+  {
+    "orderId": "ORD-218598-557",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 78940,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "quantity": 1,
+        "unitPricePaise": 29900,
+        "lineTotalPaise": 29900
+      },
+      {
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "quantity": 1,
+        "unitPricePaise": 28000,
+        "lineTotalPaise": 28000
+      },
+      {
+        "itemId": "beverage_01",
+        "name": "Alphonso Mango Lassi",
+        "quantity": 1,
+        "unitPricePaise": 14900,
+        "lineTotalPaise": 14900
+      }
+    ],
+    "createdAt": "2026-10-28T07:40:18.598Z",
+    "updatedAt": "2026-10-28T07:40:18.598Z"
+  },
+  {
+    "orderId": "ORD-345948-771",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Cancelled",
+    "total": {
+      "amountPaise": 44090,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "quantity": 1,
+        "pricePaise": 29900,
+        "lineTotalPaise": 29900
+      },
+      {
+        "itemId": "bread_03",
+        "name": "Butter Naan",
+        "quantity": 1,
+        "pricePaise": 5900,
+        "lineTotalPaise": 5900
+      }
+    ],
+    "createdAt": "2026-10-26T17:55:45.948Z",
+    "updatedAt": "2026-10-26T17:57:14.482Z",
+    "_id": "id_eb30538727ee423bad828dc184195445",
+    "cancellationReason": "❌ Changed my mind / found alternative",
+    "cancelledAt": "2026-10-26T17:57:14.482Z"
+  },
+  {
+    "orderId": "ORD-521670-786",
+    "sessionId": "ses_1793014228671_c45a9",
     "tenantId": "tenant_arpzo",
     "userRef": "9876543210",
     "status": "Placed",
@@ -442,15 +249,100 @@
     },
     "lines": [
       {
-        "itemId": "main_02",
-        "name": "Paneer Butter Masala",
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
         "quantity": 1,
-        "pricePaise": 33900,
-        "lineTotalPaise": 33900
+        "pricePaise": 28000,
+        "lineTotalPaise": 28000
+      },
+      {
+        "itemId": "bread_03",
+        "name": "Butter Naan",
+        "quantity": 1,
+        "pricePaise": 5900,
+        "lineTotalPaise": 5900
       }
     ],
-    "createdAt": "2026-10-26T12:05:26.861Z",
-    "updatedAt": "2026-10-26T12:05:26.866Z",
-    "_id": "id_097c9447a0834de0bca756822c93670d"
+    "createdAt": "2026-10-26T17:58:41.670Z",
+    "updatedAt": "2026-10-26T17:58:41.681Z",
+    "_id": "id_d3c1e4aa9dd248fd98777f3a50b49bd0"
+  },
+  {
+    "orderId": "ORD-061945-902",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 75790,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "quantity": 1,
+        "pricePaise": 37900,
+        "lineTotalPaise": 37900
+      },
+      {
+        "itemId": "rice_02",
+        "name": "Awadhi Veg Dum Biryani",
+        "quantity": 1,
+        "pricePaise": 31900,
+        "lineTotalPaise": 31900
+      }
+    ],
+    "createdAt": "2026-10-26T19:14:21.947Z",
+    "updatedAt": "2026-10-26T19:14:22.118Z",
+    "_id": "id_501778b4c0b84e8f9c5d99449c0e2fb1"
+  },
+  {
+    "orderId": "ORD-818083-701",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Cancelled",
+    "total": {
+      "amountPaise": 35900,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "quantity": 1,
+        "pricePaise": 28000,
+        "lineTotalPaise": 28000
+      }
+    ],
+    "createdAt": "2026-10-26T20:16:58.083Z",
+    "updatedAt": "2026-10-26T20:17:18.516Z",
+    "_id": "id_a131dc2a19de40d9a4f28f4cacb70e03",
+    "cancellationReason": "📍 Want to change delivery address",
+    "cancelledAt": "2026-10-26T20:17:18.515Z"
+  },
+  {
+    "orderId": "ORD-074950-354",
+    "sessionId": "ses_1793014228671_c45a9",
+    "tenantId": "tenant_arpzo",
+    "userRef": "9876543210",
+    "status": "Placed",
+    "total": {
+      "amountPaise": 35900,
+      "currency": "INR"
+    },
+    "lines": [
+      {
+        "itemId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "quantity": 1,
+        "pricePaise": 28000,
+        "lineTotalPaise": 28000
+      }
+    ],
+    "createdAt": "2026-10-26T20:21:14.950Z",
+    "updatedAt": "2026-10-26T20:21:14.974Z",
+    "_id": "id_3f45349f731b4d07b7e3dca2dba75e46"
   }
 ]

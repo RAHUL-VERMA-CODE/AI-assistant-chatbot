@@ -7,6 +7,7 @@ import http from 'node:http';
 import { restaurantDb, RESTAURANT_INFO } from '../../../database/restaurant-db.ts';
 import type { OrderStatus } from '../../../database/restaurant-db.ts';
 import { restaurantOrchestrator } from '../../../packages/orchestrator/src/restaurant/restaurant-orchestrator.ts';
+import { RestaurantTools } from '../../../packages/orchestrator/src/restaurant/restaurant-tools.ts';
 import { sseBroadcaster } from './sse-broadcaster.ts';
 
 export async function handleRestaurantApi(
@@ -36,7 +37,7 @@ export async function handleRestaurantApi(
     res.end(JSON.stringify({ error: message }));
   };
 
-  // 2. POST /api/chat (AI Chatbot Turn)
+  // 2. POST /api/chat (AI Chatbot Turn - Powered by Python LangGraph Agent with TS fallback)
   if (method === 'POST' && pathname === '/api/chat') {
     const { sessionId, message } = body || {};
     if (!message) {
@@ -44,6 +45,28 @@ export async function handleRestaurantApi(
       return true;
     }
     const sid = sessionId || 'session_guest_default';
+
+    // 1. Try Python LangGraph Agentic AI Microservice (Port 8000)
+    try {
+      const pyRes = await fetch('http://127.0.0.1:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: sid, message }),
+        signal: AbortSignal.timeout(2000),
+      });
+
+      if (pyRes.ok) {
+        const pyData = await pyRes.json();
+        if (pyData && pyData.toolExecuted !== 'fallback') {
+          sendJson(200, pyData);
+          return true;
+        }
+      }
+    } catch {
+      // Fallback to high-performance TypeScript Orchestrator
+    }
+
+    // 2. High-performance TypeScript Orchestrator
     const reply = await restaurantOrchestrator.handleTurn(sid, message);
     sendJson(200, reply);
     return true;
@@ -99,8 +122,8 @@ export async function handleRestaurantApi(
     return true;
   }
 
-  // 7. PATCH /api/cart/update
-  if (method === 'PATCH' && pathname === '/api/cart/update') {
+  // 7. PATCH or POST /api/cart/update
+  if ((method === 'PATCH' || method === 'POST') && pathname === '/api/cart/update') {
     const { sessionId, dishId, quantity, notes } = body || {};
     if (!dishId || typeof quantity !== 'number') {
       sendError(400, 'Parameters "dishId" and "quantity" are required');
@@ -112,8 +135,8 @@ export async function handleRestaurantApi(
     return true;
   }
 
-  // 8. DELETE /api/cart/remove
-  if (method === 'DELETE' && pathname === '/api/cart/remove') {
+  // 8. DELETE or POST /api/cart/remove
+  if ((method === 'DELETE' || method === 'POST') && (pathname === '/api/cart/remove' || pathname === '/api/cart/delete')) {
     const { sessionId, dishId } = body || {};
     if (!dishId) {
       sendError(400, 'Parameter "dishId" is required');
@@ -122,6 +145,15 @@ export async function handleRestaurantApi(
     const sid = sessionId || 'session_guest_default';
     const updatedCart = restaurantDb.removeFromCart(sid, dishId);
     sendJson(200, updatedCart);
+    return true;
+  }
+
+  // 8b. POST /api/cart/clear (Explicit cart reset)
+  if (method === 'POST' && pathname === '/api/cart/clear') {
+    const { sessionId } = body || {};
+    const sid = sessionId || 'session_guest_default';
+    const clearedCart = restaurantDb.clearCart(sid);
+    sendJson(200, clearedCart);
     return true;
   }
 
@@ -138,8 +170,8 @@ export async function handleRestaurantApi(
     return true;
   }
 
-  // 10. POST /api/orders (Place Order)
-  if (method === 'POST' && pathname === '/api/orders') {
+  // 10. POST /api/orders or /api/cart/order (Place Order)
+  if (method === 'POST' && (pathname === '/api/orders' || pathname === '/api/cart/order')) {
     const { sessionId, customerName, phone, orderType, deliveryAddress, tableNumber, paymentMethod } = body || {};
     if (!customerName || !phone || !orderType) {
       sendError(400, 'customerName, phone, and orderType are required');
@@ -200,6 +232,23 @@ export async function handleRestaurantApi(
         payload: { order: updatedOrder },
       });
       sendJson(200, { success: true, order: updatedOrder });
+    } catch (err: any) {
+      sendError(400, err.message);
+    }
+    return true;
+  }
+
+  // 13b. POST or PATCH /api/orders/:id/cancel (Cancel Order with instant refund)
+  if ((method === 'POST' || method === 'PATCH') && pathname.startsWith('/api/orders/') && pathname.endsWith('/cancel')) {
+    const orderId = pathname.replace('/api/orders/', '').replace('/cancel', '');
+    const { reason } = body || {};
+    try {
+      const cancelledOrder = restaurantDb.cancelOrder(orderId, reason || 'Customer requested via chat');
+      sseBroadcaster.broadcast({
+        type: 'order_status_updated',
+        payload: { order: cancelledOrder },
+      });
+      sendJson(200, { success: true, order: cancelledOrder });
     } catch (err: any) {
       sendError(400, err.message);
     }
@@ -279,6 +328,38 @@ export async function handleRestaurantApi(
       return true;
     }
     sendJson(200, { success: true, ticket: t });
+    return true;
+  }
+
+  // 21. CANONICAL AI AGENT TOOLS CONTRACT ENDPOINTS
+  if (method === 'POST' && pathname === '/api/tools/search_menu') {
+    const result = RestaurantTools.search_menu(body || {});
+    sendJson(200, result);
+    return true;
+  }
+  if (method === 'POST' && pathname === '/api/tools/get_menu_item') {
+    const result = RestaurantTools.get_menu_item(body || {});
+    sendJson(200, result);
+    return true;
+  }
+  if (method === 'POST' && pathname === '/api/tools/propose_cart') {
+    const result = RestaurantTools.propose_cart(body || {});
+    sendJson(200, result);
+    return true;
+  }
+  if (method === 'POST' && pathname === '/api/tools/get_reorder_proposal') {
+    const result = RestaurantTools.get_reorder_proposal(body || {});
+    sendJson(200, result);
+    return true;
+  }
+  if (method === 'POST' && pathname === '/api/tools/get_order_status') {
+    const result = RestaurantTools.get_order_status(body || {});
+    sendJson(200, result);
+    return true;
+  }
+  if (method === 'POST' && pathname === '/api/tools/get_preferences') {
+    const result = RestaurantTools.get_preferences(body || {});
+    sendJson(200, result);
     return true;
   }
 

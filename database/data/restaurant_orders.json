@@ -1,79 +1,7 @@
 [
   {
-    "id": "ORD-554621-830",
-    "sessionId": "test_session_rest_01",
-    "customerName": "Aarav Sharma",
-    "phone": "9876543210",
-    "orderType": "delivery",
-    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 1,
-        "lineTotalPaise": 39900
-      }
-    ],
-    "subtotalPaise": 39900,
-    "discountPaise": 10000,
-    "couponCode": "WELCOME50",
-    "gstPaise": 1495,
-    "deliveryFeePaise": 4000,
-    "totalPaise": 37895,
-    "status": "Placed",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T11:19:14.621Z",
-        "note": "Order received by restaurant kitchen"
-      }
-    ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:19:14.621Z",
-    "updatedAt": "2026-10-26T11:19:14.621Z"
-  },
-  {
-    "id": "ORD-682137-349",
-    "sessionId": "test_session_rest_01",
-    "customerName": "Aarav Sharma",
-    "phone": "9876543210",
-    "orderType": "delivery",
-    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 1,
-        "lineTotalPaise": 39900
-      }
-    ],
-    "subtotalPaise": 39900,
-    "discountPaise": 10000,
-    "couponCode": "WELCOME50",
-    "gstPaise": 1495,
-    "deliveryFeePaise": 4000,
-    "totalPaise": 37895,
-    "status": "Placed",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T11:21:22.137Z",
-        "note": "Order received by restaurant kitchen"
-      }
-    ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:21:22.137Z",
-    "updatedAt": "2026-10-26T11:21:22.137Z"
-  },
-  {
-    "id": "ORD-682170-442",
-    "sessionId": "hinglish_user_session_01",
+    "id": "ORD-345948-771",
+    "sessionId": "ses_1793014228671_c45a9",
     "customerName": "Rahul (Guest)",
     "phone": "9876543210",
     "orderType": "delivery",
@@ -81,12 +9,68 @@
     "paymentMethod": "UPI",
     "items": [
       {
-        "dishId": "main_02",
-        "name": "Paneer Butter Masala",
+        "dishId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
         "isVeg": true,
-        "pricePaise": 33900,
+        "pricePaise": 29900,
         "quantity": 1,
-        "lineTotalPaise": 33900
+        "lineTotalPaise": 29900
+      },
+      {
+        "dishId": "bread_03",
+        "name": "Butter Naan",
+        "isVeg": true,
+        "pricePaise": 5900,
+        "quantity": 1,
+        "lineTotalPaise": 5900
+      }
+    ],
+    "subtotalPaise": 35800,
+    "discountPaise": 0,
+    "gstPaise": 1790,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 44090,
+    "status": "Cancelled",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T17:55:45.948Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Cancelled",
+        "timestamp": "2026-10-26T17:57:14.478Z",
+        "note": "❌ Changed my mind / found alternative"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T17:55:45.948Z",
+    "updatedAt": "2026-10-26T17:57:14.478Z"
+  },
+  {
+    "id": "ORD-521670-786",
+    "sessionId": "ses_1793014228671_c45a9",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "isVeg": true,
+        "pricePaise": 28000,
+        "quantity": 1,
+        "lineTotalPaise": 28000
+      },
+      {
+        "dishId": "bread_03",
+        "name": "Butter Naan",
+        "isVeg": true,
+        "pricePaise": 5900,
+        "quantity": 1,
+        "lineTotalPaise": 5900
       }
     ],
     "subtotalPaise": 33900,
@@ -98,58 +82,17 @@
     "statusHistory": [
       {
         "status": "Placed",
-        "timestamp": "2026-10-26T11:21:22.170Z",
+        "timestamp": "2026-10-26T17:58:41.670Z",
         "note": "Order received by restaurant kitchen"
       }
     ],
     "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:21:22.170Z",
-    "updatedAt": "2026-10-26T11:21:22.170Z"
+    "createdAt": "2026-10-26T17:58:41.670Z",
+    "updatedAt": "2026-10-26T17:58:41.670Z"
   },
   {
-    "id": "ORD-730844-838",
-    "sessionId": "test_session_rest_01",
-    "customerName": "Aarav Sharma",
-    "phone": "9876543210",
-    "orderType": "delivery",
-    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 1,
-        "lineTotalPaise": 39900
-      }
-    ],
-    "subtotalPaise": 39900,
-    "discountPaise": 10000,
-    "couponCode": "WELCOME50",
-    "gstPaise": 1495,
-    "deliveryFeePaise": 4000,
-    "totalPaise": 37895,
-    "status": "Preparing",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T11:22:10.844Z",
-        "note": "Order received by restaurant kitchen"
-      },
-      {
-        "status": "Preparing",
-        "timestamp": "2026-10-26T11:32:04.123Z",
-        "note": "Status changed to Preparing"
-      }
-    ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:22:10.844Z",
-    "updatedAt": "2026-10-26T11:32:04.123Z"
-  },
-  {
-    "id": "ORD-730894-733",
-    "sessionId": "hinglish_user_session_01",
+    "id": "ORD-061945-902",
+    "sessionId": "ses_1793014228671_c45a9",
     "customerName": "Rahul (Guest)",
     "phone": "9876543210",
     "orderType": "delivery",
@@ -157,155 +100,44 @@
     "paymentMethod": "UPI",
     "items": [
       {
-        "dishId": "main_02",
-        "name": "Paneer Butter Masala",
-        "isVeg": true,
-        "pricePaise": 33900,
+        "dishId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "isVeg": false,
+        "pricePaise": 37900,
         "quantity": 1,
-        "lineTotalPaise": 33900
-      }
-    ],
-    "subtotalPaise": 33900,
-    "discountPaise": 0,
-    "gstPaise": 1695,
-    "deliveryFeePaise": 4000,
-    "totalPaise": 42095,
-    "status": "Preparing",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T11:22:10.894Z",
-        "note": "Order received by restaurant kitchen"
+        "notes": "",
+        "lineTotalPaise": 37900
       },
       {
-        "status": "Preparing",
-        "timestamp": "2026-10-26T11:32:01.332Z",
-        "note": "Status changed to Preparing"
+        "dishId": "rice_02",
+        "name": "Awadhi Veg Dum Biryani",
+        "isVeg": true,
+        "pricePaise": 31900,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 31900
       }
     ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:22:10.894Z",
-    "updatedAt": "2026-10-26T11:32:01.332Z"
-  },
-  {
-    "id": "ORD-790203-681",
-    "sessionId": "int_test_ses_01",
-    "customerName": "Karan Mehra",
-    "phone": "9988776655",
-    "orderType": "delivery",
-    "deliveryAddress": "Indiranagar 12th Main",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 2,
-        "lineTotalPaise": 79800
-      }
-    ],
-    "subtotalPaise": 79800,
+    "subtotalPaise": 69800,
     "discountPaise": 0,
-    "gstPaise": 3990,
+    "gstPaise": 3490,
     "deliveryFeePaise": 0,
-    "totalPaise": 86290,
-    "status": "Preparing",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T11:23:10.203Z",
-        "note": "Order received by restaurant kitchen"
-      },
-      {
-        "status": "Preparing",
-        "timestamp": "2026-10-26T11:23:10.206Z",
-        "note": "Chef fired tandoor"
-      }
-    ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T11:23:10.203Z",
-    "updatedAt": "2026-10-26T11:23:10.206Z"
-  },
-  {
-    "id": "ORD-317624-653",
-    "sessionId": "int_test_ses_01",
-    "customerName": "Karan Mehra",
-    "phone": "9988776655",
-    "orderType": "delivery",
-    "deliveryAddress": "Indiranagar 12th Main",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 2,
-        "lineTotalPaise": 79800
-      }
-    ],
-    "subtotalPaise": 79800,
-    "discountPaise": 0,
-    "gstPaise": 3990,
-    "deliveryFeePaise": 0,
-    "totalPaise": 86290,
-    "status": "Preparing",
-    "statusHistory": [
-      {
-        "status": "Placed",
-        "timestamp": "2026-10-26T12:05:17.624Z",
-        "note": "Order received by restaurant kitchen"
-      },
-      {
-        "status": "Preparing",
-        "timestamp": "2026-10-26T12:05:17.630Z",
-        "note": "Chef fired tandoor"
-      }
-    ],
-    "etaMinutes": 35,
-    "createdAt": "2026-10-26T12:05:17.624Z",
-    "updatedAt": "2026-10-26T12:05:17.630Z"
-  },
-  {
-    "id": "ORD-326741-540",
-    "sessionId": "test_session_rest_01",
-    "customerName": "Aarav Sharma",
-    "phone": "9876543210",
-    "orderType": "delivery",
-    "deliveryAddress": "Flat 101, Indiranagar, Bengaluru",
-    "paymentMethod": "UPI",
-    "items": [
-      {
-        "dishId": "main_01",
-        "name": "Butter Chicken (Murgh Makhani)",
-        "isVeg": false,
-        "pricePaise": 39900,
-        "quantity": 1,
-        "lineTotalPaise": 39900
-      }
-    ],
-    "subtotalPaise": 39900,
-    "discountPaise": 10000,
-    "couponCode": "WELCOME50",
-    "gstPaise": 1495,
-    "deliveryFeePaise": 4000,
-    "totalPaise": 37895,
+    "totalPaise": 75790,
     "status": "Placed",
     "statusHistory": [
       {
         "status": "Placed",
-        "timestamp": "2026-10-26T12:05:26.741Z",
+        "timestamp": "2026-10-26T19:14:21.947Z",
         "note": "Order received by restaurant kitchen"
       }
     ],
     "etaMinutes": 35,
-    "createdAt": "2026-10-26T12:05:26.741Z",
-    "updatedAt": "2026-10-26T12:05:26.741Z"
+    "createdAt": "2026-10-26T19:14:21.947Z",
+    "updatedAt": "2026-10-26T19:14:21.947Z"
   },
   {
-    "id": "ORD-326861-205",
-    "sessionId": "hinglish_user_session_01",
+    "id": "ORD-818083-701",
+    "sessionId": "ses_1793014228671_c45a9",
     "customerName": "Rahul (Guest)",
     "phone": "9876543210",
     "orderType": "delivery",
@@ -313,29 +145,398 @@
     "paymentMethod": "UPI",
     "items": [
       {
-        "dishId": "main_02",
-        "name": "Paneer Butter Masala",
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
         "isVeg": true,
-        "pricePaise": 33900,
+        "pricePaise": 28000,
         "quantity": 1,
-        "lineTotalPaise": 33900
+        "lineTotalPaise": 28000
       }
     ],
-    "subtotalPaise": 33900,
+    "subtotalPaise": 28000,
     "discountPaise": 0,
-    "gstPaise": 1695,
+    "gstPaise": 1400,
     "deliveryFeePaise": 4000,
-    "totalPaise": 42095,
+    "totalPaise": 35900,
+    "status": "Cancelled",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-26T20:16:58.083Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Cancelled",
+        "timestamp": "2026-10-26T20:17:18.506Z",
+        "note": "📍 Want to change delivery address"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-26T20:16:58.083Z",
+    "updatedAt": "2026-10-26T20:17:18.506Z"
+  },
+  {
+    "id": "ORD-074950-354",
+    "sessionId": "ses_1793014228671_c45a9",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "isVeg": true,
+        "pricePaise": 28000,
+        "quantity": 1,
+        "lineTotalPaise": 28000
+      }
+    ],
+    "subtotalPaise": 28000,
+    "discountPaise": 0,
+    "gstPaise": 1400,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 35900,
     "status": "Placed",
     "statusHistory": [
       {
         "status": "Placed",
-        "timestamp": "2026-10-26T12:05:26.861Z",
+        "timestamp": "2026-10-26T20:21:14.950Z",
         "note": "Order received by restaurant kitchen"
       }
     ],
     "etaMinutes": 35,
-    "createdAt": "2026-10-26T12:05:26.861Z",
-    "updatedAt": "2026-10-26T12:05:26.861Z"
+    "createdAt": "2026-10-26T20:21:14.950Z",
+    "updatedAt": "2026-10-26T20:21:14.950Z"
+  },
+  {
+    "id": "ORD-218598-557",
+    "sessionId": "ses_1793014228671_c45a9",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "isVeg": true,
+        "pricePaise": 29900,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 29900
+      },
+      {
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "isVeg": true,
+        "pricePaise": 28000,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 28000
+      },
+      {
+        "dishId": "beverage_01",
+        "name": "Alphonso Mango Lassi",
+        "isVeg": true,
+        "pricePaise": 14900,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 14900
+      }
+    ],
+    "subtotalPaise": 72800,
+    "discountPaise": 0,
+    "gstPaise": 3640,
+    "deliveryFeePaise": 0,
+    "totalPaise": 78940,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T07:40:18.598Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T07:40:18.598Z",
+    "updatedAt": "2026-10-28T07:40:18.598Z"
+  },
+  {
+    "id": "ORD-286099-461",
+    "sessionId": "test_session_1793176285",
+    "customerName": "Rahul Test",
+    "phone": "+919876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Valley Apartments",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "bread_01",
+        "name": "Butter Garlic Naan",
+        "isVeg": true,
+        "pricePaise": 7900,
+        "quantity": 2,
+        "notes": "",
+        "lineTotalPaise": 15800
+      }
+    ],
+    "subtotalPaise": 15800,
+    "discountPaise": 0,
+    "gstPaise": 790,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 23090,
+    "status": "Cancelled",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T08:31:26.100Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Cancelled",
+        "timestamp": "2026-10-28T08:31:26.196Z",
+        "note": "Ordered by mistake / wrong dish added"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T08:31:26.100Z",
+    "updatedAt": "2026-10-28T08:31:26.196Z"
+  },
+  {
+    "id": "ORD-535851-981",
+    "sessionId": "ses_1793014228671_c45a9",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "COD",
+    "items": [
+      {
+        "dishId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "isVeg": false,
+        "pricePaise": 37900,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 37900
+      }
+    ],
+    "subtotalPaise": 37900,
+    "discountPaise": 0,
+    "gstPaise": 1895,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 46295,
+    "status": "Cancelled",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T08:35:35.851Z",
+        "note": "Order received by restaurant kitchen"
+      },
+      {
+        "status": "Cancelled",
+        "timestamp": "2026-10-28T08:37:05.021Z",
+        "note": "Changed my mind / found alternative"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T08:35:35.851Z",
+    "updatedAt": "2026-10-28T08:37:05.021Z"
+  },
+  {
+    "id": "ORD-890397-122",
+    "sessionId": "ses_1793014228671_c45a9",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "rice_01",
+        "name": "Hyderabadi Chicken Dum Biryani",
+        "isVeg": false,
+        "pricePaise": 37900,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 37900
+      },
+      {
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "isVeg": true,
+        "pricePaise": 28000,
+        "quantity": 1,
+        "notes": "",
+        "lineTotalPaise": 28000
+      }
+    ],
+    "subtotalPaise": 65900,
+    "discountPaise": 0,
+    "gstPaise": 3295,
+    "deliveryFeePaise": 0,
+    "totalPaise": 71695,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T08:58:10.398Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T08:58:10.398Z",
+    "updatedAt": "2026-10-28T08:58:10.398Z"
+  },
+  {
+    "id": "ORD-425038-749",
+    "sessionId": "test_session_16556",
+    "customerName": "Rahul Test",
+    "phone": "+919876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Lotus Towers, Bangalore",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_06",
+        "name": "Palak Paneer (Garlic Infused)",
+        "isVeg": true,
+        "pricePaise": 31900,
+        "quantity": 2,
+        "lineTotalPaise": 63800
+      }
+    ],
+    "subtotalPaise": 63800,
+    "discountPaise": 0,
+    "gstPaise": 3190,
+    "deliveryFeePaise": 0,
+    "totalPaise": 69490,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T12:10:25.038Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T12:10:25.038Z",
+    "updatedAt": "2026-10-28T12:10:25.038Z"
+  },
+  {
+    "id": "ORD-285222-969",
+    "sessionId": "test_session_18028",
+    "customerName": "Rahul Test",
+    "phone": "+919876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Lotus Towers, Bangalore",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "main_06",
+        "name": "Palak Paneer (Garlic Infused)",
+        "isVeg": true,
+        "pricePaise": 31900,
+        "quantity": 2,
+        "lineTotalPaise": 63800
+      }
+    ],
+    "subtotalPaise": 63800,
+    "discountPaise": 0,
+    "gstPaise": 3190,
+    "deliveryFeePaise": 0,
+    "totalPaise": 69490,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T16:51:25.222Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T16:51:25.222Z",
+    "updatedAt": "2026-10-28T16:51:25.222Z"
+  },
+  {
+    "id": "ORD-461380-296",
+    "sessionId": "ses_1793206366176_abkxa",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "isVeg": true,
+        "pricePaise": 29900,
+        "quantity": 1,
+        "lineTotalPaise": 29900
+      },
+      {
+        "dishId": "starter_03",
+        "name": "Tandoori Soya Chaap",
+        "isVeg": true,
+        "pricePaise": 27900,
+        "quantity": 1,
+        "lineTotalPaise": 27900
+      }
+    ],
+    "subtotalPaise": 57800,
+    "discountPaise": 0,
+    "gstPaise": 2890,
+    "deliveryFeePaise": 0,
+    "totalPaise": 63190,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T16:54:21.380Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T16:54:21.380Z",
+    "updatedAt": "2026-10-28T16:54:21.380Z"
+  },
+  {
+    "id": "ORD-633118-981",
+    "sessionId": "session_verify_order_tracking",
+    "customerName": "Rahul",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Bangalore",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "pizza_01",
+        "name": "Cheese Burst Margherita Pizza",
+        "isVeg": true,
+        "pricePaise": 28000,
+        "quantity": 1,
+        "lineTotalPaise": 28000
+      }
+    ],
+    "subtotalPaise": 28000,
+    "discountPaise": 0,
+    "gstPaise": 1400,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 35900,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T17:30:33.118Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T17:30:33.118Z",
+    "updatedAt": "2026-10-28T17:30:33.118Z"
   }
 ]

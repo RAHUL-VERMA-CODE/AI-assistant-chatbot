@@ -25,6 +25,7 @@ export interface MenuItem {
   tags: string[];
   inStock: boolean;
   imageUrl: string;
+  aliases?: string[];
 }
 
 export interface Coupon {
@@ -254,7 +255,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 320,
     tags: ['chef_special', 'crispy'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'starter_06',
@@ -376,7 +377,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 380,
     tags: ['healthy', 'classic'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1613292443284-c7743d5272a8?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'main_07',
@@ -421,7 +422,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 310,
     tags: ['comfort_food', 'vegan_available'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'main_dal_protein',
@@ -436,7 +437,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 360,
     tags: ['high_protein', 'veg', 'healthy', 'protein_rich'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'main_khichdi_01',
@@ -530,7 +531,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 220,
     tags: ['popular', 'tandoor'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1598514983050-6819eb8bb933?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'bread_02',
@@ -545,7 +546,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 310,
     tags: ['bestseller', 'cheesy'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1598514983050-6819eb8bb933?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'bread_03',
@@ -560,7 +561,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 190,
     tags: ['staple'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1598514983050-6819eb8bb933?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'bread_04',
@@ -575,7 +576,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 240,
     tags: ['crispy', 'whole_wheat'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'bread_05',
@@ -590,7 +591,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 130,
     tags: ['healthy', 'whole_wheat'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1598514983050-6819eb8bb933?w=500&auto=format&fit=crop&q=80',
   },
 
   // 5. Desserts
@@ -607,7 +608,7 @@ const INITIAL_MENU: MenuItem[] = [
     calories: 360,
     tags: ['bestseller', 'sweet'],
     inStock: true,
-    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500&auto=format&fit=crop&q=80',
   },
   {
     id: 'dessert_02',
@@ -667,7 +668,8 @@ const INITIAL_MENU: MenuItem[] = [
     description: 'Thick churned creamy yogurt blended with real Ratnagiri Alphonso mango pulp and cardamom.',
     portion: '350 ml',
     calories: 260,
-    tags: ['popular', 'refreshing'],
+    tags: ['popular', 'refreshing', 'mango', 'lassi', 'drink', 'beverage'],
+    aliases: ['mango', 'mango lassi', 'mango shake', 'mango juice', 'mango drink'],
     inStock: true,
     imageUrl: 'https://images.unsplash.com/photo-1570696516188-ade861b84a49?w=500&auto=format&fit=crop&q=80',
   },
@@ -682,7 +684,8 @@ const INITIAL_MENU: MenuItem[] = [
     description: 'Traditional cold digestive buttermilk tempered with roasted cumin, rock salt, ginger, and fresh mint.',
     portion: '350 ml',
     calories: 75,
-    tags: ['digestive', 'healthy'],
+    tags: ['digestive', 'healthy', 'chaas', 'buttermilk', 'drink'],
+    aliases: ['chaas', 'buttermilk', 'masala chaas', 'mattha', 'spiced chaas'],
     inStock: true,
     imageUrl: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=500&auto=format&fit=crop&q=80',
   },
@@ -697,7 +700,8 @@ const INITIAL_MENU: MenuItem[] = [
     description: 'Freshly squeezed lemon juice, muddled garden mint, rock salt, and bubbly soda (Sweet/Salted/Mix).',
     portion: '350 ml',
     calories: 60,
-    tags: ['cooling', 'vegan'],
+    tags: ['cooling', 'vegan', 'juice', 'lime', 'lemon', 'soda', 'drink', 'beverage'],
+    aliases: ['juice', 'fresh juice', 'lemon juice', 'lime juice', 'lime soda', 'nimbu soda', 'soda', 'drink'],
     inStock: true,
     imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&auto=format&fit=crop&q=80',
   },
@@ -712,7 +716,8 @@ const INITIAL_MENU: MenuItem[] = [
     description: 'Slow-brewed Assam tea infused with ginger, green cardamom, cloves, and cinnamon served in earthen clay kulhad.',
     portion: '200 ml',
     calories: 90,
-    tags: ['hot', 'tea'],
+    tags: ['hot', 'tea', 'chai', 'kulhad chai', 'drink'],
+    aliases: ['tea', 'chai', 'kulhad chai', 'masala tea', 'hot tea'],
     inStock: true,
     imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&auto=format&fit=crop&q=80',
   },
@@ -852,7 +857,11 @@ export class RestaurantDatabase {
   public findDishByName(query: string): MenuItem | undefined {
     const q = query.toLowerCase().trim();
     for (const item of this.menu.values()) {
-      if (item.name.toLowerCase().includes(q) || item.tags.some((t) => t.includes(q))) {
+      if (
+        item.name.toLowerCase().includes(q) ||
+        item.tags.some((t) => t.includes(q)) ||
+        (item.aliases && item.aliases.some((a) => a.toLowerCase().includes(q) || q.includes(a.toLowerCase())))
+      ) {
         return item;
       }
     }
@@ -977,7 +986,105 @@ export class RestaurantDatabase {
       discountedSubtotal + cart.gstPaise + cart.deliveryFeePaise + cart.packagingFeePaise;
     cart.updatedAt = new Date().toISOString();
 
+    this.syncCartToMongo(cart);
+    // Synchronously write to database/data/carts.json for instant MongoDB Live Inspector reflection
+    try {
+      const cartsFile = path.join(DATA_DIR, 'carts.json');
+      let existingCarts: any[] = [];
+      if (fs.existsSync(cartsFile)) {
+        try {
+          existingCarts = JSON.parse(fs.readFileSync(cartsFile, 'utf-8'));
+          if (!Array.isArray(existingCarts)) existingCarts = [];
+        } catch {}
+      }
+      const cartIdx = existingCarts.findIndex((c: any) => c.sessionId === cart.sessionId || c.cartId === `cart_${cart.sessionId}`);
+      if (!cart.items || cart.items.length === 0) {
+        if (cartIdx >= 0) {
+          existingCarts.splice(cartIdx, 1);
+        }
+      } else {
+        const cartDoc = {
+          cartId: `cart_${cart.sessionId}`,
+          sessionId: cart.sessionId,
+          tenantId: 'tenant_arpzo',
+          branchId: 'branch_koramangala',
+          cartVersion: 1,
+          items: cart.items.map((it) => ({
+            itemId: it.dishId,
+            itemName: it.name,
+            quantity: it.quantity,
+            unitPriceMinor: it.pricePaise,
+            lineTotalMinor: it.lineTotalPaise,
+            notes: it.notes,
+          })),
+          charges: {
+            subtotalMinor: cart.subtotalPaise,
+            deliveryFeeMinor: cart.deliveryFeePaise,
+            packagingFeeMinor: cart.packagingFeePaise,
+            discountMinor: cart.discountPaise,
+            gstMinor: cart.gstPaise,
+            totalMinor: cart.totalPaise,
+          },
+          totalMinor: cart.totalPaise,
+          currency: 'INR',
+          updatedAt: new Date().toISOString(),
+        };
+        if (cartIdx >= 0) {
+          existingCarts[cartIdx] = cartDoc;
+        } else {
+          existingCarts.push(cartDoc);
+        }
+      }
+      fs.writeFileSync(cartsFile, JSON.stringify(existingCarts, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Error saving cart to carts.json:', e);
+    }
+
     return cart;
+  }
+
+  public syncCartToMongo(cart: Cart) {
+    try {
+      import('../packages/platform/src/index.ts').then(({ mongoRepos }) => {
+        if (!cart.items || cart.items.length === 0) {
+          mongoRepos.carts.deleteOne({ $or: [{ cartId: `cart_${cart.sessionId}` }, { sessionId: cart.sessionId }] }).catch(() => {});
+        } else {
+          const doc = {
+            cartId: `cart_${cart.sessionId}`,
+            sessionId: cart.sessionId,
+            tenantId: 'tenant_arpzo',
+            branchId: 'branch_koramangala',
+            cartVersion: 1,
+            items: cart.items.map(it => ({
+              itemId: it.dishId,
+              itemName: it.name,
+              quantity: it.quantity,
+              unitPriceMinor: it.pricePaise,
+              lineTotalMinor: it.lineTotalPaise,
+              notes: it.notes,
+            })),
+            charges: {
+              subtotalMinor: cart.subtotalPaise,
+              deliveryFeeMinor: cart.deliveryFeePaise,
+              packagingFeeMinor: cart.packagingFeePaise,
+              discountMinor: cart.discountPaise,
+              gstMinor: cart.gstPaise,
+              totalMinor: cart.totalPaise,
+            },
+            totalMinor: cart.totalPaise,
+            currency: 'INR',
+            updatedAt: new Date().toISOString(),
+          };
+          mongoRepos.carts.findOne({ cartId: `cart_${cart.sessionId}` }).then(existing => {
+            if (existing) {
+              mongoRepos.carts.updateOne({ cartId: `cart_${cart.sessionId}` }, { $set: doc }).catch(() => {});
+            } else {
+              mongoRepos.carts.insertOne(doc as any).catch(() => {});
+            }
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    } catch {}
   }
 
   public addToCart(
@@ -986,7 +1093,15 @@ export class RestaurantDatabase {
     quantity: number = 1,
     notes?: string
   ): { cart: Cart; addedItem: MenuItem } {
-    const dish = this.menu.get(dishId);
+    let dish = this.menu.get(dishId);
+    if (!dish) {
+      const normalizedId = dishId.toLowerCase().replace(/[^a-z0-9]/g, '');
+      dish = Array.from(this.menu.values()).find((m) => {
+        const normName = m.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normDishId = m.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return normDishId === normalizedId || normName.includes(normalizedId) || normalizedId.includes(normDishId) || normalizedId.includes(normName);
+      });
+    }
     if (!dish) throw new Error(`Dish with ID '${dishId}' not found in menu.`);
     if (!dish.inStock) throw new Error(`Sorry, '${dish.name}' is currently out of stock.`);
 
@@ -1033,7 +1148,13 @@ export class RestaurantDatabase {
 
   public removeFromCart(sessionId: string, dishId: string): Cart {
     const cart = this.getCart(sessionId);
-    cart.items = cart.items.filter((it) => it.dishId !== dishId);
+    const normalizedId = dishId.toLowerCase().replace(/[^a-z0-9]/g, '');
+    cart.items = cart.items.filter((it) => {
+      const itId = it.dishId.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const itName = it.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const match = itId === normalizedId || itName.includes(normalizedId) || normalizedId.includes(itId) || normalizedId.includes(itName);
+      return !match;
+    });
     return this.calculateCart(cart);
   }
 
@@ -1041,7 +1162,22 @@ export class RestaurantDatabase {
     const cart = this.getCart(sessionId);
     cart.items = [];
     cart.couponCode = undefined;
-    return this.calculateCart(cart);
+    const res = this.calculateCart(cart);
+    try {
+      const cartsFile = path.join(DATA_DIR, 'carts.json');
+      if (fs.existsSync(cartsFile)) {
+        try {
+          const raw = fs.readFileSync(cartsFile, 'utf-8');
+          const existingCarts = JSON.parse(raw);
+          if (Array.isArray(existingCarts)) {
+            const filtered = existingCarts.filter((c: any) => c.sessionId !== sessionId && c.cartId !== `cart_${sessionId}`);
+            fs.writeFileSync(cartsFile, JSON.stringify(filtered, null, 2), 'utf-8');
+          }
+        } catch {}
+      }
+    } catch {}
+    this.syncCartToMongo(cart);
+    return res;
   }
 
   public applyCoupon(sessionId: string, code: string): { cart: Cart; message: string; success: boolean } {
@@ -1115,6 +1251,38 @@ export class RestaurantDatabase {
     this.clearCart(params.sessionId);
     this.saveToDisk();
 
+    // Synchronously update database/data/orders.json for MongoDB Live Inspector
+    try {
+      const ordersJsonFile = path.join(DATA_DIR, 'orders.json');
+      let existingOrders: any[] = [];
+      if (fs.existsSync(ordersJsonFile)) {
+        try {
+          existingOrders = JSON.parse(fs.readFileSync(ordersJsonFile, 'utf-8'));
+          if (!Array.isArray(existingOrders)) existingOrders = [];
+        } catch {}
+      }
+      existingOrders.unshift({
+        orderId: order.id,
+        sessionId: order.sessionId,
+        tenantId: 'tenant_arpzo',
+        userRef: order.phone || 'usr_guest',
+        status: order.status,
+        total: { amountPaise: order.totalPaise, currency: 'INR' },
+        lines: order.items.map((it) => ({
+          itemId: it.dishId,
+          name: it.name,
+          quantity: it.quantity,
+          unitPricePaise: it.pricePaise,
+          lineTotalPaise: it.lineTotalPaise,
+        })),
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      });
+      fs.writeFileSync(ordersJsonFile, JSON.stringify(existingOrders, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Error saving order to orders.json:', e);
+    }
+
     // Sync to MongoDB orders collection asynchronously
     try {
       import('../packages/platform/src/index.ts').then(({ mongoRepos }) => {
@@ -1173,6 +1341,23 @@ export class RestaurantDatabase {
     });
 
     this.saveToDisk();
+
+    try {
+      const ordersJsonFile = path.join(DATA_DIR, 'orders.json');
+      if (fs.existsSync(ordersJsonFile)) {
+        const existingOrders = JSON.parse(fs.readFileSync(ordersJsonFile, 'utf-8'));
+        if (Array.isArray(existingOrders)) {
+          const ord = existingOrders.find((o: any) => o.orderId === orderId || o.id === orderId);
+          if (ord) {
+            ord.status = status;
+            ord.updatedAt = order.updatedAt;
+            if (note) ord.cancellationReason = note;
+            fs.writeFileSync(ordersJsonFile, JSON.stringify(existingOrders, null, 2), 'utf-8');
+          }
+        }
+      }
+    } catch {}
+
     return order;
   }
 
@@ -1184,7 +1369,43 @@ export class RestaurantDatabase {
       throw new Error(`Order #${orderId} is already '${order.status}' and cannot be cancelled automatically. Please request staff assistance.`);
     }
 
-    return this.updateOrderStatus(orderId, 'Cancelled', reason);
+    const cancelledOrder: Order = {
+      ...order,
+      status: 'Cancelled',
+      cancellationReason: reason,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Permanently remove the order from active database memory & persistent disk records as requested by user
+    this.deleteOrder(orderId);
+
+    // Sync deletion to MongoDB
+    try {
+      import('../packages/platform/src/index.ts').then(({ mongoRepos }) => {
+        mongoRepos.orders.deleteOne({ $or: [{ orderId }, { id: orderId }] }).catch(() => {});
+      }).catch(() => {});
+    } catch {}
+
+    return cancelledOrder;
+  }
+
+  public deleteOrder(orderId: string): boolean {
+    const cleanId = orderId.trim();
+    const deleted = this.orders.delete(cleanId);
+    this.saveToDisk();
+
+    try {
+      const ordersJsonFile = path.join(DATA_DIR, 'orders.json');
+      if (fs.existsSync(ordersJsonFile)) {
+        let existingOrders = JSON.parse(fs.readFileSync(ordersJsonFile, 'utf-8'));
+        if (Array.isArray(existingOrders)) {
+          existingOrders = existingOrders.filter((o: any) => o.orderId !== cleanId && o.id !== cleanId);
+          fs.writeFileSync(ordersJsonFile, JSON.stringify(existingOrders, null, 2), 'utf-8');
+        }
+      }
+    } catch {}
+
+    return deleted;
   }
 
   // --- TABLE BOOKING METHODS ---

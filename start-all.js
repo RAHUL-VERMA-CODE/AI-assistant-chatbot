@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { DemoTenantServer } from './tools/demo-tenant/src/server.ts';
 import { ApiServer } from './apps/api/src/server.ts';
@@ -12,11 +13,27 @@ import { ARPZO_KORAMANGALA_CATALOG } from './tools/demo-tenant/src/seeds/arpzo-m
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function freePort(port) {
+  try {
+    if (process.platform === 'win32') {
+      try {
+        const psCmd = `Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }`;
+        execSync(`powershell -NoProfile -Command "${psCmd}"`, { stdio: 'ignore' });
+      } catch {}
+    } else {
+      execSync(`fuser -k ${port}/tcp`, { stdio: 'ignore' });
+    }
+  } catch {}
+}
+
 async function startAll() {
   const config = loadConfig();
   console.log('\n================================================================================');
   console.log('       VOICE COMMERCE ASSISTANT SAAS (MULTI-TENANT & MULTILINGUAL)');
   console.log('================================================================================');
+
+  // Automatically free ports before binding to prevent EADDRINUSE errors
+  [4000, 8080, 8081, 3000].forEach(freePort);
 
   // 0. Seed & initialize MongoDB Database
   await mongoRepos.seedDefaults(ARPZO_KORAMANGALA_CATALOG);

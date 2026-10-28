@@ -60,31 +60,39 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
+    html, body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-page);
       color: var(--text-primary);
-      min-height: 100vh;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100vh;
+      max-height: 100dvh;
+      width: 100vw;
+      max-width: 100vw;
+      overflow: hidden; /* Strict: outer window / body never scrolls */
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
       transition: background-color 0.25s, color 0.25s;
     }
 
     h1, h2, h3, h4, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    /* Top Navigation Header */
+    /* Top Navigation Header (Always pinned at top) */
     .top-navbar {
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
+      flex-shrink: 0;
       z-index: 50;
       box-shadow: var(--shadow-sm);
+      width: 100%;
+      min-width: 0;
     }
 
     .brand-group {
@@ -92,6 +100,7 @@
       align-items: center;
       gap: 12px;
       cursor: pointer;
+      min-width: 0;
     }
 
     .brand-logo-badge {
@@ -102,8 +111,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
       box-shadow: 0 4px 12px var(--primary-glow);
+      flex-shrink: 0;
+      color: white;
     }
 
     .brand-title {
@@ -111,6 +121,9 @@
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .brand-status-tag {
@@ -133,7 +146,8 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-shrink: 0;
     }
 
     /* Action Buttons in Header */
@@ -143,13 +157,14 @@
       color: var(--accent-veg);
       padding: 7px 14px;
       border-radius: var(--radius-full);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .btn-db-inspector:hover {
@@ -162,15 +177,16 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       color: var(--text-primary);
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 15px;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
 
     .theme-toggle-btn:hover { border-color: var(--primary); }
@@ -179,16 +195,17 @@
       background: linear-gradient(135deg, #E8590C, #F76707);
       color: white;
       border: none;
-      padding: 8px 18px;
+      padding: 7px 16px;
       border-radius: var(--radius-full);
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-      display: none; /* Desktop uses split pane; mobile shows this button */
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       box-shadow: 0 4px 14px var(--primary-glow);
       transition: all 0.2s;
+      flex-shrink: 0;
     }
 
     .cart-trigger-btn:hover { transform: translateY(-1px); background: #D9480F; }
@@ -202,52 +219,71 @@
       font-weight: 800;
     }
 
-    /* Main Responsive Two-Column Layout */
+    /* Main Responsive Full-Screen Layout (True Full Width Viewport) */
     .app-main-layout {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      max-width: 1440px;
-      width: 100%;
-      margin: 0 auto;
-      height: calc(100vh - 69px);
+      flex: 1 1 0%;
+      min-height: 0;
+      height: auto;
+      max-height: 100%;
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      max-width: 100vw;
+      margin: 0;
       overflow: hidden;
+      min-width: 0;
+      position: relative;
+      background: var(--bg-surface);
     }
 
-    @media (max-width: 1024px) {
-      .app-main-layout {
-        grid-template-columns: 1fr;
+    @media (max-width: 768px) {
+      .top-navbar {
+        padding: 8px 12px;
       }
-      .cart-trigger-btn {
-        display: flex;
+      .brand-title {
+        font-size: 14px;
       }
-      .desktop-cart-sidebar {
-        display: none !important;
+      .brand-status-tag {
+        font-size: 10px;
       }
-      .mobile-floating-cart-bar {
-        display: flex !important;
+      .btn-db-inspector span:not(.cart-badge-count) {
+        display: none;
+      }
+      .btn-db-inspector {
+        padding: 6px 10px;
       }
     }
 
-    /* Left Column: Chatbot Hub */
+    /* Main Chatbot Hub Column (Expansive, clean, no awkward borders) */
     .chatbot-hub-column {
+      flex: 1 1 0%;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       height: 100%;
       background: var(--bg-surface);
-      border-right: 1px solid var(--border);
       position: relative;
       overflow: hidden;
+      min-width: 0;
+      width: 100%;
+      border: none;
     }
 
+    /* Messages Stream Box: ONLY this container scrolls independently */
     .messages-stream-box {
-      flex: 1;
+      flex: 1 1 0%;
+      min-height: 0;
       overflow-y: auto;
-      padding: 24px 20px;
+      overflow-x: hidden !important;
+      padding: 18px 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       scroll-behavior: smooth;
+      min-width: 0;
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
     }
 
     /* Hero Card */
@@ -255,13 +291,15 @@
       background: linear-gradient(135deg, rgba(232, 89, 12, 0.06), rgba(247, 103, 7, 0.02));
       border: 1px solid rgba(232, 89, 12, 0.2);
       border-radius: var(--radius-lg);
-      padding: 22px 24px;
+      padding: 20px 22px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .hero-avatar-flame {
@@ -272,29 +310,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      color: white;
       box-shadow: 0 6px 18px var(--primary-glow);
     }
 
     .hero-welcome-card h2 {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--text-primary);
     }
 
     .hero-welcome-card p {
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--text-muted);
       max-width: 540px;
       line-height: 1.5;
     }
 
-    /* Message Bubbles */
+    /* Message Bubbles & Professional Avatars */
     .msg-row {
       display: flex;
       gap: 12px;
-      max-width: 88%;
+      max-width: 90%;
+      min-width: 0;
       animation: fadeIn 0.25s ease-out;
+    }
+
+    @media (max-width: 768px) {
+      .msg-row {
+        max-width: 96%;
+      }
     }
 
     @keyframes fadeIn {
@@ -311,45 +356,76 @@
       align-self: flex-start;
     }
 
+    /* Professional Avatars */
     .avatar-icon {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
-      font-weight: 700;
       flex-shrink: 0;
+      position: relative;
     }
 
     .bot-avatar {
-      background: linear-gradient(135deg, #E8590C, #F76707);
+      background: linear-gradient(135deg, #E8590C 0%, #F76707 100%);
       color: white;
       box-shadow: 0 4px 12px var(--primary-glow);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .bot-online-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-veg);
+      border: 2px solid var(--bg-surface);
+      box-shadow: 0 0 6px var(--accent-veg);
     }
 
     .user-avatar {
-      background: var(--secondary);
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
       color: white;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     }
 
     .msg-bubble {
-      padding: 14px 18px;
+      padding: 13px 16px;
       border-radius: var(--radius-md);
-      font-size: 14px;
+      font-size: 13.5px;
       line-height: 1.6;
       display: flex;
       flex-direction: column;
       gap: 8px;
       box-shadow: var(--shadow-sm);
+      min-width: 0;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .user-bubble {
       background: var(--user-bubble-bg);
       color: var(--user-bubble-text);
-      border-top-right-radius: 2px;
+      border-radius: 18px 18px 4px 18px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      line-height: 1.4;
       font-weight: 500;
+      gap: 3px;
+      max-width: fit-content;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .user-bubble .msg-time {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 9.5px;
+      margin-top: 1px;
     }
 
     .bot-bubble {
@@ -360,7 +436,7 @@
     }
 
     .msg-time {
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--text-faint);
       margin-top: 2px;
       align-self: flex-end;
@@ -384,12 +460,12 @@
       color: var(--text-muted);
       border-radius: var(--radius-full);
       padding: 4px 12px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }
 
@@ -412,6 +488,7 @@
       font-weight: 700;
       padding: 2px 7px;
       border-radius: var(--radius-full);
+      flex-shrink: 0;
     }
 
     .badge-veg {
@@ -432,20 +509,22 @@
       border: 1px solid rgba(224, 49, 49, 0.3);
     }
 
-    /* Proposal Preview Card (P0 Requirement: Preview before confirm) */
+    /* Proposal Preview Card */
     .proposal-card-box {
       background: var(--primary-light);
       border: 1.5px solid var(--primary);
       border-radius: var(--radius-md);
-      padding: 14px 16px;
+      padding: 13px 15px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
       margin-top: 6px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .proposal-card-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 800;
       color: var(--primary);
       display: flex;
@@ -457,21 +536,21 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
     }
 
     .proposal-breakdown-row {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--text-muted);
     }
 
     .proposal-total-row {
       display: flex;
       justify-content: space-between;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 800;
       color: var(--text-primary);
       padding-top: 6px;
@@ -491,7 +570,7 @@
       border: none;
       padding: 8px 12px;
       border-radius: var(--radius-sm);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -516,21 +595,24 @@
 
     .btn-proposal-cancel:hover { background: rgba(0, 0, 0, 0.05); }
 
-    /* Dish Carousel inside Bot Bubble */
+    /* Dish Carousel (Fully Contained) */
     .dish-carousel-wrap {
       display: flex;
       gap: 12px;
       overflow-x: auto;
-      padding: 8px 2px 14px;
+      max-width: 100%;
+      width: 100%;
+      min-width: 0;
+      padding: 6px 2px 12px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
     }
 
-    .dish-carousel-wrap::-webkit-scrollbar { height: 6px; }
+    .dish-carousel-wrap::-webkit-scrollbar { height: 5px; }
     .dish-carousel-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     .dish-card-item {
-      flex: 0 0 230px;
+      flex: 0 0 215px;
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
@@ -540,6 +622,7 @@
       scroll-snap-align: start;
       box-shadow: var(--shadow-sm);
       transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 0;
     }
 
     .dish-card-item:hover {
@@ -550,16 +633,16 @@
 
     .dish-card-img {
       width: 100%;
-      height: 120px;
+      height: 110px;
       object-fit: cover;
       background: #eee;
     }
 
     .dish-card-body {
-      padding: 12px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       flex: 1;
     }
 
@@ -567,18 +650,18 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 8px;
+      gap: 6px;
     }
 
     .dish-card-title {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-primary);
       line-height: 1.3;
     }
 
     .dish-card-desc {
-      font-size: 11.5px;
+      font-size: 11px;
       color: var(--text-muted);
       line-height: 1.4;
       display: -webkit-box;
@@ -597,7 +680,7 @@
     }
 
     .dish-price {
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 800;
       color: var(--primary);
     }
@@ -606,9 +689,9 @@
       background: var(--bg-surface);
       border: 1.5px solid var(--primary);
       color: var(--primary);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: var(--radius-sm);
       cursor: pointer;
       transition: all 0.15s;
@@ -619,15 +702,383 @@
       color: white;
     }
 
+    /* Swiggy & Zomato Dish Stepper Controls */
+    .dish-stepper-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .swiggy-add-btn {
+      background: #ffffff;
+      border: 1.5px solid #10b981;
+      color: #10b981;
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 4px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 4px rgba(16, 185, 129, 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 70px;
+      height: 28px;
+    }
+
+    .swiggy-add-btn:hover {
+      background: #10b981;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
+    }
+
+    .swiggy-stepper-active {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #10b981;
+      border: 1.5px solid #10b981;
+      border-radius: 6px;
+      height: 28px;
+      min-width: 82px;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+      overflow: hidden;
+      animation: stepperPopIn 0.18s ease-out;
+    }
+
+    .swiggy-step-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      width: 26px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      padding: 0;
+      user-select: none;
+    }
+
+    .swiggy-step-btn:hover {
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .swiggy-step-qty {
+      color: #ffffff;
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 0 4px;
+      min-width: 18px;
+      text-align: center;
+      user-select: none;
+    }
+
+    @keyframes stepperPopIn {
+      0% { transform: scale(0.92); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Flipkart / Amazon Cancellation Flow Components */
+    .cancellation-reason-box {
+      background: var(--bg-surface);
+      border: 1.5px solid rgba(224, 49, 49, 0.3);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .cancellation-box-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--danger-nonveg);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cancellation-reasons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .cancellation-reason-btn {
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+      text-align: left;
+    }
+
+    .cancellation-reason-btn:hover {
+      border-color: var(--danger-nonveg);
+      background: rgba(224, 49, 49, 0.06);
+      color: var(--danger-nonveg);
+      transform: translateX(3px);
+    }
+
+    .chevron-arrow {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .cancellation-confirmed-card {
+      background: rgba(47, 158, 68, 0.05);
+      border: 1.5px solid rgba(47, 158, 68, 0.3);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .flipkart-followup-box {
+      margin-top: 8px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .flipkart-followup-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .flipkart-btn {
+      background: var(--bg-surface);
+      border: 1px solid #2874F0;
+      color: #2874F0;
+      border-radius: var(--radius-sm);
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+    }
+
+    .flipkart-btn:hover {
+      background: #2874F0;
+      color: white;
+      transform: translateX(3px);
+    }
+
+    /* Agentic Concierge Support Card - Senior Designer Upgrade */
+    .concierge-card-box {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 90, 0, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(255, 90, 0, 0.04);
+      backdrop-filter: blur(8px);
+    }
+
+    .concierge-card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(255, 90, 0, 0.15);
+    }
+
+    .concierge-card-pill-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .concierge-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+      background: rgba(255, 90, 0, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .concierge-card-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .concierge-card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .concierge-topics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .concierge-topics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .concierge-topic-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .concierge-topic-card:hover {
+      background: #ffffff;
+      border-color: rgba(255, 90, 0, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(255, 90, 0, 0.12);
+    }
+
+    .concierge-topic-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .concierge-topic-card:hover .concierge-topic-icon-wrap {
+      transform: scale(1.1);
+    }
+
+    .concierge-topic-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .concierge-topic-top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .concierge-topic-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .concierge-topic-pill {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .concierge-topic-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .concierge-topic-card:hover .concierge-topic-title {
+      color: var(--accent);
+    }
+
+    .concierge-topic-arrow {
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .concierge-topic-card:hover .concierge-topic-arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+      opacity: 1;
+    }
+
+    .concierge-topic-btn:hover .concierge-topic-chevron {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
     /* Quick Reply Chips Strip */
     .quick-replies-strip {
-      padding: 8px 18px;
+      padding: 8px 16px;
       display: flex;
       gap: 8px;
       overflow-x: auto;
+      max-width: 100%;
+      width: 100%;
+      min-width: 0;
       border-top: 1px solid var(--border);
       background: var(--bg-surface);
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
     }
 
     .quick-replies-strip::-webkit-scrollbar { display: none; }
@@ -637,12 +1088,13 @@
       border: 1px solid var(--border);
       color: var(--text-primary);
       border-radius: var(--radius-full);
-      padding: 6px 14px;
-      font-size: 12.5px;
+      padding: 6px 13px;
+      font-size: 12px;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.15s;
+      flex-shrink: 0;
     }
 
     .chip-btn:hover {
@@ -652,11 +1104,122 @@
       transform: translateY(-1px);
     }
 
-    /* Chat Input Console */
+    /* Quick Reply Chips Strip (Centered) */
+    .quick-replies-strip {
+      padding: 8px 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      max-width: 1040px;
+      margin: 0 auto;
+      width: 100%;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
+    }
+
+    /* Chat Input Console (Always pinned at the bottom, zero layout shifts) */
     .input-console-box {
-      padding: 12px 18px;
+      padding: 10px 20px 14px;
       background: var(--bg-surface);
       border-top: 1px solid var(--border);
+      width: 100%;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 25;
+    }
+
+    .input-console-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Live Voice Recording Banner */
+    .voice-live-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(224, 49, 49, 0.08);
+      border: 1px solid rgba(224, 49, 49, 0.3);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #D9480F;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .voice-live-banner.active {
+      display: flex;
+    }
+
+    .live-rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #E03131;
+      box-shadow: 0 0 8px #E03131;
+      animation: pulseRecord 1s infinite;
+      flex-shrink: 0;
+    }
+
+    .equalizer-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 14px;
+    }
+
+    .equalizer-bars span {
+      width: 3px;
+      height: 100%;
+      background: #E03131;
+      border-radius: 2px;
+      animation: eqAnim 0.7s infinite alternate ease-in-out;
+    }
+
+    .equalizer-bars span:nth-child(2) { animation-delay: 0.15s; height: 60%; }
+    .equalizer-bars span:nth-child(3) { animation-delay: 0.3s; height: 90%; }
+    .equalizer-bars span:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+    .equalizer-bars span:nth-child(5) { animation-delay: 0.25s; height: 75%; }
+
+    @keyframes eqAnim {
+      0% { transform: scaleY(0.2); }
+      100% { transform: scaleY(1); }
+    }
+
+    .voice-stop-btn {
+      background: #E03131;
+      color: white;
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .voice-lang-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: var(--radius-full);
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-right: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .voice-lang-pill:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
     }
 
     .input-pill-wrapper {
@@ -666,12 +1229,14 @@
       border: 1.5px solid var(--border);
       border-radius: var(--radius-full);
       padding: 6px 10px 6px 18px;
-      box-shadow: var(--shadow-sm);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s;
+      width: 100%;
+      min-width: 0;
     }
 
     .input-pill-wrapper:focus-within {
-      border-color: var(--border-focus);
+      border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
@@ -686,36 +1251,39 @@
       resize: none;
       max-height: 80px;
       line-height: 1.5;
+      min-width: 0;
     }
 
+    /* Modern Studio-Grade Microphone Button */
     .mic-record-btn {
       width: 38px;
       height: 38px;
       border-radius: 50%;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 18px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-primary);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
       flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
     }
 
-    .mic-record-btn:hover { color: var(--primary); background: rgba(0, 0, 0, 0.05); }
+    .mic-record-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
 
     .mic-record-btn.recording {
-      background: rgba(224, 49, 49, 0.15);
-      color: var(--danger-nonveg);
-      animation: pulseRecord 1.5s infinite;
-    }
-
-    @keyframes pulseRecord {
-      0% { box-shadow: 0 0 0 0 rgba(224, 49, 49, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(224, 49, 49, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(224, 49, 49, 0); }
+      background: #E03131;
+      border-color: #E03131;
+      color: white;
+      box-shadow: 0 0 16px rgba(224, 49, 49, 0.6);
+      animation: pulseRecord 1.2s infinite;
     }
 
     .send-msg-btn {
@@ -723,16 +1291,115 @@
       height: 38px;
       border-radius: 50%;
       border: none;
-      background: var(--primary);
+      background: linear-gradient(135deg, #E8590C 0%, #F76707 100%);
       color: white;
-      font-size: 15px;
+      font-size: 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s;
+      transition: all 0.2s;
       flex-shrink: 0;
-      margin-left: 4px;
+      margin-left: 6px;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .send-msg-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .send-msg-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Floating Scroll to Bottom Button */
+    .scroll-to-bottom-btn {
+      position: absolute;
+      bottom: 88px;
+      right: 28px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      color: var(--primary);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 35;
+      transition: all 0.2s;
+    }
+
+    .scroll-to-bottom-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .scroll-to-bottom-btn.visible {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    /* ChatGPT-style Thinking / Dynamic Late Response Loading Indicator */
+    .typing-bubble-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--bot-bubble-bg);
+      border: 1px solid var(--bot-bubble-border);
+      border-radius: var(--radius-md);
+      border-top-left-radius: 2px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .typing-dots-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+    @keyframes typingBounce {
+      0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.35;
+      }
+      40% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    .typing-status-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: inherit;
+      animation: pulseText 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
     }
 
     .send-msg-btn:hover:not(:disabled) { background: var(--primary-hover); transform: scale(1.05); }
@@ -746,33 +1413,37 @@
       background: var(--bg-page);
       border-left: 1px solid var(--border);
       position: relative;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .cart-sidebar-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .cart-sidebar-title {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 800;
       color: var(--text-primary);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .cart-items-scroll-box {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      min-width: 0;
     }
 
     .cart-empty-splash {
@@ -780,10 +1451,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 40px 16px;
       text-align: center;
       color: var(--text-muted);
-      gap: 10px;
+      gap: 8px;
       height: 100%;
     }
 
@@ -791,11 +1462,12 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
+      padding: 11px 13px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
       box-shadow: var(--shadow-sm);
+      min-width: 0;
     }
 
     .cart-item-header {
@@ -806,25 +1478,27 @@
     }
 
     .cart-item-name {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 6px;
+      min-width: 0;
     }
 
     .cart-item-price {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--primary);
+      flex-shrink: 0;
     }
 
     .cart-item-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 4px;
+      padding-top: 3px;
     }
 
     .stepper-group {
@@ -837,12 +1511,12 @@
     }
 
     .stepper-btn {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       background: transparent;
       border: none;
       color: var(--text-primary);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -854,9 +1528,9 @@
     .stepper-btn:hover { background: rgba(0, 0, 0, 0.08); }
 
     .stepper-count {
-      width: 26px;
+      width: 24px;
       text-align: center;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-primary);
     }
@@ -867,7 +1541,7 @@
       color: var(--text-faint);
       cursor: pointer;
       font-size: 14px;
-      padding: 4px;
+      padding: 3px;
       transition: color 0.15s;
     }
 
@@ -875,28 +1549,29 @@
 
     /* Cart Bill Breakdown Footer */
     .cart-bill-footer {
-      padding: 16px 20px;
+      padding: 14px 18px;
       background: var(--bg-surface);
       border-top: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
+      flex-shrink: 0;
     }
 
     .bill-row {
       display: flex;
       justify-content: space-between;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
     .bill-total-row {
       display: flex;
       justify-content: space-between;
-      font-size: 15.5px;
+      font-size: 15px;
       font-weight: 800;
       color: var(--text-primary);
-      padding-top: 8px;
+      padding-top: 6px;
       border-top: 1px dashed var(--border);
     }
 
@@ -904,16 +1579,16 @@
       background: linear-gradient(135deg, #E8590C 0%, #F76707 100%);
       color: white;
       border: none;
-      padding: 12px;
+      padding: 11px;
       border-radius: var(--radius-md);
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 800;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 7px;
       box-shadow: 0 4px 14px var(--primary-glow);
       transition: all 0.2s;
     }
@@ -937,14 +1612,14 @@
       right: 0;
       background: var(--bg-surface);
       border-top: 1px solid var(--border);
-      padding: 12px 16px;
+      padding: 10px 16px;
       box-shadow: var(--shadow-lg);
       z-index: 40;
       align-items: center;
       justify-content: space-between;
     }
 
-    /* Slide-up Drawer for Mobile */
+    /* Off-Canvas Universal Slide Drawer (Desktop & Mobile) */
     .cart-drawer-backdrop {
       display: none;
       position: fixed;
@@ -952,28 +1627,141 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 99;
-      backdrop-filter: blur(3px);
+      background: rgba(15, 18, 24, 0.55);
+      z-index: 999;
+      backdrop-filter: blur(4px);
+    }
+
+    .cart-drawer-backdrop.active {
+      display: block;
     }
 
     .cart-drawer-panel {
-      position: absolute;
-      bottom: 0;
-      left: 0;
+      position: fixed;
+      top: 0;
       right: 0;
-      max-height: 85vh;
+      bottom: 0;
+      width: 440px;
+      max-width: 95vw;
       background: var(--bg-surface);
-      border-top-left-radius: var(--radius-lg);
-      border-top-right-radius: var(--radius-lg);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
       display: flex;
       flex-direction: column;
-      animation: slideUp 0.25s ease-out;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+    .cart-drawer-panel.active {
+      transform: translateX(0);
+    }
+
+    @media (max-width: 600px) {
+      .cart-drawer-panel {
+        width: 100%;
+        max-width: 100vw;
+      }
+    }
+
+    /* Flipkart Support Elements: Date Badge & Security Disclaimer */
+    .chat-date-stamp {
+      align-self: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+      margin: 4px 0 6px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-disclaimer-card {
+      background: rgba(232, 89, 12, 0.05);
+      border: 1px dashed rgba(232, 89, 12, 0.35);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .disclaimer-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .flipkart-options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .flipkart-action-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 11px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      width: 100%;
+    }
+
+    .flipkart-action-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      background: var(--primary-light);
+    }
+
+    .flipkart-action-card .chevron-arrow {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Sound Wave Indicator for Live Speech Input */
+    .sound-wave-indicator {
+      display: none;
+      align-items: center;
+      gap: 3px;
+      height: 18px;
+      padding: 0 8px;
+    }
+
+    .sound-wave-indicator.active {
+      display: flex;
+    }
+
+    .wave-bar {
+      width: 3px;
+      height: 100%;
+      background: #E03131;
+      border-radius: 2px;
+      animation: waveBarAnim 0.8s ease-in-out infinite alternate;
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.15s; height: 70%; }
+    .wave-bar:nth-child(3) { animation-delay: 0.35s; height: 100%; }
+    .wave-bar:nth-child(4) { animation-delay: 0.2s; height: 50%; }
+
+    @keyframes waveBarAnim {
+      0% { transform: scaleY(0.25); }
+      100% { transform: scaleY(1); }
     }
 
     /* MongoDB Live Inspector Modal */
@@ -1012,15 +1800,16 @@
     }
 
     .modal-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .modal-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       color: var(--text-primary);
       display: flex;
@@ -1031,25 +1820,27 @@
     .modal-tabs {
       display: flex;
       gap: 6px;
-      padding: 10px 20px;
+      padding: 8px 18px;
       background: var(--bg-page);
       border-bottom: 1px solid var(--border);
       overflow-x: auto;
+      flex-shrink: 0;
     }
 
     .modal-tab-btn {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: var(--radius-full);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.15s;
+      white-space: nowrap;
     }
 
     .modal-tab-btn.active {
@@ -1061,9 +1852,9 @@
     .modal-body {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 20px;
+      padding: 14px 18px;
       font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 12.5px;
+      font-size: 12px;
       line-height: 1.5;
     }
 
@@ -1071,7 +1862,7 @@
       background: #0d1117;
       color: #58a6ff;
       border-radius: var(--radius-sm);
-      padding: 14px;
+      padding: 12px;
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
@@ -1081,29 +1872,29 @@
     .checkout-form-grid {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      padding: 18px 22px;
+      gap: 12px;
+      padding: 16px 20px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .form-group label {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-muted);
     }
 
     .form-input {
-      padding: 10px 14px;
+      padding: 9px 12px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       background: var(--bg-input);
       color: var(--text-primary);
-      font-size: 14px;
+      font-size: 13.5px;
       font-family: inherit;
       outline: none;
     }
@@ -1115,11 +1906,13 @@
       background: rgba(47, 158, 68, 0.05);
       border: 1px solid rgba(47, 158, 68, 0.25);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       margin-top: 4px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .tracker-status-strip {
@@ -1132,7 +1925,7 @@
     .tracker-status-strip::before {
       content: '';
       position: absolute;
-      top: 14px;
+      top: 13px;
       left: 10px;
       right: 10px;
       height: 3px;
@@ -1146,22 +1939,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 5px;
+      font-size: 10.5px;
       font-weight: 700;
       color: var(--text-muted);
     }
 
     .step-circle {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: var(--bg-surface);
       border: 2px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .step-circle.active {
@@ -1176,12 +1969,17 @@
   <!-- Top Navigation Header -->
   <header class="top-navbar">
     <div class="brand-group" onclick="location.reload()">
-      <div class="brand-logo-badge">🔥</div>
+      <div class="brand-logo-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+          <line x1="6" y1="17" x2="18" y2="17"/>
+        </svg>
+      </div>
       <div>
-        <div class="brand-title">The Spice Lounge & Grill</div>
+        <div class="brand-title">ChefZaika AI <span style="font-size:12px; font-weight:600; color:var(--text-muted);">· Smart Culinary Agent</span></div>
         <div class="brand-status-tag">
           <span class="pulse-dot-green"></span>
-          <span>Open Now · Koramangala, Bengaluru</span>
+          <span>Online & Ready · The Spice Lounge & Grill</span>
         </div>
       </div>
     </div>
@@ -1195,29 +1993,74 @@
       </button>
 
       <!-- Theme Switcher -->
+      
       <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode" onclick="toggleTheme()">
         🌙
       </button>
 
-      <!-- Mobile Cart Drawer Trigger -->
-      <button class="cart-trigger-btn" onclick="openMobileCartDrawer()">
+      <!-- Cart Trigger Button (Always visible on Desktop & Mobile) -->
+      <button class="cart-trigger-btn" id="openCartBtn" onclick="openCartDrawer()" title="View Food Basket">
         <span>🛒</span>
         <span>Cart</span>
-        <span class="cart-badge-count" id="headerMobileCartCount">0</span>
+        <span class="cart-badge-count" id="headerCartCount">0</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Application Layout -->
+  <!-- Main Application Layout (Centered, Focused Chat Stream) -->
   <main class="app-main-layout">
 
-    <!-- 1. Left Column: AI Voice Chatbot Assistant -->
     <section class="chatbot-hub-column">
       <div class="messages-stream-box" id="chatStreamBox">
+        <!-- Date Badge -->
+        <div class="chat-date-stamp">Today</div>
+
+        <!-- Hero Welcome Card -->
         <div class="hero-welcome-card" id="heroWelcome">
-          <div class="hero-avatar-flame">🔥</div>
-          <h2>Welcome to The Spice Lounge!</h2>
-          <p>I am your smart AI waiter. Talk or type in English, Hindi, or Hinglish to discover our verified menu, ask about calories & Jain safety, group order within budget, or re-order past meals!</p>
+          <div class="hero-avatar-flame">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+              <line x1="6" y1="17" x2="18" y2="17"/>
+            </svg>
+          </div>
+          <h2>Welcome to The Spice Lounge & Grill!</h2>
+          <p>I am <strong>ChefZaika</strong>, your personal AI culinary agent. Talk or type in English, Hindi, or Hinglish to discover our verified menu, ask about calories & Jain safety, group order within budget, or re-order past meals!</p>
+          
+          <!-- Flipkart / Amazon Support Style Action Cards -->
+          <div class="flipkart-options-grid">
+            <button class="flipkart-action-card" onclick="sendQuickReply('View Menu')">
+              <span>🍕 Browse Verified Menu</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('Chef Specials')">
+              <span>⭐ Chef's Signature Specials</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('suggest me some low cal food')">
+              <span>🥗 Healthy Low Calorie (< 300 kcal)</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('spicy veg under 300')">
+              <span>🔥 Spicy Starters under ₹300</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('Jain food options')">
+              <span>🪷 100% Strict Jain Pure Veg</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('track order')">
+              <span>📦 Track Active Order</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('book table')">
+              <span>📅 Reserve a Dining Table</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+            <button class="flipkart-action-card" onclick="sendQuickReply('Active offers and coupons')">
+              <span>💳 Active Deals & Coupons</span>
+              <span class="chevron-arrow">›</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1229,49 +2072,88 @@
         <button class="chip-btn" onclick="sendQuickReply('kitni calories hain paneer tikka mein')">✨ Jain Paneer Calories?</button>
         <button class="chip-btn" onclick="sendQuickReply('3 logon ke liye, 2 veg 1 non-veg, 1500 ke andar')">👥 Group Order under ₹1500</button>
         <button class="chip-btn" onclick="sendQuickReply('pichli baar jaisa')">🔁 Re-order Last Meal</button>
+        <button class="chip-btn" onclick="sendQuickReply('cancel order')">❌ Cancel Order</button>
         <button class="chip-btn" onclick="sendQuickReply('track order')">📦 Track Order</button>
       </div>
 
       <!-- Input Console -->
       <div class="input-console-box">
-        <div class="input-pill-wrapper">
-          <textarea
-            class="chat-text-input"
-            id="chatInput"
-            rows="1"
-            placeholder="Talk or type: 'spicy paneer dikhao', 'pizza under 300', '3 people under 1500'..."
-          ></textarea>
-          <button class="mic-record-btn" id="micBtn" title="Push to talk (Speech-to-Text)" onclick="toggleVoiceRecording()">
-            🎤
-          </button>
-          <button class="send-msg-btn" id="sendBtn" title="Send message" onclick="sendUserMessage()">
-            ➤
-          </button>
+        <div class="input-console-inner">
+          <!-- Live Voice Banner -->
+          <div class="voice-live-banner" id="voiceLiveBanner">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="live-rec-dot"></span>
+              <span class="live-rec-text">Listening... Speak now in Hindi, English or Hinglish</span>
+            </div>
+            <div class="equalizer-bars">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <button class="voice-stop-btn" onclick="toggleVoiceRecording()">Done</button>
+          </div>
+
+          <div class="input-pill-wrapper">
+            <textarea
+              class="chat-text-input"
+              id="chatInput"
+              rows="1"
+              placeholder="Ask ChefZaika: 'Show menu', 'Suggest low cal food', 'Order pizza', 'Track order'..."
+            ></textarea>
+            <button class="voice-lang-pill" id="voiceLangPill" onclick="toggleVoiceLang()" title="Switch recognition language between English/Hinglish and Hindi">
+              🌐 EN
+            </button>
+            <button class="mic-record-btn" id="micBtn" title="Push to talk (Speech-to-Text)" onclick="toggleVoiceRecording()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </button>
+            <button class="send-msg-btn" id="sendBtn" title="Send message" onclick="sendUserMessage()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      <!-- Floating Scroll to Bottom Button -->
+      <button class="scroll-to-bottom-btn" id="scrollToBottomBtn" title="Scroll to latest message" onclick="scrollToBottom(true)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
+      </button>
     </section>
 
-    <!-- 2. Right Column: Live Food Basket & Platform Checkout (Desktop) -->
-    <aside class="desktop-cart-sidebar" id="desktopCartSidebar">
+  </main>
+
+  <!-- Universal Off-Canvas Cart Drawer (Hidden by default; opens when clicking Cart or requested) -->
+  <div class="cart-drawer-backdrop" id="cartDrawerBackdrop" onclick="handleDrawerBackdropClick(event)">
+    <div class="cart-drawer-panel" id="cartDrawerPanel">
       <div class="cart-sidebar-header">
         <div class="cart-sidebar-title">
           <span>🛒 Your Food Basket</span>
-          <span style="font-size:12px; color:var(--text-muted);" id="desktopItemCountText">(0 items)</span>
+          <span style="font-size:12px; color:var(--text-muted);" id="drawerItemCountText">(0 items)</span>
         </div>
-        <button class="listen-btn" style="padding:2px 8px;" onclick="syncCartState()">↻ Refresh</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="listen-btn" style="padding:2px 8px;" onclick="syncCartState()">↻ Refresh</button>
+          <button class="theme-toggle-btn" style="width:30px; height:30px;" onclick="closeCartDrawer()">✕</button>
+        </div>
       </div>
 
       <!-- Live Items Scroll Box -->
-      <div class="cart-items-scroll-box" id="desktopItemsBox">
+      <div class="cart-items-scroll-box" id="cartDrawerItemsBox">
         <div class="cart-empty-splash">
           <span style="font-size:36px;">🍲</span>
           <div style="font-weight:700;">Your basket is empty</div>
-          <div style="font-size:12px;">Ask our digital waiter in chat or tap recommendations to add items!</div>
+          <div style="font-size:12px;">Ask ChefZaika in chat or tap recommendations to add items!</div>
         </div>
       </div>
 
       <!-- Bill Breakdown & Platform Checkout Hand-Off -->
-      <div class="cart-bill-footer" id="desktopBillFooter">
+      <div class="cart-bill-footer" id="cartDrawerFooter">
         <div class="bill-row">
           <span>Item Subtotal</span>
           <span id="billSubtotal">₹0.00</span>
@@ -1297,41 +2179,6 @@
           <span id="billTotal">₹0.00</span>
         </div>
         <button class="btn-place-order-big" id="checkoutBtn" onclick="openCheckoutModal()" disabled>
-          Proceed to Platform Checkout ➔
-        </button>
-      </div>
-    </aside>
-
-  </main>
-
-  <!-- Mobile Floating Cart Bar -->
-  <div class="mobile-floating-cart-bar" id="mobileCartBar">
-    <div>
-      <div style="font-size:11px; color:var(--text-muted);" id="mobileBarCount">0 items</div>
-      <div style="font-size:15px; font-weight:800; color:var(--primary);" id="mobileBarTotal">₹0.00</div>
-    </div>
-    <button class="btn-proposal-confirm" style="padding:8px 18px;" onclick="openMobileCartDrawer()">
-      View Basket ➔
-    </button>
-  </div>
-
-  <!-- Mobile Slide-Up Cart Drawer -->
-  <div class="cart-drawer-backdrop" id="mobileCartBackdrop" onclick="handleDrawerBackdropClick(event)">
-    <div class="cart-drawer-panel" id="mobileCartPanel">
-      <div class="cart-sidebar-header">
-        <div class="cart-sidebar-title">
-          <span>🛒 Your Food Basket</span>
-          <span style="font-size:12px; color:var(--text-muted);" id="mobileDrawerItemCount">(0 items)</span>
-        </div>
-        <button class="theme-toggle-btn" style="width:30px; height:30px;" onclick="closeMobileCartDrawer()">✕</button>
-      </div>
-      <div class="cart-items-scroll-box" id="mobileDrawerItemsBox" style="max-height:50vh;"></div>
-      <div class="cart-bill-footer" id="mobileDrawerFooter">
-        <div class="bill-row">
-          <span>Subtotal + Taxes</span>
-          <span id="mobileDrawerTotal">₹0.00</span>
-        </div>
-        <button class="btn-place-order-big" onclick="openCheckoutModal()">
           Proceed to Platform Checkout ➔
         </button>
       </div>
@@ -1374,7 +2221,7 @@
         </button>
       </div>
 
-      <div style="padding:10px 20px 0; display:flex; justify-content:space-between; align-items:center;">
+      <div style="padding:10px 18px 0; display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:12px; color:var(--text-muted);" id="dbColStatusText">Loading collection...</span>
         <button class="listen-btn" onclick="refreshCurrentDbCollection()">↻ Live Refresh</button>
       </div>
@@ -1387,7 +2234,7 @@
 
   <!-- 4. Platform Checkout Modal -->
   <div class="modal-backdrop" id="checkoutModalBackdrop" onclick="handleCheckoutModalBackdropClick(event)">
-    <div class="modal-dialog" style="max-width:540px;">
+    <div class="modal-dialog" style="max-width:520px;">
       <div class="modal-header">
         <div class="modal-title">
           <span>💳</span>
@@ -1433,13 +2280,31 @@
   <script>
     // Configuration & State
     const API_BASE = 'http://localhost:8080';
-    let currentSessionId = localStorage.getItem('vca_rest_session') || `ses_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    localStorage.setItem('vca_rest_session', currentSessionId);
+    // Fresh session on every page load - no legacy session baggage
+    const currentSessionId = `ses_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    try {
+      localStorage.removeItem('vca_rest_session');
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('vca_chat_history_') || k.startsWith('vca_rest_')) {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
 
     let currentSpeakingBtn = null;
     let speechRecognition = null;
     let isRecording = false;
+    let currentSpeechLang = 'en-IN'; // Default to English / Hinglish so English is not forced into Devanagari
     let currentDbTab = 'catalogs';
+
+    function toggleVoiceLang() {
+      currentSpeechLang = currentSpeechLang === 'en-IN' ? 'hi-IN' : 'en-IN';
+      const pill = document.getElementById('voiceLangPill');
+      if (pill) {
+        pill.innerText = currentSpeechLang === 'en-IN' ? '🌐 EN' : '🇮🇳 हिन्दी';
+        pill.title = currentSpeechLang === 'en-IN' ? 'Speech in English / Hinglish' : 'Speech in Hindi (Devanagari)';
+      }
+    }
 
     let currentCart = {
       items: [],
@@ -1451,13 +2316,33 @@
       totalPaise: 0,
     };
 
+    // Professional SVG Avatar Templates
+    const BOT_AVATAR_HTML = `
+      <div class="avatar-icon bot-avatar" title="AI Chef Assistant">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+          <line x1="6" y1="17" x2="18" y2="17"/>
+        </svg>
+        <span class="bot-online-badge"></span>
+      </div>
+    `;
+
+    const USER_AVATAR_HTML = `
+      <div class="avatar-icon user-avatar" title="You">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
+    `;
+
     // DOM Elements
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
     const micBtn = document.getElementById('micBtn');
     const chatStreamBox = document.getElementById('chatStreamBox');
-    const desktopItemsBox = document.getElementById('desktopItemsBox');
-    const desktopItemCountText = document.getElementById('desktopItemCountText');
+    const cartDrawerItemsBox = document.getElementById('cartDrawerItemsBox');
+    const drawerItemCountText = document.getElementById('drawerItemCountText');
+    const headerCartCount = document.getElementById('headerCartCount');
     const billSubtotal = document.getElementById('billSubtotal');
     const billDiscount = document.getElementById('billDiscount');
     const billDiscountRow = document.getElementById('billDiscountRow');
@@ -1502,6 +2387,11 @@
       const text = (overrideText || chatInput.value).trim();
       if (!text) return;
 
+      // Automatically open cart drawer whenever user asks to view/show cart in any phrasing
+      if (/\b(view\s*cart|show\s*cart|open\s*cart|see\s*cart|my\s*cart|cart\s*dikhao|cart\s*dekhao|cart\s*kholo|cart|basket|shopping\s*cart)\b/i.test(text)) {
+        openCartDrawer();
+      }
+
       appendUserBubble(text);
       if (!overrideText) {
         chatInput.value = '';
@@ -1532,6 +2422,7 @@
         const replyData = await res.json();
         appendBotMessage(replyData);
         syncCartState();
+        fetchDbStatusCounts();
       } catch (err) {
         removeTypingIndicator(typingId);
         appendBotMessage({ text: `Connection issue: ${err.message}. Please try again.` });
@@ -1539,25 +2430,129 @@
     }
 
     function sendQuickReply(text) {
+      if (/view cart|show cart|my cart|open cart/i.test(text)) {
+        openCartDrawer();
+      }
       sendUserMessage(text);
     }
 
-    function appendUserBubble(text) {
+    // Auto-Scroll helper: stays pinned near the text input
+    function scrollToBottom(smooth = true) {
+      if (!chatStreamBox) return;
+      const doScroll = () => {
+        chatStreamBox.scrollTo({
+          top: chatStreamBox.scrollHeight + 1000,
+          behavior: smooth ? 'smooth' : 'auto',
+        });
+      };
+      doScroll();
+      requestAnimationFrame(doScroll);
+      setTimeout(doScroll, 80);
+      setTimeout(doScroll, 220);
+      setTimeout(doScroll, 500);
+    }
+
+    // Scroll listener to toggle floating "Scroll to bottom" button
+    const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+    if (chatStreamBox && scrollToBottomBtn) {
+      chatStreamBox.addEventListener('scroll', () => {
+        const distFromBottom = chatStreamBox.scrollHeight - chatStreamBox.scrollTop - chatStreamBox.clientHeight;
+        if (distFromBottom > 100) {
+          scrollToBottomBtn.classList.add('visible');
+        } else {
+          scrollToBottomBtn.classList.remove('visible');
+        }
+      });
+    }
+
+    function formatClockTime(date = new Date()) {
+      return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function getChatStorageKey() {
+      return 'vca_chat_history_' + currentSessionId;
+    }
+
+    function saveMessageToStorage(msgObj) {
+      // Session history disabled per user request - clean state on reload
+    }
+
+    function restoreChatHistory() {
+      try {
+        const key = getChatStorageKey();
+        const history = JSON.parse(localStorage.getItem(key) || '[]');
+        const hasBotReplies = history.some(m => m.sender === 'bot');
+        if (history.length > 0 && hasBotReplies) {
+          const hero = document.getElementById('heroWelcome');
+          if (hero) hero.style.display = 'none';
+          history.forEach((msg) => {
+            if (msg.sender === 'user' && msg.text) {
+              appendUserBubble(msg.text, msg.timestamp, true);
+            } else if (msg.sender === 'bot' && msg.data) {
+              appendBotMessage(msg.data, true);
+            }
+          });
+          scrollToBottom(false);
+        } else if (history.length > 0 && !hasBotReplies) {
+          // Discard orphaned user test messages so clean welcome screen appears
+          localStorage.removeItem(key);
+        }
+      } catch (e) {
+        console.warn('Storage restore failed:', e);
+      }
+    }
+
+    function startFreshChat() {
+      try {
+        currentSessionId = `ses_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        localStorage.setItem('vca_rest_session', currentSessionId);
+        if (chatStreamBox) {
+          chatStreamBox.innerHTML = `
+            <div class="chat-date-stamp">Today</div>
+            <div class="hero-welcome-card" id="heroWelcome">
+              <div class="hero-title-row">
+                <span style="font-size: 26px;">👨‍🍳</span>
+                <div style="font-size: 19px; font-weight: 800; color: var(--text-main);">Welcome to The Spice Lounge & Grill!</div>
+              </div>
+              <div class="hero-subtext">
+                I am ChefZaika, your multilingual culinary AI dining partner. Ask me for recommendations, spice adjustments, dietary options, or order by typing or speaking in English, Hindi, or Hinglish.
+              </div>
+            </div>
+          `;
+        }
+        const strip = document.getElementById('quickRepliesStrip');
+        if (strip) strip.innerHTML = '';
+        syncCartState();
+        fetchDbStatusCounts();
+      } catch (e) {
+        console.error('Error starting fresh chat:', e);
+      }
+    }
+
+    function appendUserBubble(text, timeStr, skipSave = false) {
       const hero = document.getElementById('heroWelcome');
       if (hero) hero.style.display = 'none';
 
+      const time = timeStr || formatClockTime();
       const row = document.createElement('div');
       row.className = 'msg-row msg-user';
       row.innerHTML = `
-        <div class="avatar-icon user-avatar">U</div>
+        ${USER_AVATAR_HTML}
         <div class="msg-bubble user-bubble">
           <div>${escapeHtml(text)}</div>
-          <span class="msg-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span class="msg-time">${time}</span>
         </div>
       `;
       chatStreamBox.appendChild(row);
-      chatStreamBox.scrollTop = chatStreamBox.scrollHeight;
+      scrollToBottom(true);
+
+
+      if (!skipSave) {
+        saveMessageToStorage({ sender: 'user', text, timestamp: time });
+      }
     }
+
+    const typingTimerMap = {};
 
     function appendTypingIndicator() {
       const id = `typing_${Date.now()}`;
@@ -1565,23 +2560,72 @@
       row.id = id;
       row.className = 'msg-row msg-bot';
       row.innerHTML = `
-        <div class="avatar-icon bot-avatar">🔥</div>
-        <div class="msg-bubble bot-bubble" style="padding:10px 14px; font-style:italic; color:var(--text-muted);">
-          Digital waiter is thinking...
+        ${BOT_AVATAR_HTML}
+        <div class="msg-bubble bot-bubble" style="padding: 12px 16px; border-radius: 18px 18px 18px 4px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); max-width: 340px;">
+          <div class="typing-bubble-card">
+            <div class="typing-dots-group">
+              <div class="dot-bounce"></div>
+              <div class="dot-bounce"></div>
+              <div class="dot-bounce"></div>
+            </div>
+            <span id="${id}_status" class="typing-text-label">ChefZaika is thinking...</span>
+          </div>
         </div>
       `;
       chatStreamBox.appendChild(row);
-      chatStreamBox.scrollTop = chatStreamBox.scrollHeight;
+      scrollToBottom(true);
+
+      // Late loading dynamic status progression
+      const t1 = setTimeout(() => {
+        const statusEl = document.getElementById(`${id}_status`);
+        if (statusEl) {
+          statusEl.innerText = 'Checking live menu & kitchen availability...';
+          scrollToBottom(true);
+        }
+      }, 1200);
+
+      const t2 = setTimeout(() => {
+        const statusEl = document.getElementById(`${id}_status`);
+        if (statusEl) {
+          statusEl.innerText = 'Preparing your personalized recommendation...';
+          scrollToBottom(true);
+        }
+      }, 2600);
+
+      typingTimerMap[id] = [t1, t2];
       return id;
     }
 
     function removeTypingIndicator(id) {
+      if (typingTimerMap[id]) {
+        typingTimerMap[id].forEach(clearTimeout);
+        delete typingTimerMap[id];
+      }
       const el = document.getElementById(id);
       if (el) el.remove();
     }
 
+    // Markdown Parser (converts **bold**, *italic*, bullets, and eliminates raw asterisks)
+    function formatBotMarkdown(text) {
+      if (!text) return '';
+      let safe = escapeHtml(text);
+      // Format bold **text** or __text__
+      safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--text-main); font-weight:700;">$1</strong>');
+      safe = safe.replace(/__(.*?)__/g, '<strong style="color:var(--text-main); font-weight:700;">$1</strong>');
+      // Format italic *text* or _text_
+      safe = safe.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+      safe = safe.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+      // Clean all stray asterisks so raw ** never appears
+      safe = safe.replace(/\*/g, '');
+      // Bullet points
+      safe = safe.replace(/^•\s+/gm, '&bull; ');
+      // Line breaks
+      safe = safe.replace(/\n/g, '<br/>');
+      return safe;
+    }
+
     // 4. Append Bot Message & Rich UI Components
-    function appendBotMessage(data) {
+    function appendBotMessage(data, skipSave = false) {
       const hero = document.getElementById('heroWelcome');
       if (hero) hero.style.display = 'none';
 
@@ -1594,28 +2638,43 @@
       }
 
       const rawText = data.text || '';
-      const safeText = escapeHtml(rawText).replace(/\n/g, '<br/>');
+      const safeText = formatBotMarkdown(rawText);
+
+      const timeFormatted = data.timestamp ? (data.timestamp.includes('M') ? data.timestamp : formatClockTime()) : formatClockTime();
 
       row.innerHTML = `
-        <div class="avatar-icon bot-avatar">🔥</div>
+        ${BOT_AVATAR_HTML}
         <div class="msg-bubble bot-bubble">
           <div>${safeText}</div>
           ${uiHtml}
           <div class="msg-action-strip">
-            <!-- Explicit Speak / Listen Button per user specification -->
-            <button class="listen-btn" onclick="toggleSpeech(this, ${JSON.stringify(rawText)})">
+            <button class="listen-btn" title="Listen to ChefZaika response">
               <span>🔊</span>
               <span>Listen</span>
             </button>
-            <span class="msg-time">${data.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span class="msg-time">${timeFormatted}</span>
           </div>
         </div>
       `;
 
-      chatStreamBox.appendChild(row);
-      chatStreamBox.scrollTop = chatStreamBox.scrollHeight;
+      const listenBtn = row.querySelector('.listen-btn');
+      if (listenBtn) {
+        listenBtn.onclick = () => toggleSpeech(listenBtn, rawText);
+      }
 
-      // Update quick reply strip if provided
+      chatStreamBox.appendChild(row);
+      scrollToBottom(true);
+
+      if (!skipSave) {
+        saveMessageToStorage({ sender: 'bot', data });
+      }
+
+      if (data.uiComponent && data.uiComponent.type === 'open_cart_drawer') {
+        setTimeout(() => {
+          openCartDrawer();
+        }, 120);
+      }
+
       if (data.quickReplies && data.quickReplies.length > 0) {
         const strip = document.getElementById('quickRepliesStrip');
         strip.innerHTML = '';
@@ -1633,7 +2692,40 @@
     function renderUiComponent(comp) {
       if (!comp || !comp.type) return '';
 
-      // A. Proposal Preview Card (P0: Preview Before Add)
+      // Auto-trigger open cart drawer when user requests "view cart" / "show cart"
+      if (comp.type === 'open_cart_drawer') {
+        setTimeout(() => {
+          openCartDrawer();
+          syncCartState();
+        }, 120);
+      }
+
+      // Auto-trigger open checkout modal when user requests "proceed to order" / "checkout"
+      if (comp.type === 'open_checkout_modal') {
+        setTimeout(() => {
+          openCheckoutModal();
+        }, 300);
+        return '';
+      }
+
+      // Auto-trigger cart synchronization when user removes or updates an item
+      if (comp.type === 'cart_sync_trigger') {
+        setTimeout(() => {
+          syncCartState();
+          fetchDbStatusCounts();
+        }, 150);
+        return '';
+      }
+
+      // Auto-trigger cart synchronization when order is tracked or placed
+      if (comp.type === 'order_tracker') {
+        setTimeout(() => {
+          syncCartState();
+          fetchDbStatusCounts();
+        }, 120);
+      }
+
+      // A. Proposal Preview Card
       if (comp.type === 'proposal_card' && comp.payload) {
         const p = comp.payload;
         const price = (p.pricePaise / 100).toFixed(2);
@@ -1665,7 +2757,7 @@
               <button class="btn-proposal-confirm" onclick="confirmProposalAdd('${p.dishId}', ${p.quantity}, '${escapeHtml(p.notes || '')}')">
                 ✓ Confirm & Add to Cart
               </button>
-              <button class="btn-proposal-cancel" onclick="sendUserMessage('cancel')">
+              <button class="btn-proposal-cancel" onclick="cancelProposalAction(this)">
                 ✕ Cancel
               </button>
             </div>
@@ -1676,30 +2768,42 @@
       // B. Dish Carousel / List
       if ((comp.type === 'dish_carousel' || comp.type === 'dish_list') && comp.payload?.dishes) {
         const dishes = comp.payload.dishes;
-        const cardsHtml = dishes.map((d) => `
+        const cardsHtml = dishes.map((d) => {
+          const rawPrice = d.pricePaise !== undefined ? d.pricePaise : (d.basePriceMinor !== undefined ? d.basePriceMinor : 29900);
+          const price = (rawPrice / 100).toFixed(2);
+          const isJain = Boolean(d.isJain || d.tags?.includes('jain') || d.recipe?.isJain === 'TRUE' || /jain/i.test(d.name));
+          const isVeg = Boolean(isJain || d.isVeg || d.recipe?.isVeg === true || !/chicken|mutton|fish|meat|egg/i.test(d.name));
+          const badgeClass = isJain ? 'badge-jain' : isVeg ? 'badge-veg' : 'badge-nonveg';
+          const badgeText = isJain ? '🪷 Jain' : isVeg ? '🌱 Veg' : '🔴 Non-Veg';
+
+          const cartItem = (currentCart.items || []).find(it => it.dishId === d.id);
+          const qty = cartItem ? cartItem.quantity : 0;
+
+          return `
           <div class="dish-card-item">
-            <img class="dish-card-img" src="${d.imageUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500'}" alt="${escapeHtml(d.name)}" />
+            <img class="dish-card-img" src="${d.imageUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500'}" alt="${escapeHtml(d.name)}" onload="scrollToBottom(false)" />
             <div class="dish-card-body">
               <div class="dish-card-header">
                 <span class="dish-card-title">${escapeHtml(d.name)}</span>
-                <span class="diet-badge-pill ${d.tags?.includes('jain') ? 'badge-jain' : d.isVeg ? 'badge-veg' : 'badge-nonveg'}">
-                  ${d.tags?.includes('jain') ? '🪷 Jain' : d.isVeg ? '🌱 Veg' : '🔴 Non-Veg'}
+                <span class="diet-badge-pill ${badgeClass}">
+                  ${badgeText}
                 </span>
               </div>
               <div class="dish-card-desc">${escapeHtml(d.description || '')}</div>
               ${d.calories ? `<div style="font-size:11px; color:var(--text-muted);">⚡ ${d.calories} kcal · ${escapeHtml(d.portion || '')}</div>` : ''}
               <div class="dish-card-footer">
-                <span class="dish-price">₹${(d.pricePaise / 100).toFixed(2)}</span>
-                <button class="dish-btn-add" onclick="requestDishProposal('${d.id}', '${escapeHtml(d.name)}')">
-                  + Add
-                </button>
+                <span class="dish-price">₹${price}</span>
+                <div class="dish-stepper-wrap" data-dish-stepper-id="${d.id}" data-dish-name="${escapeHtml(d.name)}">
+                  ${renderDishStepperHtml(d.id, escapeHtml(d.name), qty)}
+                </div>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
 
         return `
-          <div style="margin-top:8px;">
+          <div style="margin-top:8px; min-width:0; max-width:100%;">
             ${comp.payload.title ? `<div style="font-size:12.5px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">${escapeHtml(comp.payload.title)}</div>` : ''}
             <div class="dish-carousel-wrap">${cardsHtml}</div>
           </div>
@@ -1726,13 +2830,110 @@
         return `
           <div class="order-tracker-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-weight:800; color:var(--accent-veg);">📦 Order ${o.id}</span>
+              <span style="font-weight:800; color:var(--accent-veg);">📦 Order #${o.id}</span>
               <span class="diet-badge-pill badge-veg">${o.status}</span>
             </div>
             <div class="tracker-status-strip">${nodesHtml}</div>
-            <div style="font-size:12.5px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
               <span>Estimated Delivery: <strong>${o.etaMinutes || 25} mins</strong></span>
               <span>Total: <strong>₹${(o.totalPaise / 100).toFixed(2)}</strong></span>
+            </div>
+          </div>
+        `;
+      }
+
+      // D. Flipkart / Amazon Style Cancellation Reason Picker
+      if (comp.type === 'cancellation_reason_picker' && comp.payload) {
+        const p = comp.payload;
+        const reasonsHtml = (p.reasons || []).map((r) => `
+          <button class="cancellation-reason-btn" onclick="sendQuickReply('${escapeHtml(r)}')">
+            <span>${escapeHtml(r)}</span>
+            <span class="chevron-arrow">›</span>
+          </button>
+        `).join('');
+
+        return `
+          <div class="cancellation-reason-box">
+            <div class="cancellation-box-title">
+              <span>⚠️</span>
+              <span>Cancel Order #${p.orderId} · Select Reason</span>
+            </div>
+            <div class="cancellation-reasons-list">
+              ${reasonsHtml}
+            </div>
+            <button class="btn-proposal-cancel" style="width:100%; padding:9px; margin-top:2px;" onclick="sendQuickReply('Don\\'t cancel')">
+              ✕ Keep My Order
+            </button>
+          </div>
+        `;
+      }
+
+      // E. Flipkart / Amazon Style Cancellation Confirmed Card
+      if (comp.type === 'cancellation_confirmed' && comp.payload) {
+        const p = comp.payload;
+        return `
+          <div class="cancellation-confirmed-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; color:var(--danger-nonveg);">✕ Order #${p.orderId} Cancelled</span>
+              <span class="diet-badge-pill badge-nonveg">Cancelled</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--text-muted);">
+              Reason: <strong>${escapeHtml(p.reason || 'Requested by customer')}</strong>
+            </div>
+            <div style="font-size:13px; color:var(--accent-veg); font-weight:700;">
+              ✓ 100% refund of ₹${p.refundAmount || '0.00'} initiated to your payment method.
+            </div>
+            <div class="flipkart-followup-box">
+              <div class="flipkart-followup-title">Can I help you with anything else?</div>
+              <button class="flipkart-btn" onclick="sendQuickReply('No, I am good')">
+                <span>No, I am good</span>
+                <span>›</span>
+              </button>
+              <button class="flipkart-btn" onclick="sendQuickReply('Yes, I still need help')">
+                <span>Yes, I still need help</span>
+                <span>›</span>
+              </button>
+              <button class="flipkart-btn" onclick="sendQuickReply('View Menu')">
+                <span>🍕 Browse Menu</span>
+                <span>›</span>
+              </button>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:6px; text-align:center;">
+                ✓ Order #${p.orderId} is automatically removed from database records.
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // F. Agentic Concierge Support Card - Luxury Balanced 2-Column Grid
+      if (comp.type === 'concierge_help_card' && comp.payload) {
+        const p = comp.payload;
+        const topicsHtml = (p.topics || []).map((t) => `
+          <button class="concierge-topic-card" onclick="sendUserMessage('${escapeHtml(t.query)}')">
+            <div class="concierge-topic-icon-wrap" style="${t.bg ? `background:${t.bg};` : ''}">${t.icon}</div>
+            <div class="concierge-topic-content">
+              <div class="concierge-topic-top-line">
+                <span class="concierge-topic-title">${escapeHtml(t.title)}</span>
+                ${t.tag ? `<span class="concierge-topic-pill" style="${t.tagColor ? `color:${t.tagColor}; background:${t.tagBg};` : ''}">${escapeHtml(t.tag)}</span>` : ''}
+              </div>
+              ${t.subtitle ? `<div class="concierge-topic-sub">${escapeHtml(t.subtitle)}</div>` : ''}
+            </div>
+            <span class="concierge-topic-arrow">➔</span>
+          </button>
+        `).join('');
+
+        return `
+          <div class="concierge-card-box">
+            <div class="concierge-card-header">
+              <div class="concierge-card-pill-row">
+                <span class="concierge-card-badge">✨ Live AI Concierge</span>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:700;">The Spice Lounge & Grill</span>
+              </div>
+              <div class="concierge-card-title">How may we delight your dining experience today?</div>
+              <div class="concierge-card-subtitle">Select any dining inquiry or quick action below for curated instant recommendations:</div>
+            </div>
+            <div class="concierge-topics-grid">
+              ${topicsHtml}
             </div>
           </div>
         `;
@@ -1741,7 +2942,7 @@
       return '';
     }
 
-    // 5. Speech Synthesis (Speaks ONLY when user explicitly clicks button)
+    // 5. Speech Synthesis (Speaks ONLY when user explicitly clicks [🔊 Listen], with markdown stripped)
     function toggleSpeech(btn, text) {
       if (!('speechSynthesis' in window)) {
         alert('Text-to-speech is not supported in this browser.');
@@ -1760,16 +2961,48 @@
         }
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      // Auto-detect Hindi or English voice
+      // Natural Human-Like Text Cleaning:
+      // Strip markdown, emojis, asterisks, bullet symbols, and format currency & numbers naturally
+      let cleanText = text
+        .replace(/[*#_~`>]/g, '')
+        .replace(/[🍽️🍕🥗🤖⭐🔥🍛📦📅💳👨‍🍳🍋🥭🥛☕✓✕•●▪️]/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/₹\s*(\d+)/g, '$1 Rupees')
+        .replace(/\(x(\d+)\)/g, '$1 portions')
+        .replace(/\b(\d+)\s*kcal\b/gi, '$1 calories')
+        .replace(/ORD-(\d+)-(\d+)/g, 'Order $1 $2')
+        .replace(/\n+/g, '. ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
       const voices = window.speechSynthesis.getVoices();
-      const hindiVoice = voices.find((v) => v.lang.includes('hi') || v.name.includes('Hindi'));
-      if (hindiVoice && /[अ-ह]/.test(text)) {
-        utterance.voice = hindiVoice;
+
+      // Find the most natural, human-sounding voice available
+      const isHindiText = /[ऀ-ॿ]/.test(cleanText);
+      let selectedVoice = null;
+
+      if (isHindiText) {
+        selectedVoice = voices.find(v => v.lang.includes('hi') && (v.name.includes('Natural') || v.name.includes('Swara') || v.name.includes('Google') || v.name.includes('Madhur'))) ||
+                        voices.find(v => v.lang.includes('hi'));
         utterance.lang = 'hi-IN';
       } else {
-        utterance.lang = 'en-IN';
+        // Indian English / Natural clear human voice
+        selectedVoice = voices.find(v => (v.name.includes('Natural') || v.name.includes('Neerja') || v.name.includes('Prabhat')) && v.lang.includes('IN')) ||
+                        voices.find(v => v.lang === 'en-IN') ||
+                        voices.find(v => v.name.includes('Natural') && v.lang.startsWith('en')) ||
+                        voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+                        voices[0];
+        utterance.lang = selectedVoice?.lang || 'en-IN';
       }
+
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
+      // Calm, clear, natural human speech cadence
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
 
       btn.classList.add('speaking');
       btn.innerHTML = '<span>⏹️</span><span>Stop</span>';
@@ -1790,63 +3023,178 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    // 6. Speech Recognition (Push-to-talk Mic)
+    // 6. Speech Recognition (Push-to-talk Mic with Live Waveform Equalizer)
     function toggleVoiceRecording() {
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRec) {
-        alert('Speech recognition is not supported in this browser. Please type your message.');
+        alert('Speech recognition is not supported in this browser (Chrome and Edge recommended). Please type your message.');
         return;
       }
 
       if (isRecording) {
-        if (speechRecognition) speechRecognition.stop();
+        if (speechRecognition) {
+          speechRecognition.stop();
+        }
         return;
       }
 
-      speechRecognition = new SpeechRec();
-      speechRecognition.lang = 'hi-IN'; // Multi-accent English/Hindi support
-      speechRecognition.interimResults = true;
-      speechRecognition.continuous = false;
+      try {
+        speechRecognition = new SpeechRec();
+        // Dynamically configured: en-IN (English/Hinglish) or hi-IN (Hindi Devanagari)
+        speechRecognition.lang = currentSpeechLang;
+        speechRecognition.interimResults = true;
+        speechRecognition.continuous = false;
 
-      speechRecognition.onstart = () => {
-        isRecording = true;
-        micBtn.classList.add('recording');
-        chatInput.placeholder = 'Listening... Speak in Hindi or English...';
-      };
+        const liveBanner = document.getElementById('voiceLiveBanner');
+        const micBtnEl = document.getElementById('micBtn');
 
-      speechRecognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
-        }
-        chatInput.value = transcript;
-        chatInput.style.height = 'auto';
-        chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
-        sendBtn.disabled = !transcript.trim();
-      };
+        speechRecognition.onstart = () => {
+          isRecording = true;
+          if (micBtnEl) micBtnEl.classList.add('recording');
+          if (liveBanner) liveBanner.classList.add('active');
+          chatInput.placeholder = currentSpeechLang === 'en-IN' ? 'Listening... Speak in English or Hinglish...' : 'सुन रहा हूँ... हिन्दी में बोलिये...';
+        };
 
-      speechRecognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        speechRecognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcript += event.results[i][0].transcript;
+          }
+          chatInput.value = transcript;
+          chatInput.style.height = 'auto';
+          chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
+          sendBtn.disabled = !transcript.trim();
+
+          const bannerText = liveBanner?.querySelector('.live-rec-text');
+          if (bannerText && transcript) {
+            bannerText.innerText = `"${transcript}"`;
+          }
+        };
+
+        speechRecognition.onerror = (event) => {
+          console.warn('Speech recognition status:', event.error);
+          stopRecording();
+          if (event.error === 'not-allowed') {
+            alert('Microphone permission was denied. Please allow microphone access in your browser site settings.');
+          }
+        };
+
+        speechRecognition.onend = () => {
+          stopRecording();
+          if (chatInput.value.trim()) {
+            sendUserMessage();
+          }
+        };
+
+        speechRecognition.start();
+      } catch (err) {
+        console.error('Speech recognition error:', err);
         stopRecording();
-      };
-
-      speechRecognition.onend = () => {
-        stopRecording();
-        if (chatInput.value.trim()) {
-          sendUserMessage();
-        }
-      };
-
-      speechRecognition.start();
+      }
     }
 
     function stopRecording() {
       isRecording = false;
-      micBtn.classList.remove('recording');
-      chatInput.placeholder = "Talk or type: 'spicy paneer dikhao', 'pizza under 300'...";
+      const micBtnEl = document.getElementById('micBtn');
+      if (micBtnEl) micBtnEl.classList.remove('recording');
+
+      const liveBanner = document.getElementById('voiceLiveBanner');
+      if (liveBanner) {
+        liveBanner.classList.remove('active');
+        const bannerText = liveBanner.querySelector('.live-rec-text');
+        if (bannerText) {
+          bannerText.innerText = 'Listening... Speak now in Hindi, English or Hinglish';
+        }
+      }
+      chatInput.placeholder = "Ask ChefZaika: 'spicy paneer dikhao', 'pizza under 300', 'cancel order'...";
+    }
+
+    // Dismiss single item proposal preview without affecting placed orders
+    function cancelProposalAction(btn) {
+      const card = btn ? btn.closest('.proposal-card-box') : null;
+      if (card) {
+        card.style.opacity = '0.6';
+        card.innerHTML = `
+          <div style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">
+            ✕ Proposal cancelled. This dish was not added to your cart.
+          </div>
+        `;
+      }
+      sendUserMessage('cancel proposal');
     }
 
     // 7. Request Dish Proposal & Confirmation Action
+        // Swiggy & Zomato Stepper Logic for Menu Dish Cards
+    function renderDishStepperHtml(dishId, dishName, qty) {
+      if (qty <= 0) {
+        return `
+          <button class="swiggy-add-btn" onclick="handleDishStepperClick('${dishId}', '${dishName}', 1, event)">
+            + ADD
+          </button>
+        `;
+      }
+      return `
+        <div class="swiggy-stepper-active">
+          <button class="swiggy-step-btn" title="Decrease" onclick="handleDishStepperClick('${dishId}', '${dishName}', -1, event)">−</button>
+          <span class="swiggy-step-qty">${qty}</span>
+          <button class="swiggy-step-btn" title="Increase" onclick="handleDishStepperClick('${dishId}', '${dishName}', 1, event)">+</button>
+        </div>
+      `;
+    }
+
+    async function handleDishStepperClick(dishId, dishName, delta, event) {
+      if (event) event.stopPropagation();
+      try {
+        const item = (currentCart.items || []).find(it => it.dishId === dishId);
+        const currentQty = item ? item.quantity : 0;
+        const newQty = Math.max(0, currentQty + delta);
+
+        // Optimistically update all dish steppers on the screen matching this dishId
+        document.querySelectorAll(`[data-dish-stepper-id="${dishId}"]`).forEach(wrapper => {
+          wrapper.innerHTML = renderDishStepperHtml(dishId, dishName, newQty);
+        });
+
+        if (newQty <= 0) {
+          await fetch(`${API_BASE}/api/cart/remove`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: currentSessionId, dishId }),
+          });
+        } else {
+          await fetch(`${API_BASE}/api/cart/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: currentSessionId,
+              dishId,
+              quantity: delta,
+            }),
+          });
+        }
+
+        await syncCartState();
+        fetchDbStatusCounts();
+      } catch (err) {
+        console.error('Error updating dish stepper:', err);
+        syncCartState();
+      }
+    }
+
+    function refreshAllDishSteppers() {
+      document.querySelectorAll('[data-dish-stepper-id]').forEach(wrapper => {
+        const dishId = wrapper.getAttribute('data-dish-stepper-id');
+        const dishName = wrapper.getAttribute('data-dish-name') || '';
+        const item = (currentCart.items || []).find(it => it.dishId === dishId);
+        const qty = item ? item.quantity : 0;
+        wrapper.innerHTML = renderDishStepperHtml(dishId, dishName, qty);
+      });
+    }
+
+    // Direct Add to Cart from Menu Card (No chat prompt dispatched!)
+    async function directAddDishToCart(btn, dishId, dishName) {
+      await handleDishStepperClick(dishId, dishName, 1, null);
+    }
+
     function requestDishProposal(dishId, dishName) {
       sendUserMessage(`Ek ${dishName} add kar do`);
     }
@@ -1871,6 +3219,7 @@
             quickReplies: ['🍕 View Menu', '🛒 View Cart', 'Proceed to Checkout'],
           });
           syncCartState();
+          fetchDbStatusCounts();
         } else {
           const err = await res.json();
           alert(`Could not add item: ${err.error || 'Server error'}`);
@@ -1897,22 +3246,21 @@
       const items = currentCart.items || [];
       const totalCount = items.reduce((acc, it) => acc + it.quantity, 0);
 
-      // Update counters
-      desktopItemCountText.innerText = `(${totalCount} item${totalCount === 1 ? '' : 's'})`;
-      document.getElementById('headerMobileCartCount').innerText = totalCount;
-      document.getElementById('mobileBarCount').innerText = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
-      document.getElementById('mobileDrawerItemCount').innerText = `(${totalCount} items)`;
+      if (drawerItemCountText) drawerItemCountText.innerText = `(${totalCount} item${totalCount === 1 ? '' : 's'})`;
+      if (headerCartCount) headerCartCount.innerText = totalCount;
+
+      const itemsBox = document.getElementById('cartDrawerItemsBox');
+      if (!itemsBox) return;
 
       if (items.length === 0) {
-        desktopItemsBox.innerHTML = `
+        itemsBox.innerHTML = `
           <div class="cart-empty-splash">
             <span style="font-size:36px;">🍲</span>
             <div style="font-weight:700;">Your basket is empty</div>
-            <div style="font-size:12px;">Ask our digital waiter in chat or tap recommendations to add items!</div>
+            <div style="font-size:12px;">Ask ChefZaika in chat or tap recommendations to add items!</div>
           </div>
         `;
-        document.getElementById('mobileDrawerItemsBox').innerHTML = desktopItemsBox.innerHTML;
-        checkoutBtn.disabled = true;
+        if (checkoutBtn) checkoutBtn.disabled = true;
       } else {
         const itemsHtml = items.map((it) => `
           <div class="cart-item-row">
@@ -1935,33 +3283,34 @@
           </div>
         `).join('');
 
-        desktopItemsBox.innerHTML = itemsHtml;
-        document.getElementById('mobileDrawerItemsBox').innerHTML = itemsHtml;
-        checkoutBtn.disabled = false;
+        itemsBox.innerHTML = itemsHtml;
+        if (checkoutBtn) checkoutBtn.disabled = false;
       }
 
-      // Update financial values
       const subtotal = (currentCart.subtotalPaise / 100).toFixed(2);
       const discount = (currentCart.discountPaise / 100).toFixed(2);
       const gst = (currentCart.gstPaise / 100).toFixed(2);
       const packaging = (currentCart.packagingFeePaise / 100).toFixed(2);
       const total = (currentCart.totalPaise / 100).toFixed(2);
 
-      billSubtotal.innerText = `₹${subtotal}`;
-      billGst.innerText = `₹${gst}`;
-      billPackaging.innerText = `₹${packaging}`;
-      billDelivery.innerText = currentCart.deliveryFeePaise === 0 ? 'Free' : `₹${(currentCart.deliveryFeePaise / 100).toFixed(2)}`;
-      billTotal.innerText = `₹${total}`;
-      checkoutModalTotal.innerText = `₹${total}`;
-      document.getElementById('mobileBarTotal').innerText = `₹${total}`;
-      document.getElementById('mobileDrawerTotal').innerText = `₹${total}`;
+      if (billSubtotal) billSubtotal.innerText = `₹${subtotal}`;
+      if (billGst) billGst.innerText = `₹${gst}`;
+      if (billPackaging) billPackaging.innerText = `₹${packaging}`;
+      if (billDelivery) billDelivery.innerText = currentCart.deliveryFeePaise === 0 ? 'Free' : `₹${(currentCart.deliveryFeePaise / 100).toFixed(2)}`;
+      if (billTotal) billTotal.innerText = `₹${total}`;
+      if (checkoutModalTotal) checkoutModalTotal.innerText = `₹${total}`;
 
-      if (currentCart.discountPaise > 0) {
-        billDiscountRow.style.display = 'flex';
-        billDiscount.innerText = `-₹${discount}`;
-      } else {
-        billDiscountRow.style.display = 'none';
+      if (billDiscountRow) {
+        if (currentCart.discountPaise > 0) {
+          billDiscountRow.style.display = 'flex';
+          if (billDiscount) billDiscount.innerText = `-₹${discount}`;
+        } else {
+          billDiscountRow.style.display = 'none';
+        }
       }
+
+      // Keep all dish card steppers on screen perfectly synchronized with currentCart
+      refreshAllDishSteppers();
     }
 
     async function updateItemQty(dishId, newQty) {
@@ -1975,10 +3324,15 @@
         await fetch(`${API_BASE}/api/cart/add`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: currentSessionId, dishId, quantity: newQty - (currentCart.items.find(i => i.dishId === dishId)?.quantity || 0) }),
+          body: JSON.stringify({
+            sessionId: currentSessionId,
+            dishId,
+            quantity: newQty - (currentCart.items.find(i => i.dishId === dishId)?.quantity || 0)
+          }),
         });
       }
       syncCartState();
+      fetchDbStatusCounts();
     }
 
     // 9. MongoDB Database Live Inspector Logic
@@ -2056,7 +3410,7 @@
         alert('Your basket is empty. Please add items before checking out.');
         return;
       }
-      closeMobileCartDrawer();
+      closeCartDrawer();
       document.getElementById('checkoutModalBackdrop').style.display = 'flex';
     }
 
@@ -2066,6 +3420,26 @@
 
     function handleCheckoutModalBackdropClick(e) {
       if (e.target.id === 'checkoutModalBackdrop') closeCheckoutModal();
+    }
+
+    // Success notification banner for self-service checkout (preserves clean chat stream)
+    function showOrderSuccessToast(orderId) {
+      let toast = document.getElementById('platformSuccessToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'platformSuccessToast';
+        toast.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-10px); z-index:9999; background:linear-gradient(135deg, #10B981, #059669); color:#ffffff; padding:12px 24px; border-radius:30px; font-weight:600; font-size:13.5px; box-shadow:0 10px 25px rgba(16,185,129,0.35); display:flex; align-items:center; gap:10px; transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events:none; opacity:0;';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span>🎉</span><span>Order <strong>#${escapeHtml(orderId)}</strong> placed successfully! Kitchen has started preparing.</span>`;
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0px)';
+      }, 50);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-10px)';
+      }, 4500);
     }
 
     async function submitPlatformOrder() {
@@ -2108,16 +3482,33 @@
 
         const result = await res.json();
         closeCheckoutModal();
+        closeCartDrawer();
 
-        // Render celebratory bot message with live order tracker
-        appendBotMessage({
-          text: `🎉 Order Placed Successfully! Your order ID is ${result.order.id}. Kitchen has accepted the order and is preparing your meal. Live status updates will appear below:`,
-          uiComponent: {
-            type: 'order_tracker',
-            payload: { order: result.order },
-          },
-          quickReplies: [`Track ${result.order.id}`, 'View Menu', 'Talk to Staff'],
-        });
+        // Immediately reset local cart cache
+        currentCart = {
+          items: [],
+          subtotalPaise: 0,
+          discountPaise: 0,
+          gstPaise: 0,
+          deliveryFeePaise: 0,
+          packagingFeePaise: 0,
+          totalPaise: 0,
+        };
+        if (headerCartCount) headerCartCount.innerText = '0';
+        renderCartUi();
+
+        // Save last placed order reference so user can track it on demand by asking ChefZaika
+        if (result.order && result.order.id) {
+          localStorage.setItem('vca_last_order_id', result.order.id);
+          showOrderSuccessToast(result.order.id);
+        }
+
+        // Explicitly sync server cart clear
+        fetch(`${API_BASE}/api/cart/clear`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: currentSessionId }),
+        }).catch(() => {});
 
         syncCartState();
         fetchDbStatusCounts();
@@ -2128,17 +3519,23 @@
       }
     }
 
-    // 11. Mobile Drawer Helpers
-    function openMobileCartDrawer() {
-      document.getElementById('mobileCartBackdrop').style.display = 'block';
+    // 11. Universal Off-Canvas Cart Drawer Helpers
+    function openCartDrawer() {
+      const backdrop = document.getElementById('cartDrawerBackdrop');
+      const panel = document.getElementById('cartDrawerPanel');
+      if (backdrop) backdrop.classList.add('active');
+      if (panel) panel.classList.add('active');
     }
 
-    function closeMobileCartDrawer() {
-      document.getElementById('mobileCartBackdrop').style.display = 'none';
+    function closeCartDrawer() {
+      const backdrop = document.getElementById('cartDrawerBackdrop');
+      const panel = document.getElementById('cartDrawerPanel');
+      if (backdrop) backdrop.classList.remove('active');
+      if (panel) panel.classList.remove('active');
     }
 
     function handleDrawerBackdropClick(e) {
-      if (e.target.id === 'mobileCartBackdrop') closeMobileCartDrawer();
+      if (e.target.id === 'cartDrawerBackdrop') closeCartDrawer();
     }
 
     function escapeHtml(str) {
@@ -2151,7 +3548,55 @@
         .replace(/'/g, '&#39;');
     }
 
-    // Initial Startup
+    // Preload speech voices immediately
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        try { window.speechSynthesis.getVoices(); } catch (e) {}
+      };
+      try { window.speechSynthesis.getVoices(); } catch (e) {}
+    }
+
+    // Initial Flipkart / Swiggy style Chatbot Onboarding Message
+    function initWelcomeChatbot() {
+      // Ensure cart drawer is closed on start
+      closeCartDrawer();
+
+      const chatStreamBox = document.getElementById('chatStreamBox');
+      if (chatStreamBox) {
+        chatStreamBox.innerHTML = `
+          <div class="chat-date-stamp">Today</div>
+        `;
+      }
+
+      // Automatically post ChefZaika's Senior-Designer Welcome Card
+      appendBotMessage({
+        text: "Namaste! Welcome to **The Spice Lounge & Grill**. 🍽️\n\nI am **ChefZaika**, your personal culinary concierge. How may we delight your dining experience today? Tap any option below or type/speak freely:",
+        uiComponent: {
+          type: 'concierge_help_card',
+          payload: {
+            topics: [
+              { icon: '🍕', title: 'Explore Full Menu', subtitle: '46 chef-crafted dishes across 7 categories', query: 'View Menu', tag: '46 DISHES', bg: 'rgba(255, 90, 0, 0.12)', tagColor: '#e65100', tagBg: 'rgba(230, 81, 0, 0.09)' },
+              { icon: '⭐', title: "Chef's Signature Specials", subtitle: 'Bestseller tandoor, gravies & royal dum biryani', query: 'Chef Specials', tag: 'BESTSELLERS', bg: 'rgba(245, 158, 11, 0.15)', tagColor: '#b45309', tagBg: 'rgba(245, 158, 11, 0.12)' },
+              { icon: '🥗', title: 'Diet & Low Calorie', subtitle: 'Nutritionist-verified healthy meals & drinks', query: 'suggest me some low cal food', tag: '< 300 KCAL', bg: 'rgba(16, 185, 129, 0.14)', tagColor: '#047857', tagBg: 'rgba(16, 185, 129, 0.12)' },
+              { icon: '🔥', title: 'Spicy Starters under ₹300', subtitle: 'Pungent tandoori chaap, paneer tikka & kebabs', query: 'spicy veg under 300', tag: 'UNDER ₹300', bg: 'rgba(239, 68, 68, 0.14)', tagColor: '#b91c1c', tagBg: 'rgba(239, 68, 68, 0.12)' },
+              { icon: '🪷', title: 'Strict Jain / Satvik Pure Veg', subtitle: '100% zero onion, garlic or root vegetables', query: 'Jain food options', tag: '100% SATVIK', bg: 'rgba(236, 72, 153, 0.14)', tagColor: '#be185d', tagBg: 'rgba(236, 72, 153, 0.12)' },
+              { icon: '📦', title: 'Track Active Order', subtitle: 'Real-time kitchen prep & delivery rider ETA', query: 'track order', tag: 'LIVE ETA', bg: 'rgba(59, 130, 246, 0.14)', tagColor: '#1d4ed8', tagBg: 'rgba(59, 130, 246, 0.12)' },
+              { icon: '📅', title: 'Reserve Dining Table', subtitle: 'AC indoor dining & open-air terrace seating', query: 'book table for 2 guests', tag: 'INSTANT BOOK', bg: 'rgba(139, 92, 246, 0.14)', tagColor: '#6d28d9', tagBg: 'rgba(139, 92, 246, 0.12)' },
+              { icon: '💳', title: 'Deals & 50% Off Offers', subtitle: 'Save ₹100+ with WELCOME50 or SPICE100', query: 'Active offers and coupons', tag: '50% OFF', bg: 'rgba(249, 115, 22, 0.14)', tagColor: '#c2410c', tagBg: 'rgba(249, 115, 22, 0.12)' },
+            ]
+          }
+        },
+        quickReplies: [
+          '🍕 View Menu',
+          '⭐ Chef Specials',
+          '🥗 Low Cal (<300 kcal)',
+          '📦 Track Order'
+        ]
+      }, true);
+    }
+
+    // Initial Startup - Flipkart Style Clean Welcome Chatbot
+    initWelcomeChatbot();
     syncCartState();
     fetchDbStatusCounts();
   </script>

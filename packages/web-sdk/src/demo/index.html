@@ -843,6 +843,92 @@
       color: var(--text-muted);
     }
 
+    /* Disambiguation & Clarification Card */
+    .disambiguation-card-box {
+      background: var(--bg-surface);
+      border: 1.5px solid rgba(255, 90, 0, 0.22);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+      min-width: 0;
+      max-width: 100%;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    }
+
+    .disambiguation-box-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .disambiguation-box-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -3px;
+    }
+
+    .disambiguation-options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .disambiguation-option-btn {
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.18s ease;
+      text-align: left;
+    }
+
+    .disambiguation-option-btn:hover {
+      border-color: var(--brand-primary);
+      background: rgba(255, 90, 0, 0.05);
+      transform: translateX(3px);
+      box-shadow: 0 2px 8px rgba(255, 90, 0, 0.1);
+    }
+
+    .disambiguation-option-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 90, 0, 0.08);
+      border-radius: 8px;
+    }
+
+    .disambiguation-option-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .disambiguation-option-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .disambiguation-option-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     .cancellation-confirmed-card {
       background: rgba(47, 158, 68, 0.05);
       border: 1.5px solid rgba(47, 158, 68, 0.3);
@@ -2837,6 +2923,34 @@
             <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
               <span>Estimated Delivery: <strong>${o.etaMinutes || 25} mins</strong></span>
               <span>Total: <strong>₹${(o.totalPaise / 100).toFixed(2)}</strong></span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Disambiguation & Clarification Card (Agentic interactive question options)
+      if (comp.type === 'disambiguation_card' && comp.payload) {
+        const p = comp.payload;
+        const optionsHtml = (p.options || []).map((opt) => `
+          <button class="disambiguation-option-btn" onclick="sendUserMessage('${escapeHtml(opt.query || opt.title)}')">
+            <div class="disambiguation-option-icon">${opt.icon || '👉'}</div>
+            <div class="disambiguation-option-content">
+              <div class="disambiguation-option-title">${escapeHtml(opt.title)}</div>
+              ${opt.desc ? `<div class="disambiguation-option-desc">${escapeHtml(opt.desc)}</div>` : ''}
+            </div>
+            <span class="chevron-arrow">›</span>
+          </button>
+        `).join('');
+
+        return `
+          <div class="disambiguation-card-box">
+            <div class="disambiguation-box-title">
+              <span>${p.icon || '🧭'}</span>
+              <span>${escapeHtml(p.title || 'Clarification & Options')}</span>
+            </div>
+            ${p.subtitle ? `<div class="disambiguation-box-sub">${escapeHtml(p.subtitle)}</div>` : ''}
+            <div class="disambiguation-options-list">
+              ${optionsHtml}
             </div>
           </div>
         `;

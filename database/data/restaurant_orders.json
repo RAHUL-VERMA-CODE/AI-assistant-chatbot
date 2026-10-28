@@ -538,5 +538,75 @@
     "etaMinutes": 35,
     "createdAt": "2026-10-28T17:30:33.118Z",
     "updatedAt": "2026-10-28T17:30:33.118Z"
+  },
+  {
+    "id": "ORD-590146-657",
+    "sessionId": "ses_1793208952778_5i6cm",
+    "customerName": "Rahul Sharma",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bellandur, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "starter_04",
+        "name": "Crispy Corn & Water Chestnut",
+        "isVeg": true,
+        "pricePaise": 24900,
+        "quantity": 1,
+        "lineTotalPaise": 24900
+      }
+    ],
+    "subtotalPaise": 24900,
+    "discountPaise": 0,
+    "gstPaise": 1245,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 32645,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T17:46:30.147Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T17:46:30.147Z",
+    "updatedAt": "2026-10-28T17:46:30.147Z"
+  },
+  {
+    "id": "ORD-753791-494",
+    "sessionId": "test_session_31eff22b",
+    "customerName": "Rahul Test",
+    "phone": "9876543210",
+    "orderType": "delivery",
+    "deliveryAddress": "Flat 402, Green Glen Layout, Bengaluru",
+    "paymentMethod": "UPI",
+    "items": [
+      {
+        "dishId": "starter_01",
+        "name": "Paneer Tikka (Tandoori)",
+        "isVeg": true,
+        "pricePaise": 29900,
+        "quantity": 1,
+        "lineTotalPaise": 29900
+      }
+    ],
+    "subtotalPaise": 29900,
+    "discountPaise": 0,
+    "gstPaise": 1495,
+    "deliveryFeePaise": 4000,
+    "totalPaise": 37895,
+    "status": "Placed",
+    "statusHistory": [
+      {
+        "status": "Placed",
+        "timestamp": "2026-10-28T18:22:33.791Z",
+        "note": "Order received by restaurant kitchen"
+      }
+    ],
+    "etaMinutes": 35,
+    "createdAt": "2026-10-28T18:22:33.791Z",
+    "updatedAt": "2026-10-28T18:22:33.791Z"
   }
 ]

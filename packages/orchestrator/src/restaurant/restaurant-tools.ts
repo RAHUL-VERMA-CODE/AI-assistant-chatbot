@@ -424,7 +424,7 @@ export class RestaurantTools {
 
   // Alias
   public static getOrderStatus(params: any): ToolExecutionResult {
-    return this.get_order_status({ orderReference: params.orderId, phone: params.phone });
+    return this.get_order_status({ orderReference: params.orderId, phone: params.phone, sessionId: params.sessionId });
   }
 
   // ==========================================

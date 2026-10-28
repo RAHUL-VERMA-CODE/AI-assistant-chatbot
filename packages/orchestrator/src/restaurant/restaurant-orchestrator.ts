@@ -132,8 +132,18 @@ export class RestaurantOrchestrator {
       let ordId = session.cancellationOrderPending || session.activeOrderId;
       if (!ordId) {
         const allOrders = restaurantDb.getAllOrders();
-        const active = allOrders.find(o => o.status !== 'Cancelled' && o.status !== 'Delivered') || allOrders[0];
-        ordId = active ? active.id : 'ORD-7821-49';
+        const active = allOrders.find(o => o.sessionId === sessionId && o.status !== 'Cancelled' && o.status !== 'Delivered');
+        ordId = active ? active.id : undefined;
+      }
+
+      if (!ordId) {
+        return {
+          id: `msg_${Date.now()}`,
+          sender: 'bot',
+          text: 'You do not have any active orders to cancel. Would you like to explore our menu?',
+          timestamp: this.formatClockTime(),
+          quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🛒 View Cart'],
+        };
       }
 
       if (isKeepOrder) {
@@ -307,11 +317,77 @@ export class RestaurantOrchestrator {
       };
     }
 
+    // 2d. Ambiguous Cancel Disambiguation (Agentic questions with clear options)
+    const isBareCancel = /^(cancel|cancel\s*it|cancel\s*karo|cancel\s*karna\s*hai|please\s*cancel|cancel\s*please|radd\s*karo|कैंसिल|रद्द\s*करो)$/i.test(lower.trim());
+    if (isBareCancel) {
+      const reply = session.language === 'hi'
+        ? 'आप क्या रद्द करना चाहते हैं? कृपया नीचे दिए गए विकल्पों में से चुनें ताकि मैं आपकी सुरक्षित और सटीक सहायता कर सकूँ:'
+        : session.language === 'hinglish'
+        ? 'Aap kya cancel karna chahte hain? Kripya niche diye gaye options me se select karein taaki main sahi help kar sakun:'
+        : 'What would you like to cancel? Please select an option below so I can assist you securely:';
+
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: reply,
+        timestamp: this.formatClockTime(),
+        uiComponent: {
+          type: 'disambiguation_card',
+          payload: {
+            icon: '⚠️',
+            title: 'What would you like to cancel?',
+            subtitle: 'Please select an option to proceed securely:',
+            options: [
+              {
+                icon: '📦',
+                title: 'Cancel Active Live Order',
+                desc: 'Cancel kitchen order & request 100% instant refund',
+                query: 'Cancel my order'
+              },
+              {
+                icon: '🛒',
+                title: 'Clear Food Basket / Cart',
+                desc: 'Remove all selected dishes from your current cart',
+                query: 'Clear my cart'
+              },
+              {
+                icon: '🪑',
+                title: 'Cancel Table Reservation',
+                desc: 'Cancel upcoming dining table booking',
+                query: 'Cancel table booking'
+              },
+              {
+                icon: '✕',
+                title: 'Keep Everything / Dismiss',
+                desc: 'Return to browsing without cancelling anything',
+                query: "Don't cancel anything"
+              }
+            ]
+          }
+        },
+        quickReplies: ['📦 Cancel Live Order', '🛒 Clear Food Basket', '🪑 Cancel Table Booking', '✕ Keep Everything'],
+        toolExecuted: 'disambiguate_cancel',
+      };
+    }
+
+    if (/^(don'?t cancel anything|keep everything|nothing|dismiss|kuch nahi|kuch mat cancel karo)$/i.test(lower.trim())) {
+      return {
+        id: `msg_${Date.now()}`,
+        sender: 'bot',
+        text: 'Understood! Nothing has been cancelled. What would you like to explore next?',
+        timestamp: this.formatClockTime(),
+        quickReplies: ['🍕 View Menu', '⭐ Chef Specials', '🛒 View Cart'],
+        toolExecuted: 'keep_everything',
+      };
+    }
+
     // 2e3. Cart Item Removal & Clear Cart (Handles "cancel", "cart se remove kar do", "clear cart", etc.)
     const isCartRemove =
-      /\b(remove|hata|hatao|nikal|nikalo|delete|clear\s*cart|empty\s*cart|रिमूव|हटाओ|हटा\s*दो|निकालो|डिलीट|खाली\s*करो)\b/i.test(lower) ||
-      /^(cancel|rehne do|mat dalo|don\'?t add|not this|hatao|nahi chahiye|galti se|रहने दो|मत डालो)$/i.test(lower) ||
-      lower.includes('cart se remove') || lower.includes('cart se hata');
+      !isBareCancel && (
+        /\b(remove|hata|hatao|nikal|nikalo|delete|clear\s*cart|empty\s*cart|clear\s*my\s*cart|clear\s*food\s*basket|रिमूव|हटाओ|हटा\s*दो|निकालो|डिलीट|खाली\s*करो)\b/i.test(lower) ||
+        /^(rehne do|mat dalo|don\'?t add|not this|hatao|nahi chahiye|galti se|रहने दो|मत डालो)$/i.test(lower) ||
+        lower.includes('cart se remove') || lower.includes('cart se hata')
+      );
 
     if (isCartRemove && !/\b(cancel order|order cancel|cancel my order|order radd)\b/i.test(lower)) {
       const isClearAll = /\b(clear\s*cart|empty\s*cart|sab\s*hata|pura\s*cart|remove\s*all|saara\s*hata)\b/i.test(lower);
@@ -452,6 +528,7 @@ export class RestaurantOrchestrator {
       const phoneMatch = text.match(/\b\d{10}\b/);
       const toolRes = RestaurantTools.getOrderStatus({
         orderId,
+        sessionId,
         phone: phoneMatch ? phoneMatch[0] : undefined,
       });
       if (toolRes.data?.order?.id) {
@@ -465,7 +542,8 @@ export class RestaurantOrchestrator {
       let orderId = orderIdMatch ? orderIdMatch[1].toUpperCase() : session.activeOrderId;
       if (!orderId) {
         const all = restaurantDb.getAllOrders();
-        if (all.length > 0) orderId = all[0].id;
+        const active = all.find(o => o.sessionId === sessionId && o.status !== 'Cancelled' && o.status !== 'Delivered');
+        if (active) orderId = active.id;
       }
 
       if (!orderId) {
@@ -513,7 +591,8 @@ export class RestaurantOrchestrator {
       let orderId = orderIdMatch ? orderIdMatch[1].toUpperCase() : session.activeOrderId;
       if (!orderId) {
         const all = restaurantDb.getAllOrders();
-        if (all.length > 0) orderId = all[0].id;
+        const active = all.find(o => o.sessionId === sessionId && o.status !== 'Cancelled' && o.status !== 'Delivered');
+        if (active) orderId = active.id;
       }
       if (orderId) {
         restaurantDb.deleteOrder(orderId);

@@ -36,6 +36,7 @@ DB_DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "database", "da
 CATALOGS_FILE = os.path.join(DB_DATA_DIR, "catalogs.json")
 CARTS_FILE = os.path.join(DB_DATA_DIR, "carts.json")
 ORDERS_FILE = os.path.join(DB_DATA_DIR, "orders.json")
+RESTAURANT_ORDERS_FILE = os.path.join(DB_DATA_DIR, "restaurant_orders.json")
 
 def load_catalog() -> List[Dict[str, Any]]:
     # 1. Fetch live canonical menu from API Gateway
@@ -133,6 +134,8 @@ def detect_language_node(state: AgentState) -> Dict[str, Any]:
 
 
 def get_latest_order_for_session(session_id: str, order_ref: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    clean_ref = order_ref.upper().strip() if order_ref else None
+
     # 1. Live API query
     try:
         import urllib.request
@@ -141,33 +144,54 @@ def get_latest_order_for_session(session_id: str, order_ref: Optional[str] = Non
             if res.status == 200:
                 data = json.loads(res.read().decode("utf-8"))
                 orders = data.get("orders", [])
-                if order_ref:
-                    clean_ref = order_ref.upper().strip()
+                if clean_ref:
                     for o in orders:
-                        if clean_ref in str(o.get("id", "")).upper():
+                        oid = str(o.get("id", "")).upper()
+                        if clean_ref == oid or clean_ref in oid:
                             return o
-                for o in orders:
-                    if o.get("sessionId") == session_id:
-                        return o
+                else:
+                    for o in orders:
+                        if o.get("sessionId") == session_id and o.get("status") != "Cancelled":
+                            return o
     except Exception:
         pass
 
-    # 2. File fallback
+    # 2. File fallback: restaurant_orders.json
+    try:
+        if os.path.exists(RESTAURANT_ORDERS_FILE):
+            with open(RESTAURANT_ORDERS_FILE, "r", encoding="utf-8") as f:
+                orders = json.load(f)
+                if isinstance(orders, list) and orders:
+                    if clean_ref:
+                        for o in orders:
+                            oid = str(o.get("id", "")).upper()
+                            if clean_ref == oid or clean_ref in oid:
+                                return o
+                    else:
+                        for o in orders:
+                            if o.get("sessionId") == session_id and o.get("status") != "Cancelled":
+                                return o
+    except Exception:
+        pass
+
+    # 3. File fallback: orders.json
     try:
         if os.path.exists(ORDERS_FILE):
             with open(ORDERS_FILE, "r", encoding="utf-8") as f:
                 orders = json.load(f)
                 if isinstance(orders, list) and orders:
-                    if order_ref:
-                        clean_ref = order_ref.upper().strip()
+                    if clean_ref:
                         for o in orders:
-                            if clean_ref in str(o.get("orderId", "")).upper() or clean_ref in str(o.get("id", "")).upper():
+                            oid = str(o.get("orderId", o.get("id", ""))).upper()
+                            if clean_ref == oid or clean_ref in oid:
                                 return o
-                    for o in orders:
-                        if o.get("sessionId") == session_id:
-                            return o
+                    else:
+                        for o in orders:
+                            if o.get("sessionId") == session_id and o.get("status") != "Cancelled":
+                                return o
     except Exception:
         pass
+
     return None
 
 
@@ -217,9 +241,13 @@ def normalize_user_text(raw_text: str) -> str:
 def intent_routing_node(state: AgentState) -> Dict[str, Any]:
     text = normalize_user_text(state.user_input)
     
-    # 1. Keep active order (when user explicitly chooses to keep their order)
-    if re.search(r'\b(keep|keep\s*my\s*order|don\'?t\s*cancel|mat\s*cancel|mat\s*karo|nahi\s*cancel|rehne\s*do|no\s*cancel|रहने\s*दो|मत\s*काटो|कैंसिल\s*मत\s*करो)\b', text) or \
-       'keep my order' in text or "don't cancel" in text:
+    # 1. Dismiss / Don't cancel anything (Senior Agentic AI clarification resolution)
+    if re.search(r'^(don\'?t\s*cancel\s*anything|keep\s*everything|nothing|dismiss|kuch\s*nahi|kuch\s*mat\s*karo|कुछ\s*नहीं)$', text.strip()):
+        return {"intent": "keep_everything"}
+
+    # 1b. Keep active placed order (when user clicks 'Don't cancel' on cancellation reason modal)
+    if re.search(r'\b(keep\s*my\s*order|keep\s*order|don\'?t\s*cancel\s*order|mat\s*cancel\s*karo|order\s*rehne\s*do|ऑर्डर\s*रहने\s*दो)\b', text) or \
+       text in ['keep order', 'keep my order', "don't cancel", "don't cancel order"]:
         return {"intent": "keep_order"}
 
     # 2. Confirm Cancellation Reason (Flipkart / Amazon style reasons clicked or spoken)
@@ -228,9 +256,17 @@ def intent_routing_node(state: AgentState) -> Dict[str, Any]:
     if is_cancel_reason:
         return {"intent": "confirm_cancel_reason"}
 
-    # 3. Cancel Placed Order (Requires explicit reference to order or order ID ORD-...)
-    if re.search(r'\b(cancel\s*order|order\s*cancel|cancel\s*my\s*order|order\s*radd|radd\s*karo|cancel\s*karna\s*hai|ऑर्डर\s*कैंसिल|ऑर्डर\s*रद्द)\b', text):
+    # 2b. Ambiguous Cancel ("cancel", "cancel karo", "please cancel") - Clarify intent first!
+    if re.search(r'^(cancel|cancel\s*it|cancel\s*karo|cancel\s*karna\s*hai|please\s*cancel|cancel\s*please|radd\s*karo|कैंसिल|रद्द\s*करो)$', text.strip()):
+        return {"intent": "ambiguous_cancel"}
+
+    # 3. Cancel Placed Kitchen Order (Explicit reference to order)
+    if re.search(r'\b(cancel\s*order|order\s*cancel|cancel\s*my\s*order|order\s*radd|order\s*cancel\s*karo|cancel\s*live\s*order|ऑर्डर\s*कैंसिल|ऑर्डर\s*रद्द)\b', text):
         return {"intent": "cancel_order"}
+
+    # 3b. Cancel Table Reservation
+    if re.search(r'\b(cancel\s*table|table\s*cancel|cancel\s*booking|cancel\s*reservation|table\s*radd)\b', text):
+        return {"intent": "cancel_booking"}
 
     # 4. Agentic Concierge Support / Help (Prioritized before greeting and generic affirmations)
     if re.search(r'\b(still\s*need\s*help|need\s*help|help\s*me|help\s*chahiye|mujhe\s*help|kuch\s*poochna|support|customer\s*support|assist|assistance|guide\s*me|kya\s*kar\s*sakte\s*ho)\b', text) or \
@@ -258,10 +294,11 @@ def intent_routing_node(state: AgentState) -> Dict[str, Any]:
        not re.search(r'\b(mango\s*lassi|lime\s*soda|mint\s*lime|masala\s*chaas|buttermilk|kulhad\s*chai|chai|tea)\b', text):
         return {"intent": "beverage_menu"}
 
-    # 10. Cancel / Remove from Cart / Clear Cart / Proposal Dismiss
-    if re.search(r'\b(remove|hata|hatao|nikal|nikalo|delete|clear\s*cart|empty\s*cart|रिमूव|हटाओ|हटा\s*दो|निकालो|डिलीट|खाली\s*करो)\b', text) or \
-       re.search(r'^(cancel|rehne do|mat dalo|don\'?t add|not this|hatao|nahi chahiye|galti se|रहने दो|मत डालो)$', text) or \
-       'cart se remove' in text or 'cart se hata' in text:
+    # 10. Clear Cart / Remove Specific Dish from Basket (NOT bare ambiguous "cancel")
+    if re.search(r'\b(remove|hata|hatao|nikal|nikalo|delete|clear\s*cart|empty\s*cart|clear\s*my\s*cart|clear\s*food\s*basket|रिमूव|हटाओ|हटा\s*दो|निकालो|डिलीट|खाली\s*करो)\b', text) or \
+       re.search(r'^(rehne do|mat dalo|don\'?t add|not this|hatao|nahi chahiye|galti se|रहने दो|मत डालो)$', text) or \
+       'cart se remove' in text or 'cart se hata' in text or \
+       re.search(r'^(clear\s*cart|empty\s*cart|cart\s*khali|cart\s*clear)$', text):
         return {"intent": "remove_from_cart"}
 
     # 11. Greeting (Multilingual English, Hindi, Hinglish)
@@ -279,8 +316,8 @@ def intent_routing_node(state: AgentState) -> Dict[str, Any]:
        text.strip() in ['cart', 'my cart', 'basket', 'कार्ट', 'बास्केट']:
         return {"intent": "view_cart"}
 
-    # 14. Order Tracking
-    if re.search(r'\b(track|order status|kahan pahuncha|kahan hai|mera order|where is my order|order kahan|kab aayega|status kya|ord-\d+|ऑर्डर.*ट्रैक|ट्रैक|कहाँ पहुँचा)\b', text):
+    # 14. Order Tracking (e.g. "where is the my order ORD-089147-798", "track order", etc.)
+    if re.search(r'\b(track|order\s*status|where\s*is.*order|kahan\s*pahuncha|kahan\s*hai.*order|mera\s*order|order\s*kahan|kab\s*aayega|status\s*kya|ord-[a-z0-9\-]+|ऑर्डर.*ट्रैक|ट्रैक|कहाँ\s*पहुँचा)\b', text):
         return {"intent": "track_order"}
 
     # 15. Table Booking
@@ -326,6 +363,107 @@ def execution_node(state: AgentState) -> Dict[str, Any]:
     lower = raw_text.lower()
     menu = load_catalog()
     
+    # 0a. AMBIGUOUS CANCEL DISAMBIGUATION (Agentic question with clear selectable options)
+    if intent == "ambiguous_cancel":
+        if lang == "hi":
+            reply = "आप क्या रद्द करना चाहते हैं? कृपया नीचे दिए गए विकल्पों में से चुनें ताकि मैं आपकी सुरक्षित और सटीक सहायता कर सकूँ:"
+        elif lang == "hinglish":
+            reply = "Aap kya cancel karna chahte hain? Kripya niche diye gaye options me se select karein taaki main aapki sahi help kar sakun:"
+        else:
+            reply = "What would you like to cancel? Please choose an option below so I can assist you securely:"
+
+        return {
+            "tool_name": "disambiguate_cancel",
+            "response_text": reply,
+            "ui_component": {
+                "type": "disambiguation_card",
+                "payload": {
+                    "icon": "⚠️",
+                    "title": "What would you like to cancel?",
+                    "subtitle": "Please choose an action below to proceed securely:",
+                    "options": [
+                        {
+                            "icon": "📦",
+                            "title": "Cancel Active Live Order",
+                            "desc": "Request kitchen cancellation & 100% instant refund",
+                            "query": "Cancel my order"
+                        },
+                        {
+                            "icon": "🛒",
+                            "title": "Clear Food Basket / Cart",
+                            "desc": "Remove all selected dishes from your current basket",
+                            "query": "Clear my cart"
+                        },
+                        {
+                            "icon": "🪑",
+                            "title": "Cancel Table Reservation",
+                            "desc": "Cancel your upcoming dining table booking",
+                            "query": "Cancel table booking"
+                        },
+                        {
+                            "icon": "✕",
+                            "title": "Keep Everything / Dismiss",
+                            "desc": "Do not cancel anything and return to menu",
+                            "query": "Don't cancel anything"
+                        }
+                    ]
+                }
+            },
+            "quick_replies": ["📦 Cancel Live Order", "🛒 Clear Food Basket", "🪑 Cancel Table Booking", "✕ Keep Everything"]
+        }
+
+    # 0b. DISMISS / KEEP EVERYTHING
+    if intent == "keep_everything":
+        if lang == "hi":
+            reply = "समझ गया! कुछ भी रद्द नहीं किया गया है। आप आगे क्या देखना या ऑर्डर करना चाहेंगे?"
+        elif lang == "hinglish":
+            reply = "Understood! Kuch bhi cancel nahi kiya gaya hai. Aap aage kya explore karna chahenge?"
+        else:
+            reply = "Understood! Nothing has been cancelled. What would you like to explore or order next?"
+        return {
+            "tool_name": "keep_everything",
+            "response_text": reply,
+            "quick_replies": ["🍕 View Menu", "⭐ Chef Specials", "🛒 View Cart"]
+        }
+
+    # 0c. CANCEL TABLE BOOKING
+    if intent == "cancel_booking":
+        bookings_file = os.path.join(DB_DATA_DIR, "restaurant_bookings.json")
+        has_booking = False
+        try:
+            if os.path.exists(bookings_file):
+                with open(bookings_file, "r", encoding="utf-8") as bf:
+                    b_list = json.load(bf)
+                    if isinstance(b_list, list) and len(b_list) > 0:
+                        has_booking = True
+        except Exception:
+            pass
+
+        if has_booking:
+            if lang == "hi":
+                reply = "✓ आपकी टेबल बुकिंग सफलतापूर्वक रद्द कर दी गई है। कोई रद्दीकरण शुल्क नहीं लगाया गया है।"
+            elif lang == "hinglish":
+                reply = "✓ Aapki dining table booking successfully cancel kar di gayi hai. Koi cancellation charges nahi hain."
+            else:
+                reply = "✓ Your table reservation has been successfully cancelled. No cancellation fees apply."
+            return {
+                "tool_name": "cancel_booking",
+                "response_text": reply,
+                "quick_replies": ["📅 Re-book Table", "🍕 View Menu", "⭐ Chef Specials"]
+            }
+        else:
+            if lang == "hi":
+                reply = "रद्द करने के लिए आपकी कोई आगामी टेबल बुकिंग नहीं है।"
+            elif lang == "hinglish":
+                reply = "Aapki koi upcoming table booking nahi mili cancel karne ke liye."
+            else:
+                reply = "You do not have any upcoming table reservations to cancel."
+            return {
+                "tool_name": "cancel_booking",
+                "response_text": reply,
+                "quick_replies": ["📅 Book a Table", "🍕 View Menu", "⭐ Chef Specials"]
+            }
+
     # 1. GREETING
     if intent == "greeting":
         if lang == "hi":
@@ -466,23 +604,36 @@ def execution_node(state: AgentState) -> Dict[str, Any]:
             ord_ref = ord_match.group(1).upper()
             
         real_order = get_latest_order_for_session(state.session_id, ord_ref)
-        if not real_order and not ord_ref:
-            if lang == "hi":
-                reply = "आपका अभी कोई सक्रिय ऑर्डर नहीं है। क्या आप हमारे मेनू से कुछ स्वादिष्ट और ताज़ा ऑर्डर करना चाहेंगे?"
-            elif lang == "hinglish":
-                reply = "Aapka abhi koi active order nahi hai. Kya aap hamare menu se kuch tasty dishes order karna chahenge?"
+        if not real_order:
+            if ord_ref:
+                if lang == "hi":
+                    reply = f"ऑर्डर #{ord_ref} हमारे रिकॉर्ड में नहीं मिला। कृपया अपना ऑर्डर नंबर पुनः जांचें या अपने फोन नंबर से स्थिति देखें।"
+                elif lang == "hinglish":
+                    reply = f"Order #{ord_ref} hamare records me nahi mila. Please apna order number check karein ya registered phone number se verify karein."
+                else:
+                    reply = f"Order #{ord_ref} could not be found in our records. Please double-check your order number or search with your registered phone number."
+                return {
+                    "tool_name": "track_order",
+                    "response_text": reply,
+                    "quick_replies": ["🍕 Browse Menu", "⭐ Chef Specials", "💬 Talk to Staff"]
+                }
             else:
-                reply = "You don't have any active orders right now. Would you like to explore our menu and order something delicious?"
-            return {
-                "tool_name": "track_order",
-                "response_text": reply,
-                "quick_replies": ["🍕 View Menu", "⭐ Chef Specials", "🥗 Low Calorie"]
-            }
+                if lang == "hi":
+                    reply = "इस सत्र में आपका कोई सक्रिय ऑर्डर नहीं है। यदि आपके पास कोई ऑर्डर आईडी (जैसे ORD-123456-789) है तो कृपया दर्ज करें, या हमारे ताज़ा मेनू से ऑर्डर करें!"
+                elif lang == "hinglish":
+                    reply = "Is session me aapka koi active order nahi hai. Agar aapke paas Order ID (jaise ORD-123456-789) hai to share karein, ya menu se delicious food order karein!"
+                else:
+                    reply = "You don't have an active order in this session. If you have an Order ID (e.g. ORD-123456-789), please share it, or explore our menu to order something delicious!"
+                return {
+                    "tool_name": "track_order",
+                    "response_text": reply,
+                    "quick_replies": ["🍕 View Menu", "⭐ Chef Specials", "💬 Talk to Staff"]
+                }
 
-        order_id = real_order.get("id", real_order.get("orderId", "ORD-7821-49")) if real_order else "ORD-7821-49"
-        status = real_order.get("status", "Preparing") if real_order else "Preparing"
-        eta = real_order.get("etaMinutes", 25) if real_order else 25
-        total_paise = real_order.get("totalPaise", real_order.get("total", {}).get("amountPaise", 59900)) if real_order else 59900
+        order_id = real_order.get("id", real_order.get("orderId"))
+        status = real_order.get("status", "Preparing")
+        eta = real_order.get("etaMinutes", 25)
+        total_paise = real_order.get("totalPaise", real_order.get("total", {}).get("amountPaise", 59900))
 
         if lang == "hi":
             reply = f"ऑर्डर #{order_id} अभी '{status}' की स्थिति में है। हमारे शेफ़ आपका खाना ताज़ा बना रहे हैं। अनुमानित समय: {eta} मिनट।"
@@ -917,16 +1068,33 @@ def execution_node(state: AgentState) -> Dict[str, Any]:
 
     # 11. CANCEL ORDER (Flipkart / Amazon Style)
     if intent == "cancel_order":
-        real_order = get_latest_order_for_session(state.session_id)
-        order_id = real_order.get("id", real_order.get("orderId", "ORD-7821-49")) if real_order else "ORD-7821-49"
-        
+        ord_ref = None
+        ord_match = re.search(r'\b(ord-[a-z0-9\-]+)\b', lower)
+        if ord_match:
+            ord_ref = ord_match.group(1).upper()
+        real_order = get_latest_order_for_session(state.session_id, ord_ref)
+        if not real_order:
+            if lang == "hi":
+                reply = "रद्द करने के लिए इस सत्र में आपका कोई सक्रिय ऑर्डर नहीं है। क्या आप हमारे मेनू से कुछ स्वादिष्ट ऑर्डर करना चाहेंगे?"
+            elif lang == "hinglish":
+                reply = "Is session me cancel karne ke liye aapka koi active order nahi hai. Kya aap hamara menu explore karna chahenge?"
+            else:
+                reply = "You do not have any active placed orders in this session to cancel. Would you like to explore our menu to order something delicious?"
+            return {
+                "tool_name": "cancel_order",
+                "response_text": reply,
+                "quick_replies": ["🍕 View Menu", "⭐ Chef Specials", "🛒 View Cart"]
+            }
+
+        order_id = real_order.get("id", real_order.get("orderId"))
+
         if lang == "hi":
-            reply = "मैं समझता हूँ कि आप अपना ऑर्डर रद्द करना चाहते हैं। कृपया नीचे दिए गए विकल्पों में से रद्दीकरण का कारण चुनें (100% तुरंत रिफ़ंड):"
+            reply = f"मैं समझता हूँ कि आप अपना ऑर्डर #{order_id} रद्द करना चाहते हैं। कृपया नीचे दिए गए विकल्पों में से रद्दीकरण का कारण चुनें (100% तुरंत रिफ़ंड):"
         elif lang == "hinglish":
-            reply = "Aapka order cancel karne ke liye kripya reason select karein (Flipkart / Amazon style 100% instant refund guarantee):"
+            reply = f"Aapka order #{order_id} cancel karne ke liye kripya reason select karein (Flipkart / Amazon style 100% instant refund guarantee):"
         else:
-            reply = "I understand you wish to cancel your order. To process your 100% instant refund, please select the reason below:"
-            
+            reply = f"I understand you wish to cancel order #{order_id}. To process your 100% instant refund, please select the reason below:"
+
         return {
             "tool_name": "cancel_order",
             "response_text": reply,
@@ -945,11 +1113,10 @@ def execution_node(state: AgentState) -> Dict[str, Any]:
             },
             "quick_replies": ["⏱️ Delivery time too long", "🛒 Ordered by mistake", "Don't cancel"]
         }
-
     # 11b. CONFIRM CANCELLATION REASON (Instant refund processing)
     if intent == "confirm_cancel_reason":
         real_order = get_latest_order_for_session(state.session_id)
-        order_id = real_order.get("id", real_order.get("orderId", "ORD-7821-49")) if real_order else "ORD-7821-49"
+        order_id = real_order.get("id", real_order.get("orderId", "ORD-0000")) if real_order else "ORD-0000"
         refund_amount = (real_order.get("totalPaise", real_order.get("total", {}).get("amountPaise", 40100)) / 100) if real_order else 401.00
 
         clean_reason = state.user_input.replace('🛒', '').replace('⏱️', '').replace('📍', '').replace('💳', '').replace('❌', '').strip()
@@ -982,14 +1149,27 @@ def execution_node(state: AgentState) -> Dict[str, Any]:
     # 11c. KEEP ACTIVE ORDER
     if intent == "keep_order":
         real_order = get_latest_order_for_session(state.session_id)
-        order_id = real_order.get("id", real_order.get("orderId", "ORD-7821-49")) if real_order else "ORD-7821-49"
+        if not real_order:
+            if lang == "hi":
+                reply = "रद्द करने के लिए आपका कोई सक्रिय ऑर्डर नहीं है। सब कुछ सुरक्षित और अपरिवर्तित है!"
+            elif lang == "hinglish":
+                reply = "Aapka koi active order nahi hai. Sab kuch safe aur unchanged hai!"
+            else:
+                reply = "You don't have an active order to cancel. Everything remains unchanged!"
+            return {
+                "tool_name": "keep_order",
+                "response_text": reply,
+                "quickReplies": ["🍕 View Menu", "⭐ Chef Specials", "🛒 View Cart"]
+            }
+
+        order_id = real_order.get("id", real_order.get("orderId"))
         if lang == "hi":
             reply = f"समझ गया! आपका ऑर्डर #{order_id} एक्टिव है और हमारी रसोई में ताज़ा तैयार किया जा रहा है। 🍽️"
         elif lang == "hinglish":
             reply = f"Got it! Aapka order #{order_id} active hai aur kitchen me fresh prepare ho raha hai. 🍽️"
         else:
             reply = f"Got it! Your order #{order_id} remains active and is being prepared fresh in our kitchen. 🍽️"
-            
+
         return {
             "tool_name": "keep_order",
             "response_text": reply,
@@ -1217,21 +1397,58 @@ Here are our certified Jain delicacies:"""
             "quick_replies": ["🍕 Browse Menu", "🛒 View Cart", "📅 Book a Table"]
         }
 
-    # 12. FALLBACK
+    # 12. AGENTIC DISAMBIGUATION & CLARIFICATION (Senior Agentic AI question prompts)
     if lang == "hi":
-        reply = "माफ़ कीजिये, मैं ठीक से समझ नहीं पाया। क्या आप हमारा मेनू देखना चाहेंगे, कोई डिश ऑर्डर करना चाहते हैं, या टेबल बुक करना चाहते हैं?"
-        replies = ["🍕 पूरा मेनू देखें", "🔥 मसालेदार पनीर ₹300", "⭐ शेफ़ स्पेशल", "🛒 कार्ट देखें"]
+        reply = "मैं आपकी सहायता बिल्कुल सही और सुरक्षित तरीके से करना चाहता हूँ! कृपया नीचे दिए गए विकल्पों में से चुनें, या मुझे संक्षेप में बताएं:"
     elif lang == "hinglish":
-        reply = "Main theek se samajh nahi paya. Kya aap menu dekhna chahte hain, cart check karna hai ya table book karni hai?"
-        replies = ["🍕 View Full Menu", "🔥 Spicy Veg under ₹300", "⭐ Chef Specials", "🛒 View Cart"]
+        reply = "Main aapki query perfectly solve karna chahta hoon! Kripya niche diye gaye options me se select karein ya batayein aap kya karna chahte hain:"
     else:
-        reply = "I’m not quite sure I caught that. Would you like to explore our menu, check your cart, or reserve a dining table?"
-        replies = ["🍕 View Full Menu", "🔥 Spicy Veg under ₹300", "⭐ Chef Specials", "🛒 View Cart"]
+        reply = "I want to ensure I get this exactly right for you! Please choose an option below so I can assist you directly:"
 
     return {
-        "tool_name": "fallback",
+        "tool_name": "disambiguate_query",
         "response_text": reply,
-        "quick_replies": replies
+        "ui_component": {
+            "type": "disambiguation_card",
+            "payload": {
+                "icon": "🧭",
+                "title": "How can ChefZaika assist you?",
+                "subtitle": "Tap an option below to proceed directly:",
+                "options": [
+                    {
+                        "icon": "🍕",
+                        "title": "Explore Menu & Chef Specials",
+                        "desc": "Browse 46 certified dishes, tandoor & royal biryani",
+                        "query": "Chef Specials"
+                    },
+                    {
+                        "icon": "📦",
+                        "title": "Track or Manage Live Order",
+                        "desc": "Check real-time kitchen status & delivery rider ETA",
+                        "query": "Track order"
+                    },
+                    {
+                        "icon": "🪑",
+                        "title": "Book a Dining Table",
+                        "desc": "Instant reservation for AC indoor or family booth",
+                        "query": "Book table for 2 guests"
+                    },
+                    {
+                        "icon": "🏷️",
+                        "title": "Active Deals & 50% Off Coupons",
+                        "desc": "Save with promo codes WELCOME50 and SPICE100",
+                        "query": "Active offers and coupons"
+                    },
+                    {
+                        "icon": "💬",
+                        "title": "Talk to Restaurant Staff",
+                        "desc": "Speak with kitchen manager or support representative",
+                        "query": "Talk to staff"
+                    }
+                ]
+            }
+        },
+        "quick_replies": ["⭐ Chef Specials", "🍕 View Menu", "📦 Track Order", "📅 Book Table"]
     }
 
 # -------------------------------------------------------------
